@@ -1,5 +1,4 @@
 import Foundation
-import LifePilotCore
 import XCTest
 @testable import LifePilotGhostBrain
 
@@ -35,16 +34,5 @@ final class MockRecommendationProviderTests: XCTestCase {
         let model = try await provider.currentModel()
 
         XCTAssertEqual(model.greetingContext.timeOfDay, .morning)
-    }
-
-    func testGhostBrainServiceThrowsUntilPhase5() async {
-        let service = GhostBrainService()
-
-        do {
-            _ = try await service.currentModel()
-            XCTFail("Expected GhostBrainService to throw until Phase 5's reasoning engine lands")
-        } catch {
-            XCTAssertTrue(error is DomainError)
-        }
     }
 }

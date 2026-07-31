@@ -1,6 +1,6 @@
 import Foundation
 
-/// A user task or reminder. Distinct from `DaySignal` — a `TaskItem` is
+/// A user task or reminder. Distinct from `DaySignal` - a `TaskItem` is
 /// something the user owns and can complete directly, not just an observed
 /// fact for Ghost Brain to reason over.
 public struct TaskItem: Identifiable, Hashable, Sendable {

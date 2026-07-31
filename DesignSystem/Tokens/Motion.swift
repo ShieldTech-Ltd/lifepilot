@@ -4,7 +4,7 @@ import SwiftUI
 /// transitions are short (150–250ms) and use standard easing; anything
 /// longer needs a specific justification tied to what it's communicating."
 public enum Motion {
-    /// The default transition for most UI state changes — card appearance,
+    /// The default transition for most UI state changes - card appearance,
     /// selection state, sheet content changes.
     public static let standard = Animation.easeInOut(duration: 0.2)
 
@@ -18,17 +18,17 @@ public enum Motion {
     public static let deliberate = Animation.easeInOut(duration: 0.35)
 
     /// A springy transition for content that should feel alive when it
-    /// appears — new cards, approved actions. Used more sparingly than
+    /// appears - new cards, approved actions. Used more sparingly than
     /// `standard`, since spring motion carries more visual weight.
     public static let spring = Animation.spring(response: 0.4, dampingFraction: 0.75)
 
     /// The press-down feedback used by `PrimaryButtonStyle` and
-    /// `SecondaryButtonStyle` — quick enough to feel responsive to touch.
+    /// `SecondaryButtonStyle` - quick enough to feel responsive to touch.
     public static let press = Animation.easeOut(duration: 0.12)
 
     /// A continuous, repeating animation for loading states
     /// (`LoadingSkeleton`). Reduce Motion turns the shimmer into a static
-    /// state instead of looping indefinitely — see
+    /// state instead of looping indefinitely - see
     /// `View.lifePilotAnimation(_:reduceMotion:value:)`.
     public static let loading = Animation.easeInOut(duration: 1.1).repeatForever(autoreverses: true)
 }

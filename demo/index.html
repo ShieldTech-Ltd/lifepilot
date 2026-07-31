@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>LifePilot — Demo</title>
-<meta name="description" content="LifePilot — the AI operating system that prepares your day before you ask. Interactive product demo.">
+<title>LifePilot - Demo</title>
+<meta name="description" content="LifePilot - the AI operating system that prepares your day before you ask. Interactive product demo.">
 <meta name="theme-color" content="#05050f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2305050f'/%3E%3Cpath d='M50 22L57 43L78 50L57 57L50 78L43 57L22 50L43 43Z' fill='%23a855f7'/%3E%3C/svg%3E">
-<meta property="og:title" content="LifePilot — AI that prepares your day">
-<meta property="og:description" content="Your calendar, inbox, weather, travel and priorities — understood, predicted and prepared by one intelligence layer.">
+<meta property="og:title" content="LifePilot - AI that prepares your day">
+<meta property="og:description" content="Your calendar, inbox, weather, travel and priorities - understood, predicted and prepared by one intelligence layer.">
 <meta property="og:type" content="website">
 <style>
   :root {
@@ -347,7 +347,7 @@
   @keyframes fabIn { from { opacity: 0; transform: scale(0.4) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
   @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(1.5); opacity: 0; } }
 
-  /* Capture sheet — sample "screenshots" to scan */
+  /* Capture sheet - sample "screenshots" to scan */
   .capture-intro { font-size: 0.85rem; color: var(--ink-dim); font-weight: 500; margin-bottom: 1rem; line-height: 1.5; }
   .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
   .photo-card { position: relative; border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid var(--panel-border); aspect-ratio: 4/3; display: flex; flex-direction: column; justify-content: flex-end; padding: 0.7rem; transition: transform 0.15s ease, border-color 0.15s ease; }
@@ -371,7 +371,7 @@
   .scan-status .dot-spin { width: 14px; height: 14px; border: 2px solid rgba(56,189,248,0.3); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Parsed-reminder review (edit before confirm — matches approval philosophy) */
+  /* Parsed-reminder review (edit before confirm - matches approval philosophy) */
   .parsed-confidence { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; font-weight: 700; color: var(--success); background: rgba(52,211,153,0.14); padding: 0.25rem 0.6rem; border-radius: 999px; margin-bottom: 0.7rem; }
   .field-row { display: flex; align-items: center; gap: 0.7rem; background: var(--panel-2); border: 1px solid var(--panel-border); border-radius: 14px; padding: 0.7rem 0.85rem; margin-bottom: 0.6rem; }
   .field-row .f-ico { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; }
@@ -575,27 +575,27 @@
 <script>
   /* ============ STATE (fake data, real mutation) ============ */
   const state = {
-    user: 'Tanvir',
+    user: 'Ritik',
     recommendations: [
-      { id: 'r1', icon: '🚗', title: 'Leave 15 minutes earlier', why: 'Traffic is 34% heavier than normal on your route.', badge: 'high',
-        detail: { meta: [['🚦','Traffic is 34% heavier than normal'], ['🌧️','Rain begins at 08:40']],
-          benefits: ['Arrive on time', 'Avoid rain', 'Less stress'] }, approved: false },
-      { id: 'r2', icon: '☔', title: 'Rain before your commute', why: 'Bring an umbrella — 60% chance from 08:40.', badge: 'med',
+      { id: 'r1', icon: '🚇', title: 'Leave 15 minutes earlier', why: 'Minor delays may affect your route to International House.', badge: 'high',
+        detail: { meta: [['🚇','Minor delays on your usual route'], ['🌧️','Rain begins at 08:40']],
+          benefits: ['Reach campus on time', 'Avoid rain', 'Less stress'] }, approved: false },
+      { id: 'r2', icon: '☔', title: 'Rain before your commute', why: 'Bring an umbrella - 60% chance from 08:40.', badge: 'med',
         detail: { meta: [['🌧️','60% chance of rain starting 08:40'], ['🌡️','17°C, feels like 15°C']],
           benefits: ['Stay dry', 'No last-minute scramble'] }, approved: false },
-      { id: 'r3', icon: '👥', title: 'Team meeting in 2 hours', why: 'Prep notes from last sync are ready to review.', badge: 'med',
-        detail: { meta: [['📋','3 open action items from last meeting'], ['⏱️','Starts 09:00, 30 min']],
+      { id: 'r3', icon: '🎓', title: 'TechFest rehearsal in 2 hours', why: 'Your project checklist and speaking notes are ready.', badge: 'med',
+        detail: { meta: [['📋','3 open actions before the showcase'], ['⏱️','Starts 14:00, 45 min']],
           benefits: ['Walk in prepared', 'No forgotten follow-ups'] }, approved: false },
-      { id: 'r4', icon: '💳', title: 'Adobe renews today', why: '$52.99 charge expected — flagged for your review.', badge: 'high',
-        detail: { meta: [['💳','$52.99 renewal expected today'], ['📊','3rd price increase this year']],
+      { id: 'r4', icon: '💳', title: 'Cloud storage renews today', why: '£2.99 charge expected - flagged for your review.', badge: 'high',
+        detail: { meta: [['💳','£2.99 renewal expected today'], ['📊','Student budget impact: low']],
           benefits: ['No surprise charge', 'Chance to cancel first'] }, approved: false },
     ],
     timeline: [
-      { time: '08:30', title: 'Leave Home', sub: null, done: false, tag: null },
-      { time: '09:00', title: 'Team Meeting', sub: 'Project Phoenix', done: false, tag: null },
-      { time: '13:00', title: 'Lunch with Sarah', sub: null, done: false, tag: null },
-      { time: '15:30', title: 'Client Presentation', sub: 'Prep time: 45 min', done: false, tag: null },
-      { time: '18:00', title: 'Gym', sub: 'Upper Body', done: false, tag: null },
+      { time: '08:30', title: 'Travel to campus', sub: 'International House', done: false, tag: null },
+      { time: '09:00', title: 'Algorithms Lecture', sub: 'Room 2.04', done: false, tag: null },
+      { time: '12:00', title: 'Lunch with Maya', sub: 'Spitalfields Market', done: false, tag: null },
+      { time: '14:00', title: 'TechFest Demo Rehearsal', sub: 'Room 4.01', done: false, tag: null },
+      { time: '16:00', title: 'Portfolio Review', sub: 'Library Study Zone', done: false, tag: null },
     ],
     insights: [
       { label: 'Time saved this week', value: '4.5 hrs', up: true },
@@ -604,10 +604,10 @@
       { label: 'Recommendations approved', value: '0', up: false, id: 'approvedCount' },
     ],
     memory: [
-      { av: '👩', name: 'Sarah Chen', detail: 'Lunch partner · met 8 times' },
-      { av: '👨', name: 'Priya Patel', detail: 'Design lead · 1:1 every Thursday' },
-      { av: '🏢', name: 'Lincoln Elementary', detail: 'School pickup · daily 2:00 PM' },
-      { av: '✈️', name: 'United Airlines', detail: 'Preferred carrier · 12 trips' },
+      { av: '👩‍🏫', name: 'Dr Sarah Ahmed', detail: 'Course tutor · TechFest follow-ups' },
+      { av: '👩', name: 'Maya Patel', detail: 'LifePilot teammate · regular collaborator' },
+      { av: '🏫', name: 'International House', detail: 'Primary campus · London' },
+      { av: '🚆', name: 'Avanti West Coast', detail: 'Frequent UK rail operator' },
     ],
     activeRecId: null,
     currentTab: 'home',
@@ -622,7 +622,7 @@
       travel: { big: 'Leave in 15 min', small: 'Heavy traffic today' },
       email: { big: '2 Important', small: 'Requires your reply' },
       meeting: { big: 'Meeting in 2h', small: '10:00 – 11:00 AM' },
-      finance: { big: 'Adobe renews', small: '£52.99 · Annual Plan' },
+      finance: { big: 'Cloud storage renews', small: '£2.99 · Monthly Plan' },
       tasks: { big: `${5} tasks`, small: 'See all tasks' },
     },
   };
@@ -768,7 +768,7 @@
           <div class="big">${state.liveTiles.email.big}</div>
           <div class="small">${state.liveTiles.email.small}</div>
         </div>
-        <div class="stat-tile" id="tile-meeting" onclick="showToast('📅 Team Meeting · Project Phoenix · 09:00')">
+        <div class="stat-tile" id="tile-meeting" onclick="showToast('📅 Algorithms Lecture · Room 2.04 · 09:00')">
           <div class="top-row"><div class="icon-badge" style="background:rgba(52,211,153,0.14)">📅</div><div class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></div></div>
           <div class="big">${state.liveTiles.meeting.big}</div>
           <div class="small">${state.liveTiles.meeting.small}</div>
@@ -931,20 +931,20 @@
   /* ============ QUICK ACTION MODALS ============ */
   const QUICK_ACTION_CONTENT = {
     calendar: { badge: 'med', badgeLabel: "Today's Meetings", title: "Today's Meetings",
-      meta: [['📅','3 meetings scheduled today'], ['⏱️','Next: Team Meeting in 2h']],
-      rows: ['09:00 — Team Meeting · Project Phoenix', '13:00 — Lunch with Sarah', '15:30 — Client Presentation'] },
+      meta: [['📅','3 study events scheduled today'], ['⏱️','Next: Algorithms Lecture']],
+      rows: ['09:00 - Algorithms Lecture · Room 2.04', '12:00 - Lunch with Maya', '14:00 - TechFest Demo Rehearsal'] },
     travel: { badge: 'high', badgeLabel: 'Current Route', title: 'Current Route',
-      meta: [['🚦','Traffic 34% heavier than normal'], ['📍','Home → Office, 22 min']],
-      rows: ['Fastest route: via A40', 'Alternate: via Ring Road (+6 min)', 'Rain begins 08:40 — leave early'] },
+      meta: [['🚇','Minor delays on your usual route'], ['📍','Home → International House, 34 min']],
+      rows: ['Fastest route: Elizabeth line', 'Alternate: Central line (+8 min)', 'Rain begins 08:40 - leave early'] },
     finance: { badge: 'high', badgeLabel: 'Subscriptions', title: 'Subscriptions',
-      meta: [['💳','£52.99 Adobe renewal today'], ['📊','4 active subscriptions']],
-      rows: ['Adobe Creative Cloud — £52.99/mo', 'Spotify — £11.99/mo', 'iCloud+ — £2.99/mo'] },
+      meta: [['💳','£2.99 cloud storage renewal today'], ['📊','3 active subscriptions']],
+      rows: ['Cloud Storage - £2.99/mo', 'Spotify Student - £5.99/mo', 'GitHub Student - £0/mo'] },
     health: { badge: 'med', badgeLabel: "Today's Activity", title: "Today's Activity",
       meta: [['❤️','Resting heart rate 62 bpm'], ['🏃','4,120 steps so far today']],
-      rows: ['Gym — Upper Body, 18:00', 'Sleep last night: 7h 12m', 'Hydration: 3 of 8 glasses'] },
+      rows: ['Walk to campus - 34 min', 'Sleep last night: 7h 12m', 'Hydration: 3 of 8 glasses'] },
     memory: { badge: 'med', badgeLabel: 'Recent Notes', title: 'Recent Notes',
       meta: [['🧠','4 people remembered'], ['📝','Updated 2 days ago']],
-      rows: ['Sarah Chen — lunch partner, met 8 times', 'Priya Patel — design lead, Thursdays', 'Lincoln Elementary — pickup 2:00 PM'] },
+      rows: ['Dr Sarah Ahmed - course tutor', 'Maya Patel - LifePilot teammate', 'International House - London campus'] },
   };
 
   function openQuickAction(key) {
@@ -997,7 +997,7 @@
 
     if (showAnimation) {
       document.getElementById('approving-msg').textContent = 'Your day has been updated.';
-      document.getElementById('approving-sub').textContent = `${r.title} — done.`;
+      document.getElementById('approving-sub').textContent = `${r.title} - done.`;
       showView('view-approving');
       setTimeout(() => {
         const stillPending = state.recommendations.some(x => !x.approved);
@@ -1077,7 +1077,7 @@
 
       <div class="section-label fade-item in" style="margin:1.1rem 0 0.3rem"><div class="left">Alarm Sound</div></div>
       <div class="card fade-item in">
-        <div style="font-size:0.8rem;color:var(--ink-dim);font-weight:500;line-height:1.45;margin-bottom:0.2rem">Gentle, effective reminder tones — nothing noisy. Volume rises softly until you respond.</div>
+        <div style="font-size:0.8rem;color:var(--ink-dim);font-weight:500;line-height:1.45;margin-bottom:0.2rem">Gentle, effective reminder tones - nothing noisy. Volume rises softly until you respond.</div>
         <div class="tone-row">
           ${Object.entries(ALARM_TONES).map(([k, t]) => `<div class="tone-chip ${alarmTone === k ? 'sel' : ''}" onclick="selectTone('${k}')">${t.name}</div>`).join('')}
         </div>
@@ -1095,7 +1095,7 @@
     el.classList.toggle('on', settingsToggles[key]);
   }
 
-  /* ============ LIVE TRAINS — TfL Unified API ============ */
+  /* ============ LIVE TRAINS - TfL Unified API ============ */
   /* Calls the real, free TfL Unified API (api.tfl.gov.uk, CORS-enabled, no key
      required for basic use). Falls back to realistic sample data if the network
      or API is unavailable, so the demo never breaks. */
@@ -1154,7 +1154,7 @@
       if (fromUrl) { localStorage.setItem('tflAppKey', fromUrl); return fromUrl; }
       const fromLS = localStorage.getItem('tflAppKey');
       if (fromLS) return fromLS;
-    } catch (e) { /* storage blocked — fall through to anonymous */ }
+    } catch (e) { /* storage blocked - fall through to anonymous */ }
     return TFL.appKey || '';
   }
 
@@ -1259,7 +1259,7 @@
     const rows = st.arrivals.slice(0, 3).map((a, i) => arrRow(a, 'h', i)).join('');
     const disrupted = st.status.filter(s => s.sev !== 'good').slice(0, 2);
     const alert = disrupted.length
-      ? `<div class="tfl-alert"><span class="a-ico">⚠️</span><span class="a-txt"><b>${esc(disrupted.map(d => d.name).join(', '))}</b> — ${esc(disrupted[0].status.toLowerCase())}. Tap for details.</span></div>`
+      ? `<div class="tfl-alert"><span class="a-ico">⚠️</span><span class="a-txt"><b>${esc(disrupted.map(d => d.name).join(', '))}</b> - ${esc(disrupted[0].status.toLowerCase())}. Tap for details.</span></div>`
       : '';
     el.innerHTML = `
       <div class="tfl-head">
@@ -1340,7 +1340,7 @@
   }
 
   /* ============ AI REMINDER: SOUND ENGINE (Web Audio) ============ */
-  /* Pleasant, non-noisy alarm tones synthesised on the fly — a soft ascending
+  /* Pleasant, non-noisy alarm tones synthesised on the fly - a soft ascending
      arpeggio with gentle attack and long decay, gradually escalating in volume. */
   let _audioCtx = null;
   let alarmTone = 'aurora';
@@ -1414,15 +1414,15 @@
       alarmTime: '2:30 PM',
     },
     concert: {
-      emoji: '🎟️', kind: 'Ticket', line: 'Coldplay — Live',
+      emoji: '🎟️', kind: 'Ticket', line: 'Coldplay - Live',
       bg: 'linear-gradient(150deg,#7c3aed,#4c1d95)',
-      parsed: { title: 'Coldplay — Music of the Spheres', when: 'Sat 14 Jul · 8:00 PM', where: 'Wembley Stadium · Block 121', who: 'Doors open 6:30 PM' },
+      parsed: { title: 'Coldplay - Music of the Spheres', when: 'Sat 14 Jul · 8:00 PM', where: 'Wembley Stadium · Block 121', who: 'Doors open 6:30 PM' },
       alarmTime: '8:00 PM',
     },
     flight: {
       emoji: '✈️', kind: 'Boarding pass', line: 'Flight BA 208',
       bg: 'linear-gradient(150deg,#1d4ed8,#1e3a8a)',
-      parsed: { title: 'Flight BA 208 → New York (JFK)', when: 'Fri 13 Jul · 6:15 AM', where: 'Heathrow T5 · Gate A12', who: 'Seat 14C · Check-in closes 5:15 AM' },
+      parsed: { title: 'Flight BA 1442 → Edinburgh (EDI)', when: 'Fri 13 Jul · 06:15', where: 'Heathrow T5 · Gate A12', who: 'Seat 14C · Check-in closes 05:15' },
       alarmTime: '6:15 AM',
     },
   };
@@ -1445,7 +1445,7 @@
     scanSheetShell(`
       <span class="sheet-badge med">AI Capture</span>
       <h2>Scan into a reminder</h2>
-      <div class="capture-intro">Snap or upload a photo of an appointment, ticket, invite or note. LifePilot reads it and builds a reminder set to the exact time — then rings like an alarm.</div>
+      <div class="capture-intro">Snap or upload a photo of an appointment, ticket, invite or note. LifePilot reads it and builds a reminder set to the exact time - then rings like an alarm.</div>
       <div class="photo-grid">
         ${cards}
         <div class="photo-card upload" onclick="document.getElementById('scan-file').click()">
@@ -1593,11 +1593,11 @@
   function restart() {
     state.recommendations.forEach(r => r.approved = false);
     state.timeline = [
-      { time: '08:30', title: 'Leave Home', sub: null, done: false, tag: null },
-      { time: '09:00', title: 'Team Meeting', sub: 'Project Phoenix', done: false, tag: null },
-      { time: '13:00', title: 'Lunch with Sarah', sub: null, done: false, tag: null },
-      { time: '15:30', title: 'Client Presentation', sub: 'Prep time: 45 min', done: false, tag: null },
-      { time: '18:00', title: 'Gym', sub: 'Upper Body', done: false, tag: null },
+      { time: '08:30', title: 'Travel to campus', sub: 'International House', done: false, tag: null },
+      { time: '09:00', title: 'Algorithms Lecture', sub: 'Room 2.04', done: false, tag: null },
+      { time: '12:00', title: 'Lunch with Maya', sub: 'Spitalfields Market', done: false, tag: null },
+      { time: '14:00', title: 'TechFest Demo Rehearsal', sub: 'Room 4.01', done: false, tag: null },
+      { time: '16:00', title: 'Portfolio Review', sub: 'Library Study Zone', done: false, tag: null },
     ];
     const insight = state.insights.find(i => i.id === 'approvedCount');
     if (insight) { insight.value = '0'; insight.up = false; }
@@ -1650,7 +1650,7 @@
     travel: [{ big: 'Leave in 15 min', small: 'Heavy traffic today' }, { big: 'Leave in 18 min', small: 'Traffic increased' }, { big: 'Leave now', small: 'Route recalculated' }],
     email: [{ big: '2 Important', small: 'Requires your reply' }, { big: '3 Important', small: 'One requires reply' }, { big: '3 Important', small: 'Reply before 11 AM' }],
     meeting: [{ big: 'Meeting in 2h', small: '10:00 – 11:00 AM' }, { big: 'Starts in 1h 52m', small: '10:00 – 11:00 AM' }, { big: 'Meeting confirmed', small: 'Room 4B · 10:00 AM' }],
-    finance: [{ big: 'Adobe renews', small: '£52.99 · Annual Plan' }, { big: 'Payment due tomorrow', small: 'Adobe · £52.99' }],
+    finance: [{ big: 'Cloud storage renews', small: '£2.99 · Monthly Plan' }, { big: 'Payment due tomorrow', small: 'Cloud Storage · £2.99' }],
     tasks: [{ big: `${state.timeline.length} tasks`, small: 'See all tasks' }, { big: `${Math.max(state.timeline.length - 1, 1)} tasks`, small: 'One completed' }],
   };
 

@@ -20,20 +20,20 @@ public final class MemoryViewModel {
 
         if session.emailEnabled {
             let people = session.emailMessages.compactMap { message -> MemoryFact? in
-                if message.sender.contains("Priya") {
+                if message.sender.contains("Sarah") {
                     return MemoryFact(
-                        id: "person-priya",
+                        id: "person-sarah",
                         symbolName: "person.fill",
                         title: message.sender,
-                        detail: "Frequent collaborator — usually about the Q3 roadmap."
+                        detail: "Course tutor who follows up on assessments and TechFest."
                     )
                 }
-                if message.sender.contains("Sam") {
+                if message.sender.contains("Maya") {
                     return MemoryFact(
-                        id: "person-sam",
+                        id: "person-maya",
                         symbolName: "person.fill",
                         title: message.sender,
-                        detail: "Regular lunch plans, usually at Tatte Bakery."
+                        detail: "LifePilot teammate and regular project collaborator."
                     )
                 }
                 return nil
@@ -45,15 +45,15 @@ public final class MemoryViewModel {
 
         if session.calendarEnabled {
             var routines: [MemoryFact] = []
-            if let pickup = session.visibleEvents.first(where: { $0.title == "School Pickup" }) {
+            if let projectLab = session.visibleEvents.first(where: { $0.title == "Group Project Lab" }) {
                 routines.append(MemoryFact(
-                    id: "routine-pickup",
+                    id: "routine-project-lab",
                     symbolName: "repeat",
-                    title: pickup.title,
-                    detail: "Recurring on weekdays around \(pickup.startDate.formatted(date: .omitted, time: .shortened))."
+                    title: projectLab.title,
+                    detail: "Usually scheduled around \(projectLab.startDate.formatted(date: .omitted, time: .shortened))."
                 ))
             }
-            if let standup = session.visibleEvents.first(where: { $0.title.contains("Standup") }) {
+            if let standup = session.visibleEvents.first(where: { $0.title.contains("Stand-up") }) {
                 routines.append(MemoryFact(
                     id: "routine-standup",
                     symbolName: "repeat",
@@ -71,8 +71,8 @@ public final class MemoryViewModel {
                 MemoryFact(
                     id: "travel-carrier",
                     symbolName: "airplane",
-                    title: "Prefers \(preferredCarrier)",
-                    detail: "Most frequently booked carrier."
+                    title: "Usually travels with \(preferredCarrier)",
+                    detail: "Most frequent rail operator in this demo."
                 ),
             ]
             if session.travelItineraries.contains(where: { $0.status == .delayed }) {
@@ -80,7 +80,7 @@ public final class MemoryViewModel {
                     id: "travel-buffer",
                     symbolName: "clock.badge.exclamationmark",
                     title: "Buffer around travel",
-                    detail: "Learned to flag tight connections after past delays."
+                    detail: "Flags extra station time when rail disruption is likely."
                 ))
             }
             result.append(MemorySection(id: "travel", title: "Travel", symbolName: "airplane", facts: travelFacts))

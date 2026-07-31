@@ -30,9 +30,7 @@ public struct OnboardingView: View {
                 Spacer()
 
                 VStack(spacing: Spacing.lg) {
-                    Image(systemName: viewModel.currentStep.symbolName)
-                        .font(.system(size: IconSize.xl, weight: .medium))
-                        .foregroundStyle(LinearGradient.LifePilot.accent)
+                    stepGraphic
 
                     Text(viewModel.currentStep.title)
                         .font(.LifePilot.titleLarge)
@@ -83,6 +81,23 @@ public struct OnboardingView: View {
         if viewModel.isLastStep { return "Open my briefing" }
         if viewModel.currentStep.id == "calendar" { return "Continue with demo data" }
         return "Continue"
+    }
+
+    @ViewBuilder
+    private var stepGraphic: some View {
+        if viewModel.currentStep.id == "welcome" {
+            Image("LifePilotLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 124, height: 124)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .shadow(color: Color.LifePilot.accentEnd.opacity(0.2), radius: 16, y: 8)
+                .accessibilityLabel("LifePilot logo")
+        } else {
+            Image(systemName: viewModel.currentStep.symbolName)
+                .font(.system(size: IconSize.xl, weight: .medium))
+                .foregroundStyle(LinearGradient.LifePilot.accent)
+        }
     }
 }
 

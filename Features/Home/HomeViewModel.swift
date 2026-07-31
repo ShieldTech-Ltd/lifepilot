@@ -41,6 +41,8 @@ public final class HomeViewModel {
     public var upcomingEvents: [CalendarEvent] { session.visibleEvents }
     public var signals: [DaySignal] { session.visibleSignals }
     public var recentActivity: [DemoActivity] { session.activities }
+    public var displayName: String { session.displayName }
+    public var profileImageData: Data? { session.profileImageData }
     public var profileContextText: String { "Prepared for \(session.briefingTime) • \(session.course)" }
     public var isLoading: Bool { session.isLoading }
     public var isPrepared: Bool { session.isPrepared }

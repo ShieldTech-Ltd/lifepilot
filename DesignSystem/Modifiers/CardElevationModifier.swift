@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Applies a `ShadowStyle` token with an optional elevated state — used by
+/// Applies a `ShadowStyle` token with an optional elevated state - used by
 /// cards that lift slightly when active or highlighted (`HeroCard`,
 /// `GhostCard`), distinct from `CardContainer`'s fixed, always-on shadow.
 /// Extracted so "resting vs. elevated shadow" is expressed once rather

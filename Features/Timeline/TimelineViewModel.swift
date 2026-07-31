@@ -39,7 +39,7 @@ public final class TimelineViewModel {
             TimelineEntry(
                 id: $0.id,
                 date: $0.departureDate,
-                title: "\($0.carrier) \($0.identifier) — \($0.origin) to \($0.destination)",
+                title: "\($0.carrier) \($0.identifier) - \($0.origin) to \($0.destination)",
                 subtitle: $0.status == .delayed ? "Delayed" : "On time",
                 kind: .travel
             )

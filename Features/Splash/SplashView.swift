@@ -2,7 +2,7 @@ import LifePilotDesignSystem
 import SwiftUI
 
 /// The launch screen, shown briefly while the app performs its initial
-/// setup. Purely presentational — no ViewModel, since it holds no state
+/// setup. Purely presentational, with no ViewModel because it holds no state
 /// beyond a timed transition the parent view controls.
 public struct SplashView: View {
     @State private var isPulsing = false
@@ -15,7 +15,7 @@ public struct SplashView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: Spacing.md) {
-                sparkMark
+                logoMark
                     .scaleEffect(isPulsing ? 1.04 : 1.0)
                     .animation(
                         .easeInOut(duration: 1.1).repeatForever(autoreverses: true),
@@ -32,10 +32,13 @@ public struct SplashView: View {
         .accessibilityLabel("LifePilot is preparing your day")
     }
 
-    private var sparkMark: some View {
-        Image(systemName: "sparkle")
-            .font(.system(size: IconSize.lg, weight: .medium))
-            .foregroundStyle(LinearGradient.LifePilot.accent)
+    private var logoMark: some View {
+        Image("LifePilotLogo")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 148, height: 148)
+            .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
+            .shadow(color: Color.LifePilot.accentEnd.opacity(0.22), radius: 20, y: 10)
     }
 }
 

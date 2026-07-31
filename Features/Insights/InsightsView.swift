@@ -2,7 +2,7 @@ import LifePilotDesignSystem
 import LifePilotGhostBrain
 import SwiftUI
 
-/// The Insights tab — a snapshot of how much Ghost Brain is catching
+/// The Insights tab - a snapshot of how much Ghost Brain is catching
 /// today, per README.md's Insights feature description. Backed by
 /// `InsightsViewModel`, which reads the same `GhostBrainServing` model
 /// `HomeView` does, so these numbers always agree with what's on Home.

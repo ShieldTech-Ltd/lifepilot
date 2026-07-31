@@ -1,3 +1,4 @@
+import Foundation
 import LifePilotCore
 import LifePilotGhostBrain
 import XCTest
@@ -55,16 +56,33 @@ final class DemoSessionStoreTests: XCTestCase {
         session.updateProfile(
             displayName: "Ritik Sah",
             email: "ritik@example.com",
-            course: "MSc Computing",
+            course: "BSc Computing",
             university: "Ulster University London",
             location: "London",
-            briefingTime: "9:00 AM"
+            briefingTime: "09:00"
         )
 
         XCTAssertTrue(home.greeting.contains("Ritik"))
-        XCTAssertTrue(home.profileContextText.contains("9:00 AM"))
+        XCTAssertTrue(home.profileContextText.contains("09:00"))
         XCTAssertEqual(settings.sections[0].rows[0].detail, "Ritik Sah")
-        XCTAssertEqual(defaults.string(forKey: StorageKey.profileBriefingTime), "9:00 AM")
+        XCTAssertEqual(defaults.string(forKey: StorageKey.profileBriefingTime), "09:00")
+    }
+
+    func testProfileImagePersistsAndCanBeRemoved() {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+        let imageData = Data([0x01, 0x02, 0x03])
+
+        session.updateProfileImage(imageData)
+
+        XCTAssertEqual(session.profileImageData, imageData)
+        XCTAssertEqual(defaults.data(forKey: StorageKey.profileImageData), imageData)
+
+        session.updateProfileImage(nil)
+
+        XCTAssertNil(session.profileImageData)
+        XCTAssertNil(defaults.data(forKey: StorageKey.profileImageData))
     }
 
     func testResetRestoresDemoDefaultsAndClearsActivity() async throws {
@@ -75,12 +93,15 @@ final class DemoSessionStoreTests: XCTestCase {
         let recommendation = try XCTUnwrap(session.availableRecommendations.first)
         session.resolve(recommendation.id, approved: true)
         session.setConnection(.calendar, isEnabled: false)
+        session.updateProfileImage(Data([0x01]))
 
         session.resetLocalDemoState()
 
         XCTAssertTrue(session.activities.isEmpty)
         XCTAssertTrue(session.calendarEnabled)
-        XCTAssertEqual(session.displayName, "Alex Morgan")
+        XCTAssertEqual(session.displayName, "Ritik Sah")
+        XCTAssertEqual(session.course, "BSc Computing")
+        XCTAssertNil(session.profileImageData)
         XCTAssertEqual(session.availableRecommendations.count, session.model?.recommendations.count)
     }
 

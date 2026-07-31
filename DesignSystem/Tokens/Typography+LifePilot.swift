@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Typography tokens matching docs/DESIGN_SYSTEM.md's Typography table.
 /// Built on `Font.system(_:)`'s `TextStyle` factory rather than a fixed
-/// point size, so every token is Dynamic-Type-native by construction —
+/// point size, so every token is Dynamic-Type-native by construction -
 /// see docs/ENGINEERING_GUIDE.md's Accessibility standard.
 /// Point sizes at the default content size match Apple's standard sizes
 /// for the corresponding text style (e.g. `.largeTitle` is 34pt), which

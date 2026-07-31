@@ -2,7 +2,7 @@ import Foundation
 import LifePilotCore
 
 /// Realistic sample calendar data for previews, tests, and Phase 3's
-/// mock-driven screens. Not used by production code — see
+/// mock-driven screens. Not used by production code; see
 /// docs/MASTER_ROADMAP.md Phase 7 for the real EventKit-backed source.
 public enum MockCalendar {
     /// A full day's worth of varied events, anchored relative to `now` so
@@ -11,44 +11,46 @@ public enum MockCalendar {
         let calendar = Calendar.current
         return [
             CalendarEvent(
-                title: "Morning Standup",
-                location: "Zoom",
+                title: "Algorithms Lecture",
+                location: "International House, Room 2.04",
                 startDate: calendar.date(bySettingHour: 9, minute: 0, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 9, minute: 15, second: 0, of: now) ?? now,
-                attendeeCount: 6
+                endDate: calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now) ?? now,
+                attendeeCount: 42
             ),
             CalendarEvent(
-                title: "Design Review",
-                location: "Studio — Room 2B",
-                startDate: calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 10, minute: 45, second: 0, of: now) ?? now,
-                attendeeCount: 5
+                title: "LifePilot Team Stand-up",
+                location: "Microsoft Teams",
+                startDate: calendar.date(bySettingHour: 10, minute: 30, second: 0, of: now) ?? now,
+                endDate: calendar.date(bySettingHour: 11, minute: 0, second: 0, of: now) ?? now,
+                attendeeCount: 4
             ),
             CalendarEvent(
-                title: "Lunch with Sam",
-                location: "Tatte Bakery",
-                startDate: calendar.date(bySettingHour: 12, minute: 30, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 13, minute: 30, second: 0, of: now) ?? now,
+                title: "Lunch with Maya",
+                location: "Spitalfields Market",
+                startDate: calendar.date(bySettingHour: 12, minute: 0, second: 0, of: now) ?? now,
+                endDate: calendar.date(bySettingHour: 13, minute: 0, second: 0, of: now) ?? now,
                 attendeeCount: 2
             ),
             CalendarEvent(
-                title: "1:1 with Priya",
-                startDate: calendar.date(bySettingHour: 13, minute: 30, second: 0, of: now) ?? now,
+                title: "Group Project Lab",
+                location: "Computer Lab 3",
+                startDate: calendar.date(bySettingHour: 13, minute: 0, second: 0, of: now) ?? now,
                 endDate: calendar.date(bySettingHour: 14, minute: 0, second: 0, of: now) ?? now,
-                attendeeCount: 2
+                attendeeCount: 4
             ),
             CalendarEvent(
-                title: "School Pickup",
-                location: "Lincoln Elementary",
+                title: "TechFest Demo Rehearsal",
+                location: "International House, Room 4.01",
                 startDate: calendar.date(bySettingHour: 14, minute: 0, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 14, minute: 30, second: 0, of: now) ?? now
+                endDate: calendar.date(bySettingHour: 14, minute: 45, second: 0, of: now) ?? now,
+                attendeeCount: 8
             ),
             CalendarEvent(
-                title: "Board Deck Review",
-                location: nil,
+                title: "Portfolio Review",
+                location: "Library Study Zone",
                 startDate: calendar.date(bySettingHour: 16, minute: 0, second: 0, of: now) ?? now,
                 endDate: calendar.date(bySettingHour: 17, minute: 0, second: 0, of: now) ?? now,
-                attendeeCount: 4
+                attendeeCount: 2
             ),
         ]
     }

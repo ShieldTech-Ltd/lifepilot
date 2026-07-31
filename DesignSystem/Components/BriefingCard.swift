@@ -4,12 +4,12 @@ import SwiftUI
 
 /// Summarized unit of the Morning Briefing, per docs/DESIGN_SYSTEM.md's
 /// Components table. Renders a single recommendation with its source
-/// agent, title, and reasoning — the reasoning is always visible, never
+/// agent, title, and reasoning - the reasoning is always visible, never
 /// hidden behind a disclosure, per the Explain principle in
 /// README.md's Core Philosophy.
 ///
 /// `BriefingCard` takes plain view data (`Content`) rather than a domain
-/// model directly — `DesignSystem` stays reusable independent of any one
+/// model directly - `DesignSystem` stays reusable independent of any one
 /// domain module's types. The owning Feature's ViewModel is responsible
 /// for mapping its domain model (e.g. `RecommendationModel` from
 /// `LifePilotGhostBrain`) into `Content`. See docs/ARCHITECTURE.md's
@@ -56,7 +56,7 @@ public struct BriefingCard: View {
     /// (e.g. `RecommendationModel`) by the owning Feature's ViewModel.
     ///
     /// `Identifiable` (rather than a plain struct) so a screen presenting
-    /// multiple `BriefingCard`s can track which one a user tapped — e.g.
+    /// multiple `BriefingCard`s can track which one a user tapped - e.g.
     /// to drive an `ApprovalSheet` via `.sheet(item:)`.
     public struct Content: Identifiable {
         public let id: UUID

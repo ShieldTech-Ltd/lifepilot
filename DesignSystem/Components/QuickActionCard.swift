@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// A small, icon-led tappable card for a single quick action — "Inbox,"
+/// A small, icon-led tappable card for a single quick action - "Inbox,"
 /// "Tasks," "Travel." Extracted from a private type that had been
 /// duplicated inside `HomeView`. Unlike the original, this version wraps
 /// its content in a real `Button` (with an `action` closure) rather than
-/// only looking tappable — the private version had `.isButton` trait
+/// only looking tappable - the private version had `.isButton` trait
 /// added without ever actually being interactive.
 public struct QuickActionCard: View {
     private let symbolName: String

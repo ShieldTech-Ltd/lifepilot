@@ -1,7 +1,7 @@
 import Foundation
 import LifePilotCore
 
-/// A single ranked, explained suggestion produced by Ghost Brain — the
+/// A single ranked, explained suggestion produced by Ghost Brain - the
 /// unit that ultimately reaches the Approvals screen. Every recommendation
 /// carries its own reasoning, per the Explain stage of the Core Philosophy
 /// in README.md.

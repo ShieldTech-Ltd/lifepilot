@@ -7,21 +7,21 @@ public enum MockTravel {
     public static func itineraries(relativeTo now: Date = Date()) -> [TravelItinerary] {
         [
             TravelItinerary(
-                carrier: "United",
-                identifier: "UA 1472",
-                origin: "SFO",
-                destination: "JFK",
+                carrier: "Avanti West Coast",
+                identifier: "1A23",
+                origin: "Manchester Piccadilly",
+                destination: "London Euston",
                 departureDate: now.addingTimeInterval(2 * 24 * 3600),
-                arrivalDate: now.addingTimeInterval(2 * 24 * 3600 + 5 * 3600),
+                arrivalDate: now.addingTimeInterval(2 * 24 * 3600 + 2 * 3600 + 10 * 60),
                 status: .delayed
             ),
             TravelItinerary(
-                carrier: "Amtrak",
-                identifier: "Acela 2151",
-                origin: "New York Penn",
-                destination: "Boston South",
+                carrier: "LNER",
+                identifier: "1D18",
+                origin: "London King's Cross",
+                destination: "Leeds",
                 departureDate: now.addingTimeInterval(9 * 24 * 3600),
-                arrivalDate: now.addingTimeInterval(9 * 24 * 3600 + 4 * 3600),
+                arrivalDate: now.addingTimeInterval(9 * 24 * 3600 + 2 * 3600 + 15 * 60),
                 status: .onTime
             ),
         ]

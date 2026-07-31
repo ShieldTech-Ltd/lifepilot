@@ -24,6 +24,7 @@ public final class DemoSessionStore {
     public private(set) var university: String
     public private(set) var location: String
     public private(set) var briefingTime: String
+    public private(set) var profileImageData: Data?
 
     public private(set) var calendarEnabled: Bool
     public private(set) var emailEnabled: Bool
@@ -43,12 +44,13 @@ public final class DemoSessionStore {
     ) {
         self.ghostBrain = ghostBrain
         self.defaults = defaults
-        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? "Alex Morgan"
-        email = defaults.string(forKey: StorageKey.profileEmail) ?? "alex@example.com"
-        course = defaults.string(forKey: StorageKey.profileCourse) ?? "MSc Computing"
+        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? "Ritik Sah"
+        email = defaults.string(forKey: StorageKey.profileEmail) ?? "ritik.sah@example.com"
+        course = defaults.string(forKey: StorageKey.profileCourse) ?? "BSc Computing"
         university = defaults.string(forKey: StorageKey.profileUniversity) ?? "Ulster University London"
         location = defaults.string(forKey: StorageKey.profileLocation) ?? "London"
-        briefingTime = defaults.string(forKey: StorageKey.profileBriefingTime) ?? "8:00 AM"
+        briefingTime = defaults.string(forKey: StorageKey.profileBriefingTime) ?? "08:00"
+        profileImageData = defaults.data(forKey: StorageKey.profileImageData)
         calendarEnabled = Self.boolValue(defaults, key: StorageKey.connectedCalendar, fallback: true)
         emailEnabled = Self.boolValue(defaults, key: StorageKey.connectedEmail, fallback: true)
         travelEnabled = Self.boolValue(defaults, key: StorageKey.connectedTravel, fallback: true)
@@ -144,6 +146,15 @@ public final class DemoSessionStore {
         defaults.set(isEnabled, forKey: StorageKey.approvalsNotifyOnHighRisk)
     }
 
+    public func updateProfileImage(_ data: Data?) {
+        profileImageData = data
+        if let data {
+            defaults.set(data, forKey: StorageKey.profileImageData)
+        } else {
+            defaults.removeObject(forKey: StorageKey.profileImageData)
+        }
+    }
+
     public func updateProfile(
         displayName: String,
         email: String,
@@ -171,12 +182,13 @@ public final class DemoSessionStore {
         for key in StorageKey.all {
             defaults.removeObject(forKey: key)
         }
-        displayName = "Alex Morgan"
-        email = "alex@example.com"
-        course = "MSc Computing"
+        displayName = "Ritik Sah"
+        email = "ritik.sah@example.com"
+        course = "BSc Computing"
         university = "Ulster University London"
         location = "London"
-        briefingTime = "8:00 AM"
+        briefingTime = "08:00"
+        profileImageData = nil
         calendarEnabled = true
         emailEnabled = true
         travelEnabled = true

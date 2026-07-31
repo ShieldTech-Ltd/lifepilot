@@ -5,7 +5,7 @@ import SwiftUI
 /// Shows which of LifePilot's sources Ghost Brain can read from. Every
 /// source is mock data in this phase (real integrations arrive in
 /// docs/MASTER_ROADMAP.md Phase 7), but the on/off state is real and
-/// persists locally — the user, not Ghost Brain, decides what it can see,
+/// persists locally - the user, not Ghost Brain, decides what it can see,
 /// per README.md's "Orchestrate, don't replace" principle.
 public struct ConnectedAppsView: View {
     private let session: DemoSessionStore

@@ -6,7 +6,7 @@ import XCTest
 /// matching the pattern established by `Tests/AppShell/LaunchSmokeTests.swift`.
 /// SwiftUI view bodies aren't otherwise unit-testable without a rendering
 /// harness, so this is the practical floor of coverage for pure-presentation
-/// components — real visual verification happens via `DesignSystemCatalogView`'s
+/// components - real visual verification happens via `DesignSystemCatalogView`'s
 /// `#Preview`.
 @MainActor
 final class ComponentConstructionTests: XCTestCase {

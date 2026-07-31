@@ -25,7 +25,7 @@ public struct SurfaceModifier: ViewModifier {
 
 extension View {
     /// Applies the standard elevated-surface background and corner radius,
-    /// without padding or shadow — compose with `.padding(...)` and
+    /// without padding or shadow - compose with `.padding(...)` and
     /// `.lifePilotShadow(...)` directly, or use `CardContainer` for the
     /// common all-in-one case.
     public func lifePilotSurface(

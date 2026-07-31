@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Visual identity for a given AI agent's output, per docs/DESIGN_SYSTEM.md's
 /// Components table. Used wherever a recommendation or signal needs to be
-/// attributed to the agent that produced it — see docs/MASTER_ROADMAP.md
+/// attributed to the agent that produced it - see docs/MASTER_ROADMAP.md
 /// Phase 6's UX requirement that agent output be attributable in the UI.
 public struct AgentAvatar: View {
     private let agent: AgentKind

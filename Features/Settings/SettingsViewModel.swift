@@ -42,7 +42,7 @@ public final class SettingsViewModel {
                 SettingsRow(id: "data", symbolName: "lock.fill", title: "Data & Privacy", destination: .dataPrivacy),
             ]),
             SettingsSection(id: "about", title: "About", rows: [
-                SettingsRow(id: "version", symbolName: "sparkles", title: "TechFest Demo", detail: "0.5.0"),
+                SettingsRow(id: "version", symbolName: "graduationcap.fill", title: "UK Student Demo", detail: "0.5.0"),
             ]),
         ]
     }

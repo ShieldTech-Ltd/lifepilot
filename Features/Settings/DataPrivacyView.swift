@@ -6,7 +6,7 @@ import SwiftUI
 /// Data & Privacy. States the product's real privacy commitments (see
 /// docs/PRODUCT_VISION.md's "Privacy is a default, not a setting"
 /// principle) and offers a genuinely functional reset of the local-only
-/// state this phase has introduced — useful for demoing the app
+/// state this phase has introduced - useful for demoing the app
 /// repeatedly from a clean slate.
 public struct DataPrivacyView: View {
     @State private var didReset = false
@@ -25,7 +25,7 @@ public struct DataPrivacyView: View {
         List {
             Section("Our Commitment") {
                 privacyRow(symbolName: "lock.fill", text: "On-device processing wherever possible.")
-                privacyRow(symbolName: "eye.slash.fill", text: "Least-privilege integrations — LifePilot only reads what it needs.")
+                privacyRow(symbolName: "eye.slash.fill", text: "Least-privilege integrations - LifePilot only reads what it needs.")
                 privacyRow(symbolName: "person.fill.checkmark", text: "Nothing executes without your explicit approval.")
             }
 

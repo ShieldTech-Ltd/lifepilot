@@ -1,7 +1,7 @@
 import LifePilotDesignSystem
 import SwiftUI
 
-/// The Memory tab — what Ghost Brain has learned about people, routines,
+/// The Memory tab - what Ghost Brain has learned about people, routines,
 /// and travel from today's signals, per README.md's Memory feature
 /// description. Backed by `MemoryViewModel`, which derives its content
 /// from the same `LifePilotMocks` data Home and Timeline use, so this
@@ -25,7 +25,7 @@ public struct MemoryView: View {
                         .font(.LifePilot.titleLarge)
                         .foregroundStyle(Color.LifePilot.textPrimary)
 
-                    Text("Built from patterns across your calendar, inbox, and trips — never shared, always visible.")
+                    Text("Built from patterns across your calendar, inbox, and trips - never shared, always visible.")
                         .font(.LifePilot.body)
                         .foregroundStyle(Color.LifePilot.textSecondary)
                 }

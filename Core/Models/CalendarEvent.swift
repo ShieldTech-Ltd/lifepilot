@@ -1,7 +1,7 @@
 import Foundation
 
 /// A single calendar event, as read from the user's calendar. This is the
-/// Domain-layer shape agents and Ghost Brain reason over — see
+/// Domain-layer shape agents and Ghost Brain reason over - see
 /// docs/ARCHITECTURE.md's Dependency Rules on Integrations being adapters,
 /// not sources of truth for meaning.
 public struct CalendarEvent: Identifiable, Hashable, Sendable {
@@ -31,7 +31,7 @@ public struct CalendarEvent: Identifiable, Hashable, Sendable {
         self.attendeeCount = attendeeCount
     }
 
-    /// Whether this event's time window overlaps another's — the basic
+    /// Whether this event's time window overlaps another's - the basic
     /// building block for Calendar Agent conflict detection.
     public func overlaps(_ other: CalendarEvent) -> Bool {
         startDate < other.endDate && other.startDate < endDate

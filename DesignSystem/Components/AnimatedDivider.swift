@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A horizontal divider that draws itself in when it first appears,
-/// rather than popping in at full width. Purely decorative — used
+/// rather than popping in at full width. Purely decorative - used
 /// between sections on content-dense screens where a plain `Divider()`
 /// would be visually abrupt. Respects Reduce Motion: the line simply
 /// appears at full width immediately when it's enabled.

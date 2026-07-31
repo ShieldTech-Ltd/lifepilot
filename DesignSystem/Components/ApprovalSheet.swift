@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Presents a recommended action with reasoning and approve/dismiss
 /// controls, per docs/DESIGN_SYSTEM.md's Components table. This is the UI
-/// expression of the Approve stage in README.md's Core Philosophy — nothing
+/// expression of the Approve stage in README.md's Core Philosophy - nothing
 /// reaches Execution without passing through a screen shaped like this one.
 public struct ApprovalSheet: View {
     private let content: Content

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The primary call-to-action button style, rendering the brand gradient.
-/// Reserve for the single most important action on a screen — pairing this
+/// Reserve for the single most important action on a screen - pairing this
 /// with `SecondaryButtonStyle` for everything else keeps the gradient
 /// meaningful rather than decorative, per docs/DESIGN_SYSTEM.md's "Calm by
 /// default" principle.

@@ -1,6 +1,11 @@
 import Foundation
 import LifePilotDesignSystem
+import PhotosUI
 import SwiftUI
+
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// A complete local demo identity that personalizes the Morning Briefing.
 public struct ProfileDetailView: View {
@@ -11,9 +16,13 @@ public struct ProfileDetailView: View {
     @State private var university: String
     @State private var location: String
     @State private var briefingTime: String
+    @State private var profileImageData: Data?
+    @State private var selectedPhoto: PhotosPickerItem?
+    @State private var isLoadingPhoto = false
+    @State private var photoErrorMessage: String?
     @State private var didSave = false
 
-    private let briefingTimes = ["7:00 AM", "8:00 AM", "9:00 AM"]
+    private let briefingTimes = ["07:00", "08:00", "09:00"]
 
     public init(session: DemoSessionStore) {
         self.session = session
@@ -23,6 +32,7 @@ public struct ProfileDetailView: View {
         _university = State(initialValue: session.university)
         _location = State(initialValue: session.location)
         _briefingTime = State(initialValue: session.briefingTime)
+        _profileImageData = State(initialValue: session.profileImageData)
     }
 
     public init() {
@@ -45,7 +55,7 @@ public struct ProfileDetailView: View {
                 .accessibilityIdentifier("profile.save")
 
                 if didSave {
-                    Label("Profile saved — Home now uses this identity.", systemImage: "checkmark.circle.fill")
+                    Label("Profile saved. Home now uses this identity.", systemImage: "checkmark.circle.fill")
                         .font(.LifePilot.caption)
                         .foregroundStyle(Color.LifePilot.signalSuccess)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -56,19 +66,60 @@ public struct ProfileDetailView: View {
         }
         .background(Color.LifePilot.backgroundPrimary)
         .navigationTitle("Profile")
+        .onChange(of: selectedPhoto) { _, item in
+            guard let item else { return }
+            Task { await loadPhoto(from: item) }
+        }
     }
 
     private var identityCard: some View {
         CardContainer {
             VStack(spacing: Spacing.md) {
-                Circle()
-                    .fill(LinearGradient.LifePilot.accent)
-                    .frame(width: 84, height: 84)
-                    .overlay {
-                        Text(initials)
-                            .font(.LifePilot.titleLarge)
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    ZStack(alignment: .bottomTrailing) {
+                        ProfileAvatarView(
+                            imageData: profileImageData,
+                            displayName: displayName,
+                            size: 96
+                        )
+
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(.white)
+                            .frame(width: 32, height: 32)
+                            .background(Color.LifePilot.accentEnd, in: Circle())
+                            .overlay {
+                                Circle().stroke(Color.LifePilot.backgroundElevated, lineWidth: 3)
+                            }
                     }
+                }
+                .buttonStyle(.plain)
+                .disabled(isLoadingPhoto)
+                .accessibilityLabel(profileImageData == nil ? "Choose profile photo" : "Change profile photo")
+                .accessibilityIdentifier("profile.photoPicker")
+
+                if isLoadingPhoto {
+                    ProgressView("Preparing photo")
+                        .font(.LifePilot.caption)
+                } else if profileImageData == nil {
+                    Text("Choose a photo from this device")
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.textSecondary)
+                } else {
+                    Button("Remove photo", role: .destructive) {
+                        profileImageData = nil
+                        selectedPhoto = nil
+                        didSave = false
+                    }
+                    .font(.LifePilot.caption.weight(.semibold))
+                    .accessibilityIdentifier("profile.removePhoto")
+                }
+
+                if let photoErrorMessage {
+                    Text(photoErrorMessage)
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.signalRisk)
+                }
 
                 VStack(spacing: Spacing.xs) {
                     Text(displayName.isEmpty ? "Your name" : displayName)
@@ -79,7 +130,7 @@ public struct ProfileDetailView: View {
                         .foregroundStyle(Color.LifePilot.textSecondary)
                 }
 
-                Label("TechFest demo identity", systemImage: "sparkles")
+                Label("UK student demo identity", systemImage: "graduationcap.fill")
                     .font(.LifePilot.caption.weight(.semibold))
                     .foregroundStyle(Color.LifePilot.accentEnd)
             }
@@ -151,11 +202,6 @@ public struct ProfileDetailView: View {
         }
     }
 
-    private var initials: String {
-        let letters = displayName.split(separator: " ").compactMap(\.first)
-        return letters.isEmpty ? "?" : String(letters.prefix(2)).uppercased()
-    }
-
     private func save() {
         session.updateProfile(
             displayName: displayName,
@@ -165,7 +211,39 @@ public struct ProfileDetailView: View {
             location: location,
             briefingTime: briefingTime
         )
+        session.updateProfileImage(profileImageData)
         didSave = true
+    }
+
+    @MainActor
+    private func loadPhoto(from item: PhotosPickerItem) async {
+        isLoadingPhoto = true
+        photoErrorMessage = nil
+        defer { isLoadingPhoto = false }
+
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self) else {
+                photoErrorMessage = "That photo could not be read. Choose another image."
+                return
+            }
+            profileImageData = preparedPhotoData(from: data)
+            didSave = false
+        } catch {
+            photoErrorMessage = "That photo could not be loaded. Choose another image."
+        }
+    }
+
+    private func preparedPhotoData(from data: Data) -> Data {
+        #if canImport(UIKit)
+        guard let image = UIImage(data: data),
+              let thumbnail = image.preparingThumbnail(of: CGSize(width: 640, height: 640))
+        else {
+            return data
+        }
+        return thumbnail.jpegData(compressionQuality: 0.82) ?? data
+        #else
+        return data
+        #endif
     }
 }
 

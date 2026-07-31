@@ -6,7 +6,7 @@ import AppKit
 #endif
 
 /// Color tokens matching docs/DESIGN_SYSTEM.md's Color table exactly. Every
-/// value here has an explicit light and dark definition — see that
+/// value here has an explicit light and dark definition - see that
 /// document's Theming principle. No feature module should reach for a raw
 /// hex value; everything composes from `Color.LifePilot`.
 extension Color {
@@ -52,7 +52,7 @@ extension Color {
 
 extension LinearGradient {
     public enum LifePilot {
-        /// The primary brand gradient — see docs/DESIGN_SYSTEM.md's Color
+        /// The primary brand gradient - see docs/DESIGN_SYSTEM.md's Color
         /// table, `color.accent.primary`.
         public static let accent = LinearGradient(
             colors: [Color.LifePilot.accentStart, Color.LifePilot.accentEnd],

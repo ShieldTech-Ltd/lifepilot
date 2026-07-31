@@ -2,7 +2,7 @@ import Foundation
 
 /// Owns the onboarding flow's step progression. Per
 /// docs/MASTER_ROADMAP.md Phase 4's UX requirement, onboarding explains
-/// *why* each step matters rather than dumping permissions upfront —
+/// *why* each step matters rather than dumping permissions upfront -
 /// `OnboardingStep` carries that explanation alongside its content.
 @Observable
 @MainActor

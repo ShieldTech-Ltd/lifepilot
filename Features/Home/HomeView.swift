@@ -59,18 +59,28 @@ public struct HomeView: View {
     // MARK: - Hero Header
 
     private var heroHeader: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            Text(viewModel.dateText.isEmpty ? " " : viewModel.dateText)
-                .font(.LifePilot.caption)
-                .foregroundStyle(Color.LifePilot.textSecondary)
+        HStack(spacing: Spacing.md) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(viewModel.dateText.isEmpty ? " " : viewModel.dateText)
+                    .font(.LifePilot.caption)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
 
-            Text(viewModel.greeting.isEmpty ? "Good morning" : viewModel.greeting)
-                .font(.LifePilot.titleLarge)
-                .foregroundStyle(Color.LifePilot.textPrimary)
+                Text(viewModel.greeting.isEmpty ? "Good morning" : viewModel.greeting)
+                    .font(.LifePilot.titleLarge)
+                    .foregroundStyle(Color.LifePilot.textPrimary)
 
-            Text(viewModel.profileContextText)
-                .font(.LifePilot.caption)
-                .foregroundStyle(Color.LifePilot.textSecondary)
+                Text(viewModel.profileContextText)
+                    .font(.LifePilot.caption)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+            }
+
+            Spacer(minLength: Spacing.sm)
+
+            ProfileAvatarView(
+                imageData: viewModel.profileImageData,
+                displayName: viewModel.displayName,
+                size: 52
+            )
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)

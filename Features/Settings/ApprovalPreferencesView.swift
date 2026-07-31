@@ -2,8 +2,8 @@ import LifePilotCore
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Approval Preferences. The core guarantee — every action passes through
-/// approval before it executes — isn't a setting a user can turn off; see
+/// Approval Preferences. The core guarantee - every action passes through
+/// approval before it executes - isn't a setting a user can turn off; see
 /// docs/ARCHITECTURE.md's Dependency Rule 4, "Execution is gated by
 /// construction." The locked toggle below makes that guarantee visible
 /// rather than configurable; the notification toggle beneath it is the one
@@ -25,7 +25,7 @@ public struct ApprovalPreferencesView: View {
                 Toggle("Require approval before any action executes", isOn: .constant(true))
                     .disabled(true)
             } footer: {
-                Text("This is a guarantee, not a setting — LifePilot never executes without your approval.")
+                Text("This is a guarantee, not a setting - LifePilot never executes without your approval.")
             }
 
             Section("Risk Levels") {
@@ -56,9 +56,9 @@ public struct ApprovalPreferencesView: View {
 
     private func description(for level: RiskLevel) -> String {
         switch level {
-        case .low: "Reversible or informational — safe to approve quickly."
+        case .low: "Reversible or informational - safe to approve quickly."
         case .medium: "Worth a second look before approving."
-        case .high: "Review carefully — harder to undo."
+        case .high: "Review carefully - harder to undo."
         }
     }
 }

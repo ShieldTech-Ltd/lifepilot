@@ -20,27 +20,28 @@ public struct OnboardingStep: Identifiable {
             id: "welcome",
             symbolName: "sparkle",
             title: "Meet LifePilot",
-            message: "An AI operating system that prepares your day before you ask — not another app to check."
+            message: "A student-first AI planner for lectures, deadlines, travel, and money. "
+                + "Built for UK campus life and designed to grow with everyone."
         ),
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
             title: "Preview connected sources",
-            message: "For this TechFest build, realistic demo data shows how LifePilot combines "
-                + "your calendar, inbox, travel, and finance signals without accessing a real account."
+            message: "This TechFest build uses realistic UK student data to show how LifePilot combines "
+                + "your timetable, inbox, travel, and spending without accessing a real account."
         ),
         OnboardingStep(
             id: "approvals",
             symbolName: "checkmark.shield.fill",
             title: "You're always in control",
-            message: "LifePilot prepares recommendations — nothing sends, books, "
+            message: "LifePilot prepares recommendations. Nothing sends, books, "
                 + "or moves money without your explicit approval."
         ),
         OnboardingStep(
             id: "ready",
             symbolName: "arrow.right.circle.fill",
             title: "You're ready",
-            message: "Your Morning Briefing is waiting."
+            message: "Your student briefing is waiting."
         ),
     ]
 }

@@ -4,7 +4,7 @@ import SwiftUI
 
 /// The top-level view controlling the Splash → Onboarding → Main app
 /// transition. This is the single entry point the thin Xcode app target
-/// (`App/`) is expected to instantiate — see `docs/ARCHITECTURE.md`'s note
+/// (`App/`) is expected to instantiate - see `docs/ARCHITECTURE.md`'s note
 /// that `Package.swift` builds the first buildable units ahead of the full
 /// iOS app wrapper.
 public struct LifePilotRootView: View {
@@ -33,7 +33,7 @@ public struct LifePilotRootView: View {
             }
         }
         .task {
-            // A brief, deliberate splash duration — long enough to read as
+            // A brief, deliberate splash duration - long enough to read as
             // intentional, short enough not to feel like a delay. See
             // docs/DESIGN_SYSTEM.md's Motion principle.
             try? await Task.sleep(for: .seconds(1.2))

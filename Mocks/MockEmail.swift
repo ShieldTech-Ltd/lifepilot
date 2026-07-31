@@ -7,33 +7,33 @@ public enum MockEmail {
     public static func messages(relativeTo now: Date = Date()) -> [EmailMessage] {
         [
             EmailMessage(
-                sender: "Priya Nair",
-                subject: "Q3 roadmap — need your input by Friday",
-                preview: "Hey — before we lock the roadmap I wanted to get your take on the prioritization...",
+                sender: "Dr Sarah Ahmed",
+                subject: "TechFest demo checklist: reply by Friday",
+                preview: "Before the showcase, please confirm your presentation slot and equipment checklist.",
                 receivedAt: now.addingTimeInterval(-3 * 24 * 3600),
                 isUnread: true,
                 requiresReply: true
             ),
             EmailMessage(
-                sender: "United Airlines",
-                subject: "Your flight UA 1472 has been updated",
-                preview: "There has been a change to your upcoming reservation...",
+                sender: "National Rail",
+                subject: "Your London Euston journey has been updated",
+                preview: "There is a delay affecting your upcoming journey into London.",
                 receivedAt: now.addingTimeInterval(-2 * 3600),
                 isUnread: true,
                 requiresReply: false
             ),
             EmailMessage(
                 sender: "GitHub",
-                subject: "[LifePilot] New pull request opened",
-                preview: "feature/app-foundation was opened against develop by...",
+                subject: "[LifePilot] TechFest demo pull request",
+                preview: "The TechFest readiness branch is ready for review.",
                 receivedAt: now.addingTimeInterval(-45 * 60),
                 isUnread: false,
                 requiresReply: false
             ),
             EmailMessage(
-                sender: "Sam Rivera",
-                subject: "Lunch tomorrow?",
-                preview: "Are we still on for Tatte at 12:30? Let me know if...",
+                sender: "Maya Patel",
+                subject: "Rehearsal room confirmed",
+                preview: "Room 4.01 is booked for our LifePilot rehearsal at 14:00.",
                 receivedAt: now.addingTimeInterval(-18 * 3600),
                 isUnread: false,
                 requiresReply: true

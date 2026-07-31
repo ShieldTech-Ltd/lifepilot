@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Shadow tokens for elevated surfaces. Kept subtle by design, per
-/// docs/DESIGN_SYSTEM.md's "Calm by default" principle — LifePilot should
+/// docs/DESIGN_SYSTEM.md's "Calm by default" principle - LifePilot should
 /// never feel like it's shouting, including through heavy drop shadows.
 public struct ShadowStyle {
     public let color: Color

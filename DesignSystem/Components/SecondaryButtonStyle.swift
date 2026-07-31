@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// A lower-emphasis button style for secondary actions — dismiss, cancel,
+/// A lower-emphasis button style for secondary actions - dismiss, cancel,
 /// "not now." Uses a flat elevated background rather than the brand
 /// gradient, keeping the gradient reserved for primary actions.
 public struct SecondaryButtonStyle: ButtonStyle {

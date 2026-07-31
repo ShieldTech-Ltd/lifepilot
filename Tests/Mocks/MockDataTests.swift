@@ -3,7 +3,9 @@ import XCTest
 
 final class MockDataTests: XCTestCase {
     func testMockCalendarProducesNonEmptyEvents() {
-        XCTAssertFalse(MockCalendar.events().isEmpty)
+        let events = MockCalendar.events()
+        XCTAssertFalse(events.isEmpty)
+        XCTAssertTrue(events.contains(where: { $0.title == "TechFest Demo Rehearsal" }))
     }
 
     func testMockEmailProducesNonEmptyMessages() {
@@ -15,11 +17,15 @@ final class MockDataTests: XCTestCase {
     }
 
     func testMockTravelProducesNonEmptyItineraries() {
-        XCTAssertFalse(MockTravel.itineraries().isEmpty)
+        let itineraries = MockTravel.itineraries()
+        XCTAssertFalse(itineraries.isEmpty)
+        XCTAssertTrue(itineraries.contains(where: { $0.destination == "London Euston" }))
     }
 
     func testMockFinanceProducesNonEmptyTransactions() {
-        XCTAssertFalse(MockFinance.transactions().isEmpty)
+        let transactions = MockFinance.transactions()
+        XCTAssertFalse(transactions.isEmpty)
+        XCTAssertTrue(transactions.allSatisfy { $0.formattedAmount.contains("£") })
     }
 
     func testMockFinanceFlagsAtLeastOneAnomaly() {

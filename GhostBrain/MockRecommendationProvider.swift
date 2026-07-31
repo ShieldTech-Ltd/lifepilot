@@ -3,14 +3,14 @@ import LifePilotCore
 import LifePilotMocks
 
 /// A `GhostBrainServing` implementation backed entirely by mock data. This
-/// is what the App composition root wires in during Phase 3 — see
+/// is what the App composition root wires in during Phase 3; see
 /// docs/MASTER_ROADMAP.md's Phase 4 risk mitigation: "screens are built
 /// against the Prediction/Recommendation types... even while populated by
 /// stub data," so Features never needs to change when GhostBrainService
 /// replaces this in Phase 5.
 ///
 /// Recommendations, events, and signals are all derived from the same
-/// `LifePilotMocks` data `TimelineViewModel` merges — so Home and Timeline
+/// `LifePilotMocks` data `TimelineViewModel` merges, so Home and Timeline
 /// tell one consistent story about "today" instead of two disconnected
 /// ones, and the reasoning text is computed from the mock facts rather than
 /// duplicated as a separate hardcoded string.
@@ -41,7 +41,7 @@ public struct MockRecommendationProvider: GhostBrainServing {
         case 12 ..< 17: timeOfDay = .afternoon
         default: timeOfDay = .evening
         }
-        return GhostBrainModel.GreetingContext(userFirstName: "Alex", timeOfDay: timeOfDay)
+        return GhostBrainModel.GreetingContext(userFirstName: "Ritik", timeOfDay: timeOfDay)
     }
 
     private static func sampleRecommendations(events: [CalendarEvent], relativeTo now: Date) -> [RecommendationModel] {
@@ -51,7 +51,7 @@ public struct MockRecommendationProvider: GhostBrainServing {
             recommendations.append(RecommendationModel(
                 title: "\(flight.carrier) \(flight.identifier) is delayed",
                 reasoning: "Now departing later than scheduled on the \(flight.origin) to \(flight.destination) "
-                    + "route — worth a heads-up to anyone picking you up on the other end.",
+                    + "route. Check the platform before leaving for the station.",
                 sourceAgent: .travel,
                 riskLevel: .low,
                 urgency: .high,
@@ -74,16 +74,19 @@ public struct MockRecommendationProvider: GhostBrainServing {
             ))
         }
 
-        if let pickup = events.first(where: { $0.title == "School Pickup" }) {
+        if let rehearsal = events.first(where: { $0.title == "TechFest Demo Rehearsal" }) {
             let precedingEvent = events
-                .filter { $0.id != pickup.id && $0.endDate <= pickup.startDate }
-                .min { pickup.startDate.timeIntervalSince($0.endDate) < pickup.startDate.timeIntervalSince($1.endDate) }
+                .filter { $0.id != rehearsal.id && $0.endDate <= rehearsal.startDate }
+                .min {
+                    rehearsal.startDate.timeIntervalSince($0.endDate)
+                        < rehearsal.startDate.timeIntervalSince($1.endDate)
+                }
 
-            if let precedingEvent, pickup.startDate.timeIntervalSince(precedingEvent.endDate) < 15 * 60 {
+            if let precedingEvent, rehearsal.startDate.timeIntervalSince(precedingEvent.endDate) < 15 * 60 {
                 recommendations.append(RecommendationModel(
                     title: "Leave \"\(precedingEvent.title)\" a few minutes early",
                     reasoning: "It ends at \(precedingEvent.endDate.formatted(date: .omitted, time: .shortened)), "
-                        + "right as School Pickup starts — you'll need a buffer to make it on time.",
+                        + "when your TechFest rehearsal starts. Allow time to move between rooms.",
                     sourceAgent: .calendar,
                     riskLevel: .medium,
                     urgency: .high,
@@ -102,7 +105,7 @@ public struct MockRecommendationProvider: GhostBrainServing {
         signals.append(DaySignal(
             kind: .weather,
             title: weather.condition == .rain ? "Rain today" : "Rain expected this afternoon",
-            subtitle: "\(Int(weather.precipitationChance * 100))% chance starting around 3:00 PM",
+            subtitle: "\(Int(weather.precipitationChance * 100))% chance from around 15:00",
             timestamp: now,
             sourceAgent: .calendar
         ))

@@ -1,7 +1,7 @@
 import LifePilotDesignSystem
 import SwiftUI
 
-/// The Timeline screen — a unified, chronological view of everything
+/// The Timeline screen - a unified, chronological view of everything
 /// happening across connected apps, per README.md's Timeline feature.
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel

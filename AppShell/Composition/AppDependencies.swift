@@ -5,7 +5,7 @@ import LifePilotGhostBrain
 /// Injection standard: "A lightweight composition root in App/ wires
 /// concrete implementations to their protocols at app launch."
 ///
-/// In this phase, `ghostBrain` is always `MockRecommendationProvider` —
+/// In this phase, `ghostBrain` is always `MockRecommendationProvider` -
 /// swapping in the real `GhostBrainService` (docs/MASTER_ROADMAP.md Phase
 /// 5) is a one-line change here, with no change required in `Features`.
 public struct AppDependencies: Sendable {

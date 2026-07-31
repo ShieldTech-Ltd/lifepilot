@@ -5,10 +5,16 @@ import SwiftUI
 /// for step progression and `OnboardingStep` for step content.
 public struct OnboardingView: View {
     @State private var viewModel = OnboardingViewModel()
+    private let session: DemoSessionStore
     private let onFinish: () -> Void
 
-    public init(onFinish: @escaping () -> Void) {
+    public init(session: DemoSessionStore, onFinish: @escaping () -> Void) {
+        self.session = session
         self.onFinish = onFinish
+    }
+
+    public init(onFinish: @escaping () -> Void) {
+        self.init(session: DemoSessionStore(), onFinish: onFinish)
     }
 
     public var body: some View {
@@ -38,13 +44,25 @@ public struct OnboardingView: View {
                         .foregroundStyle(Color.LifePilot.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, Spacing.lg)
+
+                    if viewModel.currentStep.id == "calendar" {
+                        Label(
+                            "\(session.connectedSourceCount) demo sources ready",
+                            systemImage: "checkmark.circle.fill"
+                        )
+                        .font(.LifePilot.caption.weight(.semibold))
+                        .foregroundStyle(Color.LifePilot.signalSuccess)
+                        .padding(.horizontal, Spacing.md)
+                        .padding(.vertical, Spacing.sm)
+                        .background(Color.LifePilot.backgroundElevated, in: Capsule())
+                    }
                 }
                 .id(viewModel.currentStep.id)
                 .transition(.opacity.combined(with: .move(edge: .trailing)))
 
                 Spacer()
 
-                Button(viewModel.isLastStep ? "Get Started" : "Continue") {
+                Button(buttonTitle) {
                     if viewModel.isLastStep {
                         onFinish()
                     } else {
@@ -59,6 +77,12 @@ public struct OnboardingView: View {
             }
         }
         .animation(Motion.deliberate, value: viewModel.currentStepIndex)
+    }
+
+    private var buttonTitle: String {
+        if viewModel.isLastStep { return "Open my briefing" }
+        if viewModel.currentStep.id == "calendar" { return "Continue with demo data" }
+        return "Continue"
     }
 }
 

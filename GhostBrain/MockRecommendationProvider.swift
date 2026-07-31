@@ -1,5 +1,6 @@
 import Foundation
 import LifePilotCore
+import LifePilotMocks
 
 /// A `GhostBrainServing` implementation backed entirely by mock data. This
 /// is what the App composition root wires in during Phase 3 — see
@@ -7,6 +8,12 @@ import LifePilotCore
 /// against the Prediction/Recommendation types... even while populated by
 /// stub data," so Features never needs to change when GhostBrainService
 /// replaces this in Phase 5.
+///
+/// Recommendations, events, and signals are all derived from the same
+/// `LifePilotMocks` data `TimelineViewModel` merges — so Home and Timeline
+/// tell one consistent story about "today" instead of two disconnected
+/// ones, and the reasoning text is computed from the mock facts rather than
+/// duplicated as a separate hardcoded string.
 public struct MockRecommendationProvider: GhostBrainServing {
     private let clock: @Sendable () -> Date
 
@@ -16,11 +23,12 @@ public struct MockRecommendationProvider: GhostBrainServing {
 
     public func currentModel() async throws -> GhostBrainModel {
         let now = clock()
+        let events = MockCalendar.events(relativeTo: now)
         return GhostBrainModel(
             generatedAt: now,
             greetingContext: greetingContext(for: now),
-            recommendations: Self.sampleRecommendations(relativeTo: now),
-            upcomingEvents: Self.sampleEvents(relativeTo: now),
+            recommendations: Self.sampleRecommendations(events: events, relativeTo: now),
+            upcomingEvents: events,
             signals: Self.sampleSignals(relativeTo: now)
         )
     }
@@ -36,78 +44,79 @@ public struct MockRecommendationProvider: GhostBrainServing {
         return GhostBrainModel.GreetingContext(userFirstName: "Alex", timeOfDay: timeOfDay)
     }
 
-    private static func sampleRecommendations(relativeTo now: Date) -> [RecommendationModel] {
-        [
-            RecommendationModel(
-                title: "Leave 15 minutes early for your 10:00 AM",
-                reasoning: "Traffic on your usual route is heavier than normal — "
-                    + "Maps estimates 22 minutes instead of the usual 12.",
+    private static func sampleRecommendations(events: [CalendarEvent], relativeTo now: Date) -> [RecommendationModel] {
+        var recommendations: [RecommendationModel] = []
+
+        if let flight = MockTravel.itineraries(relativeTo: now).first(where: { $0.status == .delayed }) {
+            recommendations.append(RecommendationModel(
+                title: "\(flight.carrier) \(flight.identifier) is delayed",
+                reasoning: "Now departing later than scheduled on the \(flight.origin) to \(flight.destination) "
+                    + "route — worth a heads-up to anyone picking you up on the other end.",
                 sourceAgent: .travel,
                 riskLevel: .low,
                 urgency: .high,
                 createdAt: now
-            ),
-            RecommendationModel(
-                title: "Reply to Priya about the Q3 roadmap",
-                reasoning: "This email has been waiting three days and mentions a deadline of this Friday.",
+            ))
+        }
+
+        let staleThreshold: TimeInterval = 2 * 24 * 3600
+        if let overdueEmail = MockEmail.messages(relativeTo: now)
+            .filter({ $0.requiresReply && now.timeIntervalSince($0.receivedAt) > staleThreshold })
+            .max(by: { now.timeIntervalSince($0.receivedAt) < now.timeIntervalSince($1.receivedAt) }) {
+            recommendations.append(RecommendationModel(
+                title: "Reply to \(overdueEmail.sender) about \"\(overdueEmail.subject)\"",
+                reasoning: "This email has been waiting since "
+                    + "\(overdueEmail.receivedAt.formatted(date: .abbreviated, time: .omitted)) and looks time-sensitive.",
                 sourceAgent: .email,
                 riskLevel: .low,
                 urgency: .normal,
                 createdAt: now
-            ),
-            RecommendationModel(
-                title: "Reschedule your 2:00 PM — it conflicts with pickup",
-                reasoning: "Your calendar shows a 2:00 PM sync overlapping with the recurring 'School Pickup' block.",
-                sourceAgent: .calendar,
-                riskLevel: .medium,
-                urgency: .high,
-                createdAt: now
-            ),
-        ]
-    }
+            ))
+        }
 
-    private static func sampleEvents(relativeTo now: Date) -> [CalendarEvent] {
-        let calendar = Calendar.current
-        return [
-            CalendarEvent(
-                title: "Design Review",
-                location: "Studio — Room 2B",
-                startDate: calendar.date(bySettingHour: 10, minute: 0, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 10, minute: 45, second: 0, of: now) ?? now,
-                attendeeCount: 5
-            ),
-            CalendarEvent(
-                title: "1:1 with Priya",
-                location: nil,
-                startDate: calendar.date(bySettingHour: 13, minute: 30, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 14, minute: 0, second: 0, of: now) ?? now,
-                attendeeCount: 2
-            ),
-            CalendarEvent(
-                title: "School Pickup",
-                location: "Lincoln Elementary",
-                startDate: calendar.date(bySettingHour: 14, minute: 0, second: 0, of: now) ?? now,
-                endDate: calendar.date(bySettingHour: 14, minute: 30, second: 0, of: now) ?? now
-            ),
-        ]
+        if let pickup = events.first(where: { $0.title == "School Pickup" }) {
+            let precedingEvent = events
+                .filter { $0.id != pickup.id && $0.endDate <= pickup.startDate }
+                .min { pickup.startDate.timeIntervalSince($0.endDate) < pickup.startDate.timeIntervalSince($1.endDate) }
+
+            if let precedingEvent, pickup.startDate.timeIntervalSince(precedingEvent.endDate) < 15 * 60 {
+                recommendations.append(RecommendationModel(
+                    title: "Leave \"\(precedingEvent.title)\" a few minutes early",
+                    reasoning: "It ends at \(precedingEvent.endDate.formatted(date: .omitted, time: .shortened)), "
+                        + "right as School Pickup starts — you'll need a buffer to make it on time.",
+                    sourceAgent: .calendar,
+                    riskLevel: .medium,
+                    urgency: .high,
+                    createdAt: now
+                ))
+            }
+        }
+
+        return recommendations
     }
 
     private static func sampleSignals(relativeTo now: Date) -> [DaySignal] {
-        [
-            DaySignal(
-                kind: .weather,
-                title: "Rain expected this afternoon",
-                subtitle: "60% chance starting around 3:00 PM",
-                timestamp: now,
-                sourceAgent: .calendar
-            ),
-            DaySignal(
+        var signals: [DaySignal] = []
+
+        let weather = MockWeather.snapshot(relativeTo: now)
+        signals.append(DaySignal(
+            kind: .weather,
+            title: weather.condition == .rain ? "Rain today" : "Rain expected this afternoon",
+            subtitle: "\(Int(weather.precipitationChance * 100))% chance starting around 3:00 PM",
+            timestamp: now,
+            sourceAgent: .calendar
+        ))
+
+        if let anomalousCharge = MockFinance.transactions(relativeTo: now).first(where: \.isAnomalous) {
+            signals.append(DaySignal(
                 kind: .finance,
                 title: "Unusual charge detected",
-                subtitle: "$340 at an unfamiliar merchant",
-                timestamp: now,
+                subtitle: "\(anomalousCharge.formattedAmount) at \(anomalousCharge.merchant)",
+                timestamp: anomalousCharge.date,
                 sourceAgent: .finance
-            ),
-        ]
+            ))
+        }
+
+        return signals
     }
 }

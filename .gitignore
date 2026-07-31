@@ -1,0 +1,11 @@
+.build/
+.swiftpm/
+.DS_Store
+
+# Xcode user-specific state
+xcuserdata/
+*.xcuserstate
+
+# Local build products
+DerivedData/
+*.xcresult

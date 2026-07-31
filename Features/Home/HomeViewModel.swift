@@ -3,43 +3,62 @@ import LifePilotCore
 import LifePilotDesignSystem
 import LifePilotGhostBrain
 
-/// Owns the Home screen's state, sourcing it from `GhostBrainServing`. Per
-/// docs/ENGINEERING_GUIDE.md's MVVM pattern, the View never talks to
-/// `GhostBrain` directly — only through this ViewModel.
+/// Adapts the shared demo session into Home-specific view data.
 @Observable
 @MainActor
 public final class HomeViewModel {
-    public private(set) var greeting: String = ""
-    public private(set) var dateText: String = ""
-    public private(set) var recommendations: [BriefingCard.Content] = []
-    public private(set) var upcomingEvents: [CalendarEvent] = []
-    public private(set) var isLoading = false
+    public let session: DemoSessionStore
 
-    private let ghostBrain: GhostBrainServing
-
-    public init(ghostBrain: GhostBrainServing) {
-        self.ghostBrain = ghostBrain
+    public init(session: DemoSessionStore) {
+        self.session = session
     }
 
-    public func load() async {
-        isLoading = true
-        defer { isLoading = false }
+    public convenience init(ghostBrain: GhostBrainServing) {
+        self.init(session: DemoSessionStore(ghostBrain: ghostBrain))
+    }
 
-        guard let model = try? await ghostBrain.currentModel() else {
-            return
-        }
+    public var greeting: String {
+        let greetingWord = session.model?.greetingContext.timeOfDay.greetingWord ?? "Good morning"
+        return "\(greetingWord), \(session.firstName)"
+    }
 
-        greeting = "\(model.greetingContext.timeOfDay.greetingWord), \(model.greetingContext.userFirstName)"
-        dateText = model.generatedAt.formatted(.dateTime.weekday(.wide).month(.wide).day())
-        upcomingEvents = model.upcomingEvents
+    public var dateText: String {
+        session.model?.generatedAt.formatted(.dateTime.weekday(.wide).month(.wide).day()) ?? ""
+    }
 
-        recommendations = model.rankedRecommendations.map { recommendation in
+    public var recommendations: [BriefingCard.Content] {
+        session.availableRecommendations.map { recommendation in
             BriefingCard.Content(
+                id: recommendation.id,
                 title: recommendation.title,
                 reasoning: recommendation.reasoning,
                 sourceAgent: recommendation.sourceAgent,
                 riskBadgeText: recommendation.riskLevel == .low ? nil : recommendation.riskLevel.rawValue.capitalized
             )
         }
+    }
+
+    public var upcomingEvents: [CalendarEvent] { session.visibleEvents }
+    public var signals: [DaySignal] { session.visibleSignals }
+    public var recentActivity: [DemoActivity] { session.activities }
+    public var profileContextText: String { "Prepared for \(session.briefingTime) • \(session.course)" }
+    public var isLoading: Bool { session.isLoading }
+    public var isPrepared: Bool { session.isPrepared }
+    public var loadErrorMessage: String? { session.loadErrorMessage }
+
+    public func load() async {
+        await session.prepare()
+    }
+
+    public func retry() async {
+        await session.retry()
+    }
+
+    public func approve(_ content: BriefingCard.Content) {
+        session.resolve(content.id, approved: true)
+    }
+
+    public func dismiss(_ content: BriefingCard.Content) {
+        session.resolve(content.id, approved: false)
     }
 }

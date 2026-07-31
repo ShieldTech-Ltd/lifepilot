@@ -1,9 +1,7 @@
 import SwiftUI
 
-/// A shared full-screen placeholder for tabs and screens not yet built,
-/// used by Phase 3's Memory and Insights tabs. Not listed in
-/// docs/DESIGN_SYSTEM.md's Components table yet — add it there in the
-/// same PR if this becomes a long-lived pattern beyond Phase 3.
+/// A shared full-screen placeholder retained for future, intentionally
+/// unavailable surfaces. Core TechFest tabs use real demo content.
 public struct ComingSoonPlaceholder: View {
     private let symbolName: String
     private let title: String

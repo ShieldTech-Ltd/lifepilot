@@ -1,48 +1,84 @@
 import Foundation
 
-/// Owns the Settings screen's state. Architecture only in this phase —
-/// no settings actually persist yet; see docs/MASTER_ROADMAP.md Phase 4
-/// for the full Settings deliverable.
+/// Builds Settings rows from the live demo session.
 @Observable
 @MainActor
 public final class SettingsViewModel {
-    public var sections: [SettingsSection] = SettingsSection.placeholderSections
+    public let session: DemoSessionStore
 
-    public init() {}
+    public init(session: DemoSessionStore) {
+        self.session = session
+    }
+
+    public convenience init() {
+        self.init(session: DemoSessionStore())
+    }
+
+    public var sections: [SettingsSection] {
+        [
+            SettingsSection(id: "account", title: "Account", rows: [
+                SettingsRow(
+                    id: "profile",
+                    symbolName: "person.crop.circle.fill",
+                    title: "Profile",
+                    detail: session.displayName,
+                    destination: .profile
+                ),
+                SettingsRow(
+                    id: "connected",
+                    symbolName: "link",
+                    title: "Connected Sources",
+                    detail: "\(session.connectedSourceCount) active",
+                    destination: .connectedApps
+                ),
+            ]),
+            SettingsSection(id: "privacy", title: "Privacy & Control", rows: [
+                SettingsRow(
+                    id: "approvals",
+                    symbolName: "checkmark.shield.fill",
+                    title: "Approval Preferences",
+                    destination: .approvalPreferences
+                ),
+                SettingsRow(id: "data", symbolName: "lock.fill", title: "Data & Privacy", destination: .dataPrivacy),
+            ]),
+            SettingsSection(id: "about", title: "About", rows: [
+                SettingsRow(id: "version", symbolName: "sparkles", title: "TechFest Demo", detail: "0.5.0"),
+            ]),
+        ]
+    }
 }
 
-/// A grouped section of settings rows, e.g. "Account" or "Privacy."
 public struct SettingsSection: Identifiable {
     public let id: String
     public let title: String
     public let rows: [SettingsRow]
-
-    public static let placeholderSections: [SettingsSection] = [
-        SettingsSection(id: "account", title: "Account", rows: [
-            SettingsRow(id: "profile", symbolName: "person.crop.circle.fill", title: "Profile"),
-            SettingsRow(id: "connected", symbolName: "link", title: "Connected Apps"),
-        ]),
-        SettingsSection(id: "privacy", title: "Privacy & Security", rows: [
-            SettingsRow(id: "approvals", symbolName: "checkmark.shield.fill", title: "Approval Preferences"),
-            SettingsRow(id: "data", symbolName: "lock.fill", title: "Data & Privacy"),
-        ]),
-        SettingsSection(id: "about", title: "About", rows: [
-            SettingsRow(id: "version", symbolName: "info.circle.fill", title: "Version", detail: "0.1.0"),
-        ]),
-    ]
 }
 
-/// A single row within a `SettingsSection`.
 public struct SettingsRow: Identifiable {
     public let id: String
     public let symbolName: String
     public let title: String
     public let detail: String?
+    public let destination: SettingsDestination?
 
-    public init(id: String, symbolName: String, title: String, detail: String? = nil) {
+    public init(
+        id: String,
+        symbolName: String,
+        title: String,
+        detail: String? = nil,
+        destination: SettingsDestination? = nil
+    ) {
         self.id = id
         self.symbolName = symbolName
         self.title = title
         self.detail = detail
+        self.destination = destination
     }
+}
+
+public enum SettingsDestination: Hashable {
+    case profile
+    case connectedApps
+    case approvalPreferences
+    case dataPrivacy
 }

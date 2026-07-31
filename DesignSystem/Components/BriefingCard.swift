@@ -1,3 +1,4 @@
+import Foundation
 import LifePilotCore
 import SwiftUI
 
@@ -53,13 +54,25 @@ public struct BriefingCard: View {
 
     /// Plain view data for `BriefingCard`. Mapped from a domain model
     /// (e.g. `RecommendationModel`) by the owning Feature's ViewModel.
-    public struct Content {
+    ///
+    /// `Identifiable` (rather than a plain struct) so a screen presenting
+    /// multiple `BriefingCard`s can track which one a user tapped — e.g.
+    /// to drive an `ApprovalSheet` via `.sheet(item:)`.
+    public struct Content: Identifiable {
+        public let id: UUID
         public let title: String
         public let reasoning: String
         public let sourceAgent: AgentKind
         public let riskBadgeText: String?
 
-        public init(title: String, reasoning: String, sourceAgent: AgentKind, riskBadgeText: String? = nil) {
+        public init(
+            id: UUID = UUID(),
+            title: String,
+            reasoning: String,
+            sourceAgent: AgentKind,
+            riskBadgeText: String? = nil
+        ) {
+            self.id = id
             self.title = title
             self.reasoning = reasoning
             self.sourceAgent = sourceAgent

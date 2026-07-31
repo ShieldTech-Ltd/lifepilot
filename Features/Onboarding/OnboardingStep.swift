@@ -25,9 +25,9 @@ public struct OnboardingStep: Identifiable {
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
-            title: "Connect your calendar",
-            message: "LifePilot reads your schedule to build your Morning Briefing "
-                + "and catch conflicts before they happen."
+            title: "Preview connected sources",
+            message: "For this TechFest build, realistic demo data shows how LifePilot combines "
+                + "your calendar, inbox, travel, and finance signals without accessing a real account."
         ),
         OnboardingStep(
             id: "approvals",

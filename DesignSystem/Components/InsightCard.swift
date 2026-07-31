@@ -1,11 +1,8 @@
 import SwiftUI
 
-/// A stat-forward card for a single measured insight — "You saved 4.5
-/// hours this week," "12 tasks automated." Built ahead of the Insights
-/// tab's real implementation (docs/MASTER_ROADMAP.md Phase 4), so the
-/// visual language exists before the data does — the Insights tab
-/// currently shows `ComingSoonPlaceholder` and will adopt `InsightCard`
-/// once it has real metrics to render.
+/// A stat-forward card for a single measured insight, used by the live
+/// demo snapshot for pending recommendations, approved actions, signals,
+/// and estimated time saved.
 public struct InsightCard: View {
     private let value: String
     private let label: String

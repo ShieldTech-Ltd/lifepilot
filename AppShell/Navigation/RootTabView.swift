@@ -6,11 +6,15 @@ import SwiftUI
 /// wraps its screen in its own `NavigationStack`, per SwiftUI's recommended
 /// pattern for independent per-tab navigation history.
 public struct RootTabView: View {
-    private let dependencies: AppDependencies
+    @State private var session: DemoSessionStore
     @State private var selectedTab: AppTab = .home
 
     public init(dependencies: AppDependencies) {
-        self.dependencies = dependencies
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
+    }
+
+    public init(session: DemoSessionStore) {
+        _session = State(initialValue: session)
     }
 
     public var body: some View {
@@ -32,19 +36,22 @@ public struct RootTabView: View {
     private func destination(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            HomeView(ghostBrain: dependencies.ghostBrain)
+            HomeView(session: session) { filter in
+                session.timelineFilter = filter
+                selectedTab = .timeline
+            }
                 .navigationTitle("")
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
         case .timeline:
-            TimelineView()
+            TimelineView(session: session)
         case .memory:
-            MemoryView()
+            MemoryView(session: session)
         case .insights:
-            InsightsView()
+            InsightsView(session: session)
         case .settings:
-            SettingsView()
+            SettingsView(session: session)
         }
     }
 }

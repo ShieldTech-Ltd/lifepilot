@@ -1,3 +1,4 @@
+import LifePilotCore
 import LifePilotFeatures
 import SwiftUI
 
@@ -8,10 +9,11 @@ import SwiftUI
 /// iOS app wrapper.
 public struct LifePilotRootView: View {
     @State private var phase: LaunchPhase = .splash
-    private let dependencies: AppDependencies
+    @AppStorage(StorageKey.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+    @State private var session: DemoSessionStore
 
     public init(dependencies: AppDependencies = .live) {
-        self.dependencies = dependencies
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
     }
 
     public var body: some View {
@@ -20,13 +22,14 @@ public struct LifePilotRootView: View {
             case .splash:
                 SplashView()
             case .onboarding:
-                OnboardingView(onFinish: {
+                OnboardingView(session: session, onFinish: {
+                    hasCompletedOnboarding = true
                     withAnimation(.easeInOut(duration: 0.35)) {
                         phase = .main
                     }
                 })
             case .main:
-                RootTabView(dependencies: dependencies)
+                RootTabView(session: session)
             }
         }
         .task {
@@ -35,7 +38,7 @@ public struct LifePilotRootView: View {
             // docs/DESIGN_SYSTEM.md's Motion principle.
             try? await Task.sleep(for: .seconds(1.2))
             withAnimation(.easeInOut(duration: 0.35)) {
-                phase = .onboarding
+                phase = hasCompletedOnboarding ? .main : .onboarding
             }
         }
     }

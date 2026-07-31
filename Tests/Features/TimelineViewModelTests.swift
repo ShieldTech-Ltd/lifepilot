@@ -22,5 +22,7 @@ final class TimelineViewModelTests: XCTestCase {
         let kinds = Set(viewModel.entries.map(\.kind))
         XCTAssertTrue(kinds.contains(.event))
         XCTAssertTrue(kinds.contains(.email))
+        XCTAssertTrue(kinds.contains(.task))
+        XCTAssertTrue(kinds.contains(.travel))
     }
 }

@@ -4,7 +4,7 @@ import Foundation
 /// Domain-layer shape agents and Ghost Brain reason over - see
 /// docs/ARCHITECTURE.md's Dependency Rules on Integrations being adapters,
 /// not sources of truth for meaning.
-public struct CalendarEvent: Identifiable, Hashable, Sendable {
+public struct CalendarEvent: Identifiable, Hashable, Codable, Sendable {
     public let id: UUID
     public let title: String
     public let location: String?

@@ -31,6 +31,20 @@ public final class SettingsViewModel {
                     detail: "\(session.connectedSourceCount) active",
                     destination: .connectedApps
                 ),
+                SettingsRow(
+                    id: "appearance",
+                    symbolName: "circle.lefthalf.filled",
+                    title: "Appearance",
+                    detail: session.appearancePreference.title,
+                    destination: .appearance
+                ),
+                SettingsRow(
+                    id: "liveExperiences",
+                    symbolName: "wave.3.right.circle",
+                    title: "Live Activities",
+                    detail: "Widgets ready",
+                    destination: .liveExperiences
+                ),
             ]),
             SettingsSection(id: "privacy", title: "Privacy & Control", rows: [
                 SettingsRow(
@@ -42,7 +56,13 @@ public final class SettingsViewModel {
                 SettingsRow(id: "data", symbolName: "lock.fill", title: "Data & Privacy", destination: .dataPrivacy),
             ]),
             SettingsSection(id: "about", title: "About", rows: [
-                SettingsRow(id: "version", symbolName: "graduationcap.fill", title: "UK Student Demo", detail: "0.5.0"),
+                SettingsRow(
+                    id: "about",
+                    symbolName: "info.circle.fill",
+                    title: "About LifePilot",
+                    detail: "0.5.0",
+                    destination: .about
+                ),
             ]),
         ]
     }
@@ -81,4 +101,7 @@ public enum SettingsDestination: Hashable {
     case connectedApps
     case approvalPreferences
     case dataPrivacy
+    case appearance
+    case liveExperiences
+    case about
 }

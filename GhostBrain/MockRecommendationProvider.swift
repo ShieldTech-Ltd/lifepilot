@@ -17,7 +17,7 @@ import LifePilotMocks
 public struct MockRecommendationProvider: GhostBrainServing {
     private let clock: @Sendable () -> Date
 
-    public init(clock: @escaping @Sendable () -> Date = Date.init) {
+    public init(clock: @escaping @Sendable () -> Date = { Date() }) {
         self.clock = clock
     }
 

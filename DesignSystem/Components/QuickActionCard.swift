@@ -9,11 +9,18 @@ import SwiftUI
 public struct QuickActionCard: View {
     private let symbolName: String
     private let title: String
+    private let tint: Color
     private let action: () -> Void
 
-    public init(symbolName: String, title: String, action: @escaping () -> Void = {}) {
+    public init(
+        symbolName: String,
+        title: String,
+        tint: Color = Color.LifePilot.accentEnd,
+        action: @escaping () -> Void = {}
+    ) {
         self.symbolName = symbolName
         self.title = title
+        self.tint = tint
         self.action = action
     }
 
@@ -22,15 +29,17 @@ public struct QuickActionCard: View {
             VStack(spacing: Spacing.xs) {
                 Image(systemName: symbolName)
                     .font(.system(size: IconSize.sm, weight: .medium))
-                    .foregroundStyle(LinearGradient.LifePilot.accent)
+                    .foregroundStyle(tint)
+                    .frame(width: 40, height: 40)
+                    .background(tint.opacity(0.14), in: Circle())
 
                 Text(title)
                     .font(.LifePilot.caption)
                     .foregroundStyle(Color.LifePilot.textPrimary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, Spacing.md)
-            .lifePilotSurface()
+            .padding(.vertical, Spacing.sm + Spacing.xs)
+            .lifePilotGlass(cornerRadius: CornerRadius.md, isInteractive: true)
         }
         .buttonStyle(.lifePilotPressable)
         .accessibilityLabel(title)

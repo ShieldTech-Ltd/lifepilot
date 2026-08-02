@@ -21,6 +21,7 @@ public struct ProfileDetailView: View {
     @State private var isLoadingPhoto = false
     @State private var photoErrorMessage: String?
     @State private var didSave = false
+    @State private var isSaving = false
 
     private let briefingTimes = ["07:00", "08:00", "09:00"]
 
@@ -42,30 +43,56 @@ public struct ProfileDetailView: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl) {
+                ScreenHeader(
+                    eyebrow: "Make it yours",
+                    title: "Your profile",
+                    subtitle: "Personalise the briefing with your identity, study context, and preferred start time."
+                )
                 identityCard
                 profileSection
                 contextSection
                 briefingSection
+                securitySection
 
-                Button("Save changes") {
-                    save()
+                Button {
+                    Task { await save() }
+                } label: {
+                    HStack(spacing: Spacing.sm) {
+                        if isSaving {
+                            ProgressView()
+                                .controlSize(.small)
+                                .tint(Color.LifePilot.controlPrimaryText)
+                        } else {
+                            Image(systemName: didSave && !hasUnsavedChanges ? "checkmark.circle.fill" : "tray.and.arrow.down.fill")
+                        }
+
+                        Text(saveButtonTitle)
+                    }
                 }
                 .buttonStyle(.lifePilotPrimary)
-                .disabled(displayName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(
+                    displayName.trimmingCharacters(in: .whitespaces).isEmpty
+                        || isSaving
+                        || !hasUnsavedChanges
+                )
                 .accessibilityIdentifier("profile.save")
 
-                if didSave {
+                if didSave, !hasUnsavedChanges {
                     Label("Profile saved. Home now uses this identity.", systemImage: "checkmark.circle.fill")
                         .font(.LifePilot.caption)
                         .foregroundStyle(Color.LifePilot.signalSuccess)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
                 }
             }
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.md)
         }
-        .background(Color.LifePilot.backgroundPrimary)
+        .lifePilotScreenBackground(energy: .prominent)
         .navigationTitle("Profile")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .onChange(of: selectedPhoto) { _, item in
             guard let item else { return }
             Task { await loadPhoto(from: item) }
@@ -187,13 +214,77 @@ public struct ProfileDetailView: View {
         }
     }
 
+    private var securitySection: some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            SectionHeader(title: "Security", symbolName: "lock.shield.fill")
+            NavigationLink {
+                PasswordSecurityView(session: session)
+            } label: {
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: "key.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(Color.LifePilot.textPrimary)
+                        .frame(width: 38, height: 38)
+                        .background(Color.LifePilot.selectionFill, in: Circle())
+
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text("Change password")
+                            .font(.LifePilot.body.weight(.semibold))
+                            .foregroundStyle(Color.LifePilot.textPrimary)
+                        Text(passwordDetail)
+                            .font(.LifePilot.caption)
+                            .foregroundStyle(Color.LifePilot.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.LifePilot.textTertiary)
+                }
+                .padding(Spacing.md)
+                .lifePilotGlass(cornerRadius: CornerRadius.lg, isInteractive: true)
+            }
+            .buttonStyle(.lifePilotPressable)
+            .accessibilityIdentifier("profile.changePassword")
+        }
+    }
+
+    private var passwordDetail: String {
+        guard let date = session.passwordUpdatedAt else { return "Protect your LifePilot account" }
+        return "Updated \(date.formatted(date: .abbreviated, time: .omitted))"
+    }
+
+    private var hasUnsavedChanges: Bool {
+        displayName != session.displayName
+            || email != session.email
+            || course != session.course
+            || university != session.university
+            || location != session.location
+            || briefingTime != session.briefingTime
+            || profileImageData != session.profileImageData
+    }
+
+    private var saveButtonTitle: String {
+        if isSaving { return "Saving profile" }
+        if didSave, !hasUnsavedChanges { return "Profile saved" }
+        return "Save changes"
+    }
+
     private func field(_ label: String, text: Binding<String>, identifier: String) -> some View {
         VStack(alignment: .leading, spacing: Spacing.xs) {
             Text(label)
                 .font(.LifePilot.caption)
                 .foregroundStyle(Color.LifePilot.textSecondary)
             TextField(label, text: text)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, Spacing.md)
+                .frame(minHeight: 48)
+                .background(Color.LifePilot.glassTint, in: RoundedRectangle(cornerRadius: CornerRadius.sm))
+                .overlay {
+                    RoundedRectangle(cornerRadius: CornerRadius.sm)
+                        .stroke(Color.LifePilot.glassBorder, lineWidth: 1)
+                }
                 #if os(iOS)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
@@ -202,7 +293,14 @@ public struct ProfileDetailView: View {
         }
     }
 
-    private func save() {
+    @MainActor
+    private func save() async {
+        guard hasUnsavedChanges, !isSaving else { return }
+        withAnimation(Motion.quick) {
+            isSaving = true
+            didSave = false
+        }
+
         session.updateProfile(
             displayName: displayName,
             email: email,
@@ -212,7 +310,12 @@ public struct ProfileDetailView: View {
             briefingTime: briefingTime
         )
         session.updateProfileImage(profileImageData)
-        didSave = true
+        try? await Task.sleep(for: .milliseconds(450))
+
+        withAnimation(Motion.standard) {
+            isSaving = false
+            didSave = true
+        }
     }
 
     @MainActor

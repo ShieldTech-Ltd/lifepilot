@@ -12,11 +12,16 @@ public enum StorageKey {
     public static let profileLocation = "com.lifepilot.profile.location"
     public static let profileBriefingTime = "com.lifepilot.profile.briefingTime"
     public static let profileImageData = "com.lifepilot.profile.imageData"
+    public static let passwordUpdatedAt = "com.lifepilot.profile.passwordUpdatedAt"
+    public static let appearancePreference = "com.lifepilot.appearance.preference"
     public static let connectedCalendar = "com.lifepilot.connected.calendar"
     public static let connectedEmail = "com.lifepilot.connected.email"
     public static let connectedTravel = "com.lifepilot.connected.travel"
     public static let connectedFinance = "com.lifepilot.connected.finance"
     public static let approvalsNotifyOnHighRisk = "com.lifepilot.approvals.notifyOnHighRisk"
+    public static let approvalHistory = "com.lifepilot.approvals.history"
+    public static let resolvedRecommendationKeys = "com.lifepilot.approvals.resolvedRecommendationKeys"
+    public static let importedCalendarEvents = "com.lifepilot.calendar.importedEvents"
 
     /// Every key above, for bulk operations like Settings' "Reset Local
     /// Demo Data" action - kept as a single array so a forgotten new key
@@ -30,10 +35,15 @@ public enum StorageKey {
         profileLocation,
         profileBriefingTime,
         profileImageData,
+        passwordUpdatedAt,
+        appearancePreference,
         connectedCalendar,
         connectedEmail,
         connectedTravel,
         connectedFinance,
         approvalsNotifyOnHighRisk,
+        approvalHistory,
+        resolvedRecommendationKeys,
+        importedCalendarEvents,
     ]
 }

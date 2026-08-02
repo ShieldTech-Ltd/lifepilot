@@ -36,6 +36,10 @@ public struct BriefingCard: View {
                     if let badgeText = content.riskBadgeText {
                         SignalBadge(style: .risk, text: badgeText)
                     }
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.LifePilot.textTertiary)
                 }
 
                 Text(content.title)
@@ -47,6 +51,10 @@ public struct BriefingCard: View {
                     .font(.LifePilot.body)
                     .foregroundStyle(Color.LifePilot.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Label("Review prepared action", systemImage: "hand.tap.fill")
+                    .font(.LifePilot.utility)
+                    .foregroundStyle(Color.LifePilot.accentStart)
             }
         }
         .accessibilityElement(children: .combine)

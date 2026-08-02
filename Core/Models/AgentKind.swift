@@ -1,7 +1,7 @@
 /// Identifies which agent produced a given signal, prediction, or
 /// recommendation. See the AI Agent System in README.md for what each
 /// agent is responsible for at the product level.
-public enum AgentKind: String, CaseIterable, Hashable, Sendable {
+public enum AgentKind: String, CaseIterable, Codable, Hashable, Sendable {
     case calendar
     case email
     case travel
@@ -35,7 +35,7 @@ public enum AgentKind: String, CaseIterable, Hashable, Sendable {
         case .calendar: "calendar"
         case .email: "envelope.fill"
         case .travel: "airplane"
-        case .finance: "dollarsign.circle.fill"
+        case .finance: "sterlingsign.circle.fill"
         case .memory: "brain.head.profile"
         case .reminder: "bell.fill"
         case .shopping: "cart.fill"

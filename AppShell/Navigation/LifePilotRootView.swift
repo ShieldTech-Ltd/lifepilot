@@ -20,7 +20,7 @@ public struct LifePilotRootView: View {
         Group {
             switch phase {
             case .splash:
-                SplashView()
+                SplashView(session: session)
             case .onboarding:
                 OnboardingView(session: session, onFinish: {
                     hasCompletedOnboarding = true
@@ -32,14 +32,23 @@ public struct LifePilotRootView: View {
                 RootTabView(session: session)
             }
         }
+        .preferredColorScheme(preferredColorScheme)
         .task {
             // A brief, deliberate splash duration - long enough to read as
             // intentional, short enough not to feel like a delay. See
             // docs/DESIGN_SYSTEM.md's Motion principle.
-            try? await Task.sleep(for: .seconds(1.2))
+            try? await Task.sleep(for: .seconds(1.25))
             withAnimation(.easeInOut(duration: 0.35)) {
                 phase = hasCompletedOnboarding ? .main : .onboarding
             }
+        }
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch session.appearancePreference {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 

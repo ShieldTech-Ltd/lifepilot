@@ -13,8 +13,6 @@ import SwiftUI
 public struct GhostCard: View {
     private let title: String
     private let subtitle: String?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isPulsing = false
 
     public init(title: String, subtitle: String? = nil) {
         self.title = title
@@ -26,11 +24,8 @@ public struct GhostCard: View {
             HStack(spacing: Spacing.sm) {
                 Image(systemName: "sparkle")
                     .font(.system(size: IconSize.sm, weight: .medium))
-                    .foregroundStyle(LinearGradient.LifePilot.accent)
-                    .scaleEffect(isPulsing ? 1.1 : 1)
-                    .lifePilotAnimation(Motion.loading, reduceMotion: reduceMotion, value: isPulsing)
+                    .foregroundStyle(Color.LifePilot.accentStart)
                     .accessibilityHidden(true)
-                    .onAppear { isPulsing = true }
 
                 VStack(alignment: .leading, spacing: Spacing.xs) {
                     Text(title)

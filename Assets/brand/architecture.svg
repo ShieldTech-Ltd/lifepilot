@@ -33,7 +33,7 @@
   <!-- 02 App -->
   <rect x="270" y="250" width="360" height="56" rx="12" fill="#100e1c" stroke="#23203a"/>
   <text x="450" y="272" text-anchor="middle" font-size="10" letter-spacing="1.5" fill="#6d6890">02 · SURFACE</text>
-  <text x="450" y="292" text-anchor="middle" font-size="15" font-weight="600" fill="#f2f0fa">LifePilot — SwiftUI</text>
+  <text x="450" y="292" text-anchor="middle" font-size="15" font-weight="600" fill="#f2f0fa">LifePilot - SwiftUI</text>
 
   <line x1="450" y1="306" x2="450" y2="336" stroke="#2c2846" stroke-width="2"/>
 
@@ -151,7 +151,7 @@
   <rect x="230" y="1072" width="440" height="62" rx="12" fill="#1c0f18" stroke="#5c2436"/>
   <text x="450" y="1094" text-anchor="middle" font-size="10" letter-spacing="1.5" fill="#f2557a">HUMAN APPROVAL</text>
   <text x="450" y="1114" text-anchor="middle" font-size="13" font-weight="600" fill="#f2f0fa">You review every consequential action</text>
-  <text x="450" y="1128" text-anchor="middle" font-size="10" fill="#a6a1c2">No silent execution — ever</text>
+  <text x="450" y="1128" text-anchor="middle" font-size="10" fill="#a6a1c2">No silent execution - ever</text>
 
   <line x1="450" y1="1134" x2="450" y2="1166" stroke="url(#flow)" stroke-width="2" marker-end="url(#dot)"/>
 

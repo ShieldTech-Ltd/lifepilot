@@ -15,6 +15,7 @@ public final class DemoSessionStore {
     public private(set) var emailMessages: [EmailMessage] = []
     public private(set) var tasks: [TaskItem] = []
     public private(set) var travelItineraries: [TravelItinerary] = []
+    public private(set) var importedEvents: [CalendarEvent] = []
     public private(set) var isLoading = false
     public private(set) var loadErrorMessage: String?
 
@@ -25,6 +26,8 @@ public final class DemoSessionStore {
     public private(set) var location: String
     public private(set) var briefingTime: String
     public private(set) var profileImageData: Data?
+    public private(set) var passwordUpdatedAt: Date?
+    public private(set) var appearancePreference: AppearancePreference
 
     public private(set) var calendarEnabled: Bool
     public private(set) var emailEnabled: Bool
@@ -36,7 +39,7 @@ public final class DemoSessionStore {
 
     private let ghostBrain: GhostBrainServing
     private let defaults: UserDefaults
-    private var resolvedRecommendationIDs: Set<UUID> = []
+    private var resolvedRecommendationKeys: Set<String> = []
 
     public init(
         ghostBrain: GhostBrainServing = MockRecommendationProvider(),
@@ -51,11 +54,24 @@ public final class DemoSessionStore {
         location = defaults.string(forKey: StorageKey.profileLocation) ?? "London"
         briefingTime = defaults.string(forKey: StorageKey.profileBriefingTime) ?? "08:00"
         profileImageData = defaults.data(forKey: StorageKey.profileImageData)
+        passwordUpdatedAt = defaults.object(forKey: StorageKey.passwordUpdatedAt) as? Date
+        appearancePreference = AppearancePreference(
+            rawValue: defaults.string(forKey: StorageKey.appearancePreference) ?? ""
+        ) ?? .system
         calendarEnabled = Self.boolValue(defaults, key: StorageKey.connectedCalendar, fallback: true)
         emailEnabled = Self.boolValue(defaults, key: StorageKey.connectedEmail, fallback: true)
         travelEnabled = Self.boolValue(defaults, key: StorageKey.connectedTravel, fallback: true)
         financeEnabled = Self.boolValue(defaults, key: StorageKey.connectedFinance, fallback: true)
         notifyOnHighRisk = Self.boolValue(defaults, key: StorageKey.approvalsNotifyOnHighRisk, fallback: true)
+        if let data = defaults.data(forKey: StorageKey.importedCalendarEvents) {
+            importedEvents = (try? JSONDecoder().decode([CalendarEvent].self, from: data)) ?? []
+        } else if defaults === UserDefaults.standard {
+            importedEvents = SharedImportedEventStore.load()
+        }
+        if let data = defaults.data(forKey: StorageKey.approvalHistory) {
+            activities = (try? JSONDecoder().decode([DemoActivity].self, from: data)) ?? []
+        }
+        resolvedRecommendationKeys = Set(defaults.stringArray(forKey: StorageKey.resolvedRecommendationKeys) ?? [])
     }
 
     public var isPrepared: Bool { model != nil }
@@ -71,16 +87,25 @@ public final class DemoSessionStore {
     public var availableRecommendations: [RecommendationModel] {
         guard let model else { return [] }
         return model.rankedRecommendations.filter {
-            !resolvedRecommendationIDs.contains($0.id) && isEnabled($0.sourceAgent)
+            !resolvedRecommendationKeys.contains(resolutionKey(for: $0)) && isEnabled($0.sourceAgent)
         }
     }
 
     public var visibleEvents: [CalendarEvent] {
-        calendarEnabled ? model?.upcomingEvents ?? [] : []
+        let connectedEvents = calendarEnabled ? model?.upcomingEvents ?? [] : []
+        return (connectedEvents + importedEvents).sorted { $0.startDate < $1.startDate }
     }
 
     public var visibleSignals: [DaySignal] {
         (model?.signals ?? []).filter { isEnabled($0.sourceAgent) }
+    }
+
+    public var readinessProgress: Double {
+        guard isPrepared else { return 0.08 }
+        let total = activities.count + availableRecommendations.count
+        let reviewedRatio = total == 0 ? 1 : Double(activities.count) / Double(total)
+        let sourceRatio = Double(connectedSourceCount) / 4
+        return min(1, 0.52 + sourceRatio * 0.18 + reviewedRatio * 0.3)
     }
 
     public func prepare() async {
@@ -96,6 +121,7 @@ public final class DemoSessionStore {
             emailMessages = MockEmail.messages(relativeTo: now)
             tasks = MockTasks.items(relativeTo: now)
             travelItineraries = MockTravel.itineraries(relativeTo: now)
+            publishNextEvent()
         } catch {
             loadErrorMessage = "The demo day could not be prepared. Try again."
         }
@@ -108,7 +134,7 @@ public final class DemoSessionStore {
 
     public func resolve(_ recommendationID: UUID, approved: Bool) {
         guard let recommendation = model?.recommendations.first(where: { $0.id == recommendationID }) else { return }
-        resolvedRecommendationIDs.insert(recommendationID)
+        resolvedRecommendationKeys.insert(resolutionKey(for: recommendation))
         activities.insert(
             DemoActivity(
                 recommendationID: recommendationID,
@@ -120,6 +146,8 @@ public final class DemoSessionStore {
             ),
             at: 0
         )
+        persistApprovalHistory()
+        publishNextEvent()
     }
 
     public func setConnection(_ agent: AgentKind, isEnabled: Bool) {
@@ -139,11 +167,17 @@ public final class DemoSessionStore {
         default:
             break
         }
+        publishNextEvent()
     }
 
     public func setNotifyOnHighRisk(_ isEnabled: Bool) {
         notifyOnHighRisk = isEnabled
         defaults.set(isEnabled, forKey: StorageKey.approvalsNotifyOnHighRisk)
+    }
+
+    public func setAppearancePreference(_ preference: AppearancePreference) {
+        appearancePreference = preference
+        defaults.set(preference.rawValue, forKey: StorageKey.appearancePreference)
     }
 
     public func updateProfileImage(_ data: Data?) {
@@ -153,6 +187,32 @@ public final class DemoSessionStore {
         } else {
             defaults.removeObject(forKey: StorageKey.profileImageData)
         }
+    }
+
+    public func recordPasswordUpdate(at date: Date = Date()) {
+        passwordUpdatedAt = date
+        defaults.set(date, forKey: StorageKey.passwordUpdatedAt)
+    }
+
+    public func addImportedEvent(_ event: CalendarEvent) {
+        importedEvents.append(event)
+        importedEvents.sort { $0.startDate < $1.startDate }
+        defaults.set(try? JSONEncoder().encode(importedEvents), forKey: StorageKey.importedCalendarEvents)
+        if defaults === UserDefaults.standard {
+            SharedImportedEventStore.replace(importedEvents)
+        }
+        publishNextEvent()
+    }
+
+    public func reloadSharedEvents() {
+        guard defaults === UserDefaults.standard else { return }
+        importedEvents = SharedImportedEventStore.load()
+        defaults.set(try? JSONEncoder().encode(importedEvents), forKey: StorageKey.importedCalendarEvents)
+        publishNextEvent()
+    }
+
+    public func refreshLiveExperiences() {
+        publishNextEvent()
     }
 
     public func updateProfile(
@@ -189,14 +249,21 @@ public final class DemoSessionStore {
         location = "London"
         briefingTime = "08:00"
         profileImageData = nil
+        passwordUpdatedAt = nil
+        appearancePreference = .system
         calendarEnabled = true
         emailEnabled = true
         travelEnabled = true
         financeEnabled = true
         notifyOnHighRisk = true
-        resolvedRecommendationIDs = []
+        resolvedRecommendationKeys = []
         activities = []
+        importedEvents = []
         timelineFilter = .all
+        if defaults === UserDefaults.standard {
+            SharedImportedEventStore.clear()
+        }
+        publishNextEvent()
     }
 
     public func isEnabled(_ agent: AgentKind) -> Bool {
@@ -219,12 +286,32 @@ public final class DemoSessionStore {
         }
     }
 
+    private func publishNextEvent(now: Date = Date()) {
+        let nextEvent = visibleEvents
+            .filter { $0.endDate > now }
+            .min { $0.startDate < $1.startDate }
+        UpcomingEventWidgetStore.save(
+            event: nextEvent,
+            readiness: Int(readinessProgress * 100),
+            pendingActions: availableRecommendations.count
+        )
+    }
+
+    private func resolutionKey(for recommendation: RecommendationModel) -> String {
+        "\(recommendation.sourceAgent.rawValue)|\(recommendation.title)"
+    }
+
+    private func persistApprovalHistory() {
+        defaults.set(try? JSONEncoder().encode(activities), forKey: StorageKey.approvalHistory)
+        defaults.set(resolvedRecommendationKeys.sorted(), forKey: StorageKey.resolvedRecommendationKeys)
+    }
+
     private static func boolValue(_ defaults: UserDefaults, key: String, fallback: Bool) -> Bool {
         defaults.object(forKey: key) == nil ? fallback : defaults.bool(forKey: key)
     }
 }
 
-public struct DemoActivity: Identifiable, Hashable, Sendable {
+public struct DemoActivity: Codable, Identifiable, Hashable, Sendable {
     public let id: UUID
     public let recommendationID: UUID
     public let title: String
@@ -261,4 +348,28 @@ public enum TimelineFilter: String, CaseIterable, Identifiable, Hashable, Sendab
     case action = "Actions"
 
     public var id: String { rawValue }
+}
+
+public enum AppearancePreference: String, CaseIterable, Identifiable, Hashable, Sendable {
+    case system
+    case light
+    case dark
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .system: "System"
+        case .light: "Light"
+        case .dark: "Dark"
+        }
+    }
+
+    public var symbolName: String {
+        switch self {
+        case .system: "circle.lefthalf.filled"
+        case .light: "sun.max.fill"
+        case .dark: "moon.stars.fill"
+        }
+    }
 }

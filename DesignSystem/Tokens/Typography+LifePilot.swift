@@ -12,11 +12,15 @@ extension Font {
     public enum LifePilot {
         /// Screen titles. Bold, `.largeTitle` scale (34pt at the default
         /// content size).
-        public static let titleLarge = Font.system(.largeTitle, design: .default, weight: .bold)
+        public static let titleLarge = Font.system(.largeTitle, design: .rounded, weight: .bold)
 
         /// Section headers. Semibold, `.title2` scale (22pt at the
         /// default content size).
-        public static let titleMedium = Font.system(.title2, design: .default, weight: .semibold)
+        public static let titleMedium = Font.system(.title2, design: .rounded, weight: .semibold)
+
+        /// Hero metrics and orbit values. Rounded numerals give the live
+        /// dashboard surfaces a distinctive instrument-panel character.
+        public static let metric = Font.system(.title, design: .rounded, weight: .bold).monospacedDigit()
 
         /// Primary content. Regular, `.body` scale (17pt at the default
         /// content size).
@@ -25,5 +29,7 @@ extension Font {
         /// Metadata, timestamps. Medium, `.footnote` scale (13pt at the
         /// default content size).
         public static let caption = Font.system(.footnote, design: .default, weight: .medium)
+
+        public static let utility = Font.system(.caption, design: .rounded, weight: .semibold)
     }
 }

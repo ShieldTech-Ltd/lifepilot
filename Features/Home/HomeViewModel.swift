@@ -39,11 +39,22 @@ public final class HomeViewModel {
     }
 
     public var upcomingEvents: [CalendarEvent] { session.visibleEvents }
+    public var eventsAhead: [CalendarEvent] {
+        upcomingEvents.filter { $0.endDate > eventReferenceDate }
+    }
+    public var nextEvent: CalendarEvent? { eventsAhead.first }
+    public var laterEvents: [CalendarEvent] { Array(eventsAhead.dropFirst()) }
     public var signals: [DaySignal] { session.visibleSignals }
     public var recentActivity: [DemoActivity] { session.activities }
     public var displayName: String { session.displayName }
     public var profileImageData: Data? { session.profileImageData }
     public var profileContextText: String { "Prepared for \(session.briefingTime) • \(session.course)" }
+    public var pendingCount: Int { session.availableRecommendations.count }
+    public var connectedSourceCount: Int { session.connectedSourceCount }
+
+    public var readinessProgress: Double { session.readinessProgress }
+
+    public var readinessText: String { "\(Int(readinessProgress * 100))%" }
     public var isLoading: Bool { session.isLoading }
     public var isPrepared: Bool { session.isPrepared }
     public var loadErrorMessage: String? { session.loadErrorMessage }
@@ -62,5 +73,9 @@ public final class HomeViewModel {
 
     public func dismiss(_ content: BriefingCard.Content) {
         session.resolve(content.id, approved: false)
+    }
+
+    private var eventReferenceDate: Date {
+        session.model?.generatedAt ?? Date()
     }
 }

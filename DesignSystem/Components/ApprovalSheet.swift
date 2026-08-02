@@ -16,46 +16,74 @@ public struct ApprovalSheet: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.lg) {
-            VStack(alignment: .leading, spacing: Spacing.sm) {
-                HStack(spacing: Spacing.sm) {
-                    Label(content.sourceName, systemImage: content.sourceSymbolName)
-                    Spacer()
-                    Text(content.riskText)
+        ZStack {
+            AmbientBackground(energy: .subtle)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.lg) {
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: content.sourceSymbolName)
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(Color.LifePilot.accentStart)
+                            .frame(width: 48, height: 48)
+                            .background(Color.LifePilot.accentStart.opacity(0.12), in: Circle())
+
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("Prepared by")
+                                .font(.LifePilot.caption)
+                                .foregroundStyle(Color.LifePilot.textTertiary)
+                            Text(content.sourceName)
+                                .font(.LifePilot.body.weight(.semibold))
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+                        }
+
+                        Spacer()
+
+                        Label(content.riskText, systemImage: "shield.checkered")
+                            .font(.LifePilot.utility)
+                            .foregroundStyle(Color.LifePilot.signalSuccess)
+                            .padding(.horizontal, Spacing.sm)
+                            .padding(.vertical, Spacing.xs)
+                            .background(Color.LifePilot.signalSuccess.opacity(0.12), in: Capsule())
+                    }
+
+                    CardContainer {
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text(content.title)
+                                .font(.LifePilot.titleMedium)
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+
+                            Text(content.reasoning)
+                                .font(.LifePilot.body)
+                                .foregroundStyle(Color.LifePilot.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .accessibilityElement(children: .combine)
+                    }
+
+                    Label(content.executionNote, systemImage: "wand.and.stars")
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.accentEnd)
+                        .padding(Spacing.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lifePilotGlass(cornerRadius: CornerRadius.md, isInteractive: true)
+
+                    VStack(spacing: Spacing.sm) {
+                        Button("Approve prepared action", action: onApprove)
+                            .buttonStyle(.lifePilotPrimary)
+                            .accessibilityHint("Approves: \(content.title)")
+                            .accessibilityIdentifier("approvalSheet.approve")
+
+                        Button("Not now", action: onDismiss)
+                            .buttonStyle(.lifePilotSecondary)
+                            .accessibilityHint("Dismisses without taking action")
+                            .accessibilityIdentifier("approvalSheet.dismiss")
+                    }
                 }
-                .font(.LifePilot.caption.weight(.semibold))
-                .foregroundStyle(Color.LifePilot.textSecondary)
-
-                Text(content.title)
-                    .font(.LifePilot.titleMedium)
-                    .foregroundStyle(Color.LifePilot.textPrimary)
-
-                Text(content.reasoning)
-                    .font(.LifePilot.body)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-            }
-            .accessibilityElement(children: .combine)
-
-            Label(content.executionNote, systemImage: "wand.and.stars")
-                .font(.LifePilot.caption)
-                .foregroundStyle(Color.LifePilot.accentEnd)
-                .padding(Spacing.sm)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.LifePilot.backgroundElevated, in: RoundedRectangle(cornerRadius: CornerRadius.sm))
-
-            VStack(spacing: Spacing.sm) {
-                Button("Approve", action: onApprove)
-                    .buttonStyle(.lifePilotPrimary)
-                    .accessibilityHint("Approves: \(content.title)")
-                    .accessibilityIdentifier("approvalSheet.approve")
-
-                Button("Dismiss", action: onDismiss)
-                    .buttonStyle(.lifePilotSecondary)
-                    .accessibilityHint("Dismisses without taking action")
-                    .accessibilityIdentifier("approvalSheet.dismiss")
+                .padding(Spacing.lg)
             }
         }
-        .padding(Spacing.lg)
     }
 
     /// Plain view data for `ApprovalSheet`.

@@ -16,6 +16,6 @@
 # - indent: SwiftFormat's indent tracking disagrees with this codebase's
 #   #if/#elseif/#endif conditional-compilation blocks (see
 #   DesignSystem/Tokens/Color+LifePilot.swift and
-#   AppShell/Navigation/RootTabView.swift) — a known SwiftFormat limitation
+#   AppShell/Navigation/RootTabView.swift) - a known SwiftFormat limitation
 #   around preprocessor directives, not a real formatting defect.
 --disable redundantReturn,extensionAccessControl,wrapPropertyBodies,conditionalAssignment,numberFormatting,indent

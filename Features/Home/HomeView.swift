@@ -1,3 +1,4 @@
+import LifePilotCore
 import LifePilotDesignSystem
 import LifePilotGhostBrain
 import SwiftUI
@@ -7,6 +8,8 @@ import SwiftUI
 public struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @State private var selectedRecommendation: BriefingCard.Content?
+    @State private var selectedEvent: CalendarEvent?
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     private let onOpenTimeline: (TimelineFilter) -> Void
 
     public init(session: DemoSessionStore, onOpenTimeline: @escaping (TimelineFilter) -> Void = { _ in }) {
@@ -20,7 +23,9 @@ public struct HomeView: View {
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.xl) {
+            VStack(alignment: .leading, spacing: Spacing.xl + Spacing.xs) {
+                primaryHeader
+                nextEventSection
                 heroHeader
                 ghostBrainSection
                 signalsSection
@@ -32,7 +37,7 @@ public struct HomeView: View {
             .padding(.top, Spacing.md)
             .padding(.bottom, Spacing.xl)
         }
-        .background(Color.LifePilot.backgroundPrimary)
+        .lifePilotScreenBackground(energy: .prominent)
         .task { await viewModel.load() }
         .sheet(item: $selectedRecommendation) { content in
             ApprovalSheet(
@@ -54,36 +59,179 @@ public struct HomeView: View {
             )
             .presentationDetents([.medium, .large])
         }
+        .sheet(item: $selectedEvent) { event in
+            eventPreview(event)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
     }
 
     // MARK: - Hero Header
 
-    private var heroHeader: some View {
-        HStack(spacing: Spacing.md) {
-            VStack(alignment: .leading, spacing: Spacing.xs) {
-                Text(viewModel.dateText.isEmpty ? " " : viewModel.dateText)
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
+    private var primaryHeader: some View {
+        ScreenHeader(
+            eyebrow: "Your day",
+            title: viewModel.dateText.isEmpty ? "Preparing today" : viewModel.dateText,
+            subtitle: viewModel.profileContextText,
+            imageName: "LifePilotLogo",
+            status: viewModel.eventsAhead.isEmpty ? "Clear" : "\(viewModel.eventsAhead.count) ahead",
+            tint: Color.LifePilot.accentStart
+        )
+    }
 
-                Text(viewModel.greeting.isEmpty ? "Good morning" : viewModel.greeting)
-                    .font(.LifePilot.titleLarge)
-                    .foregroundStyle(Color.LifePilot.textPrimary)
+    // MARK: - Next Event
 
-                Text(viewModel.profileContextText)
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
+    @ViewBuilder
+    private var nextEventSection: some View {
+        if let event = viewModel.nextEvent {
+            Button {
+                selectedEvent = event
+            } label: {
+                CardContainer {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        HStack(alignment: .top, spacing: Spacing.md) {
+                            VStack(alignment: .leading, spacing: Spacing.xs) {
+                                Label("NEXT TO ATTEND", systemImage: "location.fill")
+                                    .font(.LifePilot.utility)
+                                    .foregroundStyle(Color.LifePilot.accentStart)
+
+                                Text(event.title)
+                                    .font(.LifePilot.titleMedium)
+                                    .foregroundStyle(Color.LifePilot.textPrimary)
+                                    .multilineTextAlignment(.leading)
+
+                                if let location = event.location, !location.isEmpty {
+                                    Text(location)
+                                        .font(.LifePilot.caption)
+                                        .foregroundStyle(Color.LifePilot.textSecondary)
+                                        .multilineTextAlignment(.leading)
+                                }
+                            }
+
+                            Spacer(minLength: Spacing.sm)
+
+                            VStack(spacing: 2) {
+                                Text(eventDayLabel(event.startDate).uppercased())
+                                    .font(.system(.caption2, design: .rounded, weight: .bold))
+                                    .foregroundStyle(Color.LifePilot.accentEnd)
+                                Text(event.startDate.formatted(date: .omitted, time: .shortened))
+                                    .font(.system(.title3, design: .rounded, weight: .bold).monospacedDigit())
+                                    .foregroundStyle(Color.LifePilot.textPrimary)
+                            }
+                            .padding(.horizontal, Spacing.sm)
+                            .padding(.vertical, Spacing.sm)
+                            .background(Color.LifePilot.selectionFill, in: RoundedRectangle(cornerRadius: CornerRadius.md))
+                        }
+
+                        HStack {
+                            Label(eventDurationLabel(event), systemImage: "clock")
+                            Spacer()
+                            Label("View details", systemImage: "chevron.right")
+                        }
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.textSecondary)
+                    }
+                }
             }
-
-            Spacer(minLength: Spacing.sm)
-
-            ProfileAvatarView(
-                imageData: viewModel.profileImageData,
-                displayName: viewModel.displayName,
-                size: 52
+            .buttonStyle(.lifePilotPressable)
+            .accessibilityHint("Opens this event's details")
+            .accessibilityIdentifier("home.nextEvent")
+        } else {
+            EmptyStateView(
+                symbolName: "calendar.badge.checkmark",
+                message: "No more events need your attention today. Import a screenshot or invitation to add one."
             )
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var heroHeader: some View {
+        CardContainer {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        greetingCopy
+                        readinessOrbit
+                    }
+                } else {
+                    HStack(spacing: Spacing.md) {
+                        greetingCopy
+                        Spacer(minLength: 0)
+                        readinessOrbit
+                    }
+                }
+
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        reviewSummary
+                        sourceSummary
+                    }
+                } else {
+                    HStack(spacing: Spacing.sm) {
+                        reviewSummary
+                        sourceSummary
+                    }
+                }
+            }
+        }
         .accessibilityElement(children: .combine)
+    }
+
+    private var greetingCopy: some View {
+        VStack(alignment: .leading, spacing: Spacing.sm) {
+            Text(viewModel.greeting.isEmpty ? "Good morning" : viewModel.greeting)
+                .font(.LifePilot.titleLarge)
+                .foregroundStyle(Color.LifePilot.textPrimary)
+
+            Text(daySummary)
+                .font(.LifePilot.body)
+                .foregroundStyle(Color.LifePilot.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var readinessOrbit: some View {
+        StatusOrbit(
+            progress: viewModel.readinessProgress,
+            value: viewModel.readinessText,
+            label: "Ready",
+            tint: Color.LifePilot.accentStart,
+            size: 102
+        )
+    }
+
+    private var reviewSummary: some View {
+        summaryPill(
+            symbol: "checkmark.shield.fill",
+            text: "\(viewModel.pendingCount) to review",
+            color: viewModel.pendingCount == 0
+                ? Color.LifePilot.signalSuccess
+                : Color.LifePilot.signalWarning
+        )
+    }
+
+    private var sourceSummary: some View {
+        summaryPill(
+            symbol: "link",
+            text: "\(viewModel.connectedSourceCount) sources",
+            color: Color.LifePilot.accentEnd
+        )
+    }
+
+    private var daySummary: String {
+        if viewModel.pendingCount == 0 {
+            return "Your plan is clear. Every prepared action has been reviewed."
+        }
+        return "Your student day is organised. Review the last \(viewModel.pendingCount) prepared actions."
+    }
+
+    private func summaryPill(symbol: String, text: String, color: Color) -> some View {
+        Label(text, systemImage: symbol)
+            .font(.LifePilot.utility)
+            .foregroundStyle(color)
+            .padding(.horizontal, Spacing.sm)
+            .padding(.vertical, Spacing.xs + 2)
+            .background(color.opacity(0.11), in: Capsule())
     }
 
     // MARK: - Ghost Brain
@@ -134,7 +282,8 @@ public struct HomeView: View {
                         } label: {
                             BriefingCard(content: content)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.lifePilotPressable)
+                        .accessibilityHint("Opens approval details")
                     }
                 }
             }
@@ -160,18 +309,19 @@ public struct HomeView: View {
 
     // MARK: - Upcoming Schedule
 
+    @ViewBuilder
     private var upcomingScheduleSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            SectionHeader(title: "Upcoming Schedule", symbolName: "calendar")
+            SectionHeader(title: "Later in your agenda", symbolName: "calendar")
 
-            if viewModel.upcomingEvents.isEmpty {
-                EmptyStateView(symbolName: "calendar", message: "Nothing else on your calendar today.")
+            if viewModel.laterEvents.isEmpty {
+                EmptyStateView(symbolName: "calendar", message: "Nothing is scheduled after your next event.")
             } else {
                 CardContainer {
                     VStack(spacing: 0) {
-                        ForEach(viewModel.upcomingEvents) { event in
+                        ForEach(viewModel.laterEvents) { event in
                             TimelineRow(content: .init(
-                                time: event.startDate.formatted(date: .omitted, time: .shortened),
+                                time: eventTimeLabel(event.startDate),
                                 title: event.title,
                                 subtitle: event.location
                             ))
@@ -182,23 +332,169 @@ public struct HomeView: View {
         }
     }
 
+    private func eventTimeLabel(_ date: Date) -> String {
+        if Calendar.current.isDateInToday(date) {
+            return date.formatted(date: .omitted, time: .shortened)
+        }
+        return date.formatted(.dateTime.day().month(.abbreviated).hour().minute())
+    }
+
+    private func eventDayLabel(_ date: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) { return "Today" }
+        if calendar.isDateInTomorrow(date) { return "Tomorrow" }
+        return date.formatted(.dateTime.weekday(.abbreviated).day())
+    }
+
+    private func eventDurationLabel(_ event: CalendarEvent) -> String {
+        let start = event.startDate.formatted(date: .omitted, time: .shortened)
+        let end = event.endDate.formatted(date: .omitted, time: .shortened)
+        return "\(start) to \(end)"
+    }
+
+    private func eventPreview(_ event: CalendarEvent) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Spacing.lg) {
+                    HStack(alignment: .top, spacing: Spacing.md) {
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(Color.LifePilot.accentStart)
+                            .frame(width: 52, height: 52)
+                            .background(Color.LifePilot.accentStart.opacity(0.13), in: Circle())
+
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("NEXT TO ATTEND")
+                                .font(.LifePilot.utility)
+                                .foregroundStyle(Color.LifePilot.accentStart)
+
+                            Text(event.title)
+                                .font(.LifePilot.titleLarge)
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+                        }
+                    }
+
+                    CardContainer {
+                        VStack(spacing: 0) {
+                            eventDetailRow(
+                                symbol: "calendar",
+                                label: "Date",
+                                value: event.startDate.formatted(.dateTime.weekday(.wide).day().month(.wide).year())
+                            )
+
+                            Divider().overlay(Color.LifePilot.glassBorder)
+
+                            eventDetailRow(
+                                symbol: "clock",
+                                label: "Time",
+                                value: eventDurationLabel(event)
+                            )
+
+                            Divider().overlay(Color.LifePilot.glassBorder)
+
+                            eventDetailRow(
+                                symbol: "location.fill",
+                                label: "Location",
+                                value: event.location.flatMap { $0.isEmpty ? nil : $0 } ?? "Location not provided"
+                            )
+
+                            if event.attendeeCount > 0 {
+                                Divider().overlay(Color.LifePilot.glassBorder)
+
+                                eventDetailRow(
+                                    symbol: "person.2.fill",
+                                    label: "Attendees",
+                                    value: "\(event.attendeeCount) invited"
+                                )
+                            }
+                        }
+                    }
+
+                    Label("LifePilot will keep this event visible as it approaches.", systemImage: "bell.badge.fill")
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(Spacing.lg)
+            }
+            .lifePilotScreenBackground(energy: .subtle)
+            .navigationTitle("Event preview")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+            #endif
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { selectedEvent = nil }
+                }
+            }
+        }
+    }
+
+    private func eventDetailRow(symbol: String, label: String, value: String) -> some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.LifePilot.accentStart)
+                .frame(width: 28, height: 28)
+                .background(Color.LifePilot.accentStart.opacity(0.10), in: Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.LifePilot.utility)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+                Text(value)
+                    .font(.LifePilot.body.weight(.semibold))
+                    .foregroundStyle(Color.LifePilot.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, Spacing.sm)
+    }
+
     // MARK: - Quick Actions
 
     private var quickActionsSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             SectionHeader(title: "Quick Actions", symbolName: "bolt.fill")
 
-            HStack(spacing: Spacing.sm) {
-                QuickActionCard(symbolName: "envelope.fill", title: "Inbox") {
-                    onOpenTimeline(.email)
-                }
-                QuickActionCard(symbolName: "checklist", title: "Tasks") {
-                    onOpenTimeline(.task)
-                }
-                QuickActionCard(symbolName: "airplane", title: "Travel") {
-                    onOpenTimeline(.travel)
+            Group {
+                if dynamicTypeSize.isAccessibilitySize {
+                    VStack(spacing: Spacing.sm) {
+                        quickActions
+                    }
+                } else {
+                    HStack(spacing: Spacing.sm) {
+                        quickActions
+                    }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var quickActions: some View {
+        QuickActionCard(
+            symbolName: "envelope.fill",
+            title: "Inbox",
+            tint: Color.LifePilot.accentAI
+        ) {
+            onOpenTimeline(.email)
+        }
+        QuickActionCard(
+            symbolName: "checklist",
+            title: "Tasks",
+            tint: Color.LifePilot.accentEnd
+        ) {
+            onOpenTimeline(.task)
+        }
+        QuickActionCard(
+            symbolName: "tram.fill",
+            title: "Travel",
+            tint: Color.LifePilot.accentStart
+        ) {
+            onOpenTimeline(.travel)
         }
     }
 

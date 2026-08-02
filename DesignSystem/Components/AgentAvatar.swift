@@ -19,8 +19,25 @@ public struct AgentAvatar: View {
             .font(.system(size: size * 0.45, weight: .medium))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(LinearGradient.LifePilot.accent)
+            .background(agentColor, in: Circle())
+            .overlay {
+                Circle().stroke(Color.white.opacity(0.24), lineWidth: 1)
+            }
             .clipShape(Circle())
             .accessibilityLabel("\(agent.displayName) agent")
+    }
+
+    private var agentColor: Color {
+        switch agent {
+        case .calendar: Color.LifePilot.accentEnd
+        case .email: Color.LifePilot.accentAI
+        case .travel: Color.LifePilot.accentStart
+        case .finance: Color.LifePilot.accentWarm
+        case .memory: Color.LifePilot.signalInfo
+        case .reminder: Color.LifePilot.signalRisk
+        case .shopping: Color.LifePilot.accentAI
+        case .health: Color.LifePilot.signalSuccess
+        case .security: Color.LifePilot.textSecondary
+        }
     }
 }

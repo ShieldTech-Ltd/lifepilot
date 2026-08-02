@@ -26,6 +26,25 @@ final class DemoSessionStoreTests: XCTestCase {
         XCTAssertEqual(insights.metrics.first(where: { $0.id == "approved" })?.value, "1")
     }
 
+    func testApprovalHistoryAndResolvedActionsPersistAcrossRestarts() async throws {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let now = Date(timeIntervalSince1970: 1_807_000_000)
+        let provider = MockRecommendationProvider(clock: { now })
+        let session = DemoSessionStore(ghostBrain: provider, defaults: defaults)
+        await session.prepare()
+        let recommendation = try XCTUnwrap(session.availableRecommendations.first)
+
+        session.resolve(recommendation.id, approved: true)
+
+        let restored = DemoSessionStore(ghostBrain: provider, defaults: defaults)
+        await restored.prepare()
+        XCTAssertEqual(restored.activities, session.activities)
+        XCTAssertFalse(restored.availableRecommendations.contains(where: {
+            $0.title == recommendation.title && $0.sourceAgent == recommendation.sourceAgent
+        }))
+    }
+
     func testPausingTravelRemovesItsContentAcrossScreens() async {
         let defaults = makeDefaults()
         defer { clear(defaults) }
@@ -83,6 +102,86 @@ final class DemoSessionStoreTests: XCTestCase {
 
         XCTAssertNil(session.profileImageData)
         XCTAssertNil(defaults.data(forKey: StorageKey.profileImageData))
+    }
+
+    func testImportedScreenshotEventPersistsAndAppearsAcrossHomeAndTimeline() async {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+        let event = CalendarEvent(
+            title: "TechFest judging briefing",
+            location: "International House, Room 4.01",
+            startDate: Date(timeIntervalSince1970: 1_785_756_600),
+            endDate: Date(timeIntervalSince1970: 1_785_760_200)
+        )
+
+        session.addImportedEvent(event)
+
+        XCTAssertTrue(session.visibleEvents.contains(event))
+        XCTAssertTrue(TimelineViewModel(session: session).entries.contains(where: { $0.id == event.id }))
+        XCTAssertTrue(HomeViewModel(session: session).upcomingEvents.contains(event))
+
+        let restored = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+        XCTAssertEqual(restored.importedEvents, [event])
+    }
+
+    func testAppearancePreferencePersistsAndResetsToSystem() {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+
+        session.setAppearancePreference(.dark)
+
+        XCTAssertEqual(session.appearancePreference, .dark)
+        XCTAssertEqual(defaults.string(forKey: StorageKey.appearancePreference), AppearancePreference.dark.rawValue)
+        XCTAssertEqual(
+            DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults).appearancePreference,
+            .dark
+        )
+
+        session.resetLocalDemoState()
+
+        XCTAssertEqual(session.appearancePreference, .system)
+        XCTAssertNil(defaults.string(forKey: StorageKey.appearancePreference))
+    }
+
+    func testPasswordUpdateRecordsNoPasswordTextAndResets() {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+        let updatedAt = Date(timeIntervalSince1970: 1_800_000_000)
+
+        session.recordPasswordUpdate(at: updatedAt)
+
+        XCTAssertEqual(session.passwordUpdatedAt, updatedAt)
+        XCTAssertEqual(defaults.object(forKey: StorageKey.passwordUpdatedAt) as? Date, updatedAt)
+        XCTAssertFalse(StorageKey.all.contains(where: { $0.lowercased().contains("passwordtext") }))
+
+        session.resetLocalDemoState()
+
+        XCTAssertNil(session.passwordUpdatedAt)
+        XCTAssertNil(defaults.object(forKey: StorageKey.passwordUpdatedAt))
+    }
+
+    func testInsightPeriodsExposeDifferentMetricsAndTrendGranularity() {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
+        let insights = InsightsViewModel(session: session)
+
+        XCTAssertEqual(insights.selectedPeriod, .today)
+        XCTAssertEqual(insights.trendPoints.count, 6)
+        XCTAssertEqual(insights.metrics.first?.label, "Awaiting review")
+
+        insights.selectedPeriod = .week
+
+        XCTAssertEqual(insights.trendPoints.count, 7)
+        XCTAssertEqual(insights.metrics.first?.label, "Actions prepared")
+
+        insights.selectedPeriod = .month
+
+        XCTAssertEqual(insights.trendPoints.count, 4)
+        XCTAssertEqual(insights.metrics.last?.value, "3.4h")
     }
 
     func testResetRestoresDemoDefaultsAndClearsActivity() async throws {

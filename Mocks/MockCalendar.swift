@@ -9,7 +9,7 @@ public enum MockCalendar {
     /// previews always show a plausible "today."
     public static func events(relativeTo now: Date = Date()) -> [CalendarEvent] {
         let calendar = Calendar.current
-        return [
+        var events = [
             CalendarEvent(
                 title: "Algorithms Lecture",
                 location: "International House, Room 2.04",
@@ -53,5 +53,33 @@ public enum MockCalendar {
                 attendeeCount: 2
             ),
         ]
+
+        let techFestSessions = [
+            CalendarEvent(
+                title: "TechFest 2026 Showcase",
+                location: "International House",
+                startDate: calendar.date(from: DateComponents(
+                    year: 2026, month: 8, day: 3, hour: 13, minute: 30
+                )) ?? now,
+                endDate: calendar.date(from: DateComponents(
+                    year: 2026, month: 8, day: 3, hour: 14, minute: 30
+                )) ?? now,
+                attendeeCount: 60
+            ),
+            CalendarEvent(
+                title: "TechFest 2026 Awards",
+                location: "International House",
+                startDate: calendar.date(from: DateComponents(
+                    year: 2026, month: 8, day: 3, hour: 16, minute: 30
+                )) ?? now,
+                endDate: calendar.date(from: DateComponents(
+                    year: 2026, month: 8, day: 3, hour: 17, minute: 30
+                )) ?? now,
+                attendeeCount: 60
+            ),
+        ].filter { $0.endDate > now }
+
+        events.append(contentsOf: techFestSessions)
+        return events.sorted { $0.startDate < $1.startDate }
     }
 }

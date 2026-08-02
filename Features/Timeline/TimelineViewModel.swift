@@ -62,6 +62,11 @@ public final class TimelineViewModel {
     public func load() async {
         await session.prepare()
     }
+
+    public func addImportedEvent(_ event: CalendarEvent) {
+        session.addImportedEvent(event)
+        selectedFilter = .calendar
+    }
 }
 
 public struct TimelineEntry: Identifiable {

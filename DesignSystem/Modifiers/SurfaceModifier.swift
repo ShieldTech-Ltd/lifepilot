@@ -20,6 +20,10 @@ public struct SurfaceModifier: ViewModifier {
         content
             .background(fill)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Color.LifePilot.glassBorder.opacity(0.65), lineWidth: 1)
+            }
     }
 }
 

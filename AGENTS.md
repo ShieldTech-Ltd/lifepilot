@@ -15,7 +15,7 @@ can build/run here. Read this before assuming something is broken.
 - The framework-agnostic modules (`Core/`, `GhostBrain/`, `Services/`, `Mocks/`) only use
   `Foundation`/`CoreGraphics` and DO build and test on Linux with the installed Swift toolchain.
 - The interactive product demo (`index.html`, identical to `demo/index.html`) is a
-  self-contained static web app with mock data — this is the runnable "application" on Linux.
+  self-contained static web app with mock data - this is the runnable "application" on Linux.
 
 ### Swift toolchain (Linux)
 
@@ -35,7 +35,7 @@ A Swift 6.0.3 Linux toolchain is installed at `/opt/swift` and added to `PATH` v
 
 From the repo root: `python3 -m http.server 8000`, then open `http://localhost:8000/index.html`.
 No build step, no backend, no dependencies. The core loop to exercise is Smart Approvals: tap a
-recommendation card, then tap **Approve** — the timeline updates in place.
+recommendation card, then tap **Approve** - the timeline updates in place.
 
 ### Markdown lint
 

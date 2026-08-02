@@ -12,11 +12,18 @@ public struct SecondaryButtonStyle: ButtonStyle {
             .foregroundStyle(Color.LifePilot.textPrimary)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm + Spacing.xs)
-            .frame(maxWidth: .infinity)
-            .background(Color.LifePilot.backgroundElevated)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(.ultraThinMaterial)
+            .background(Color.LifePilot.glassTint)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
-            .opacity(configuration.isPressed ? 0.7 : 1)
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                    .stroke(Color.LifePilot.glassBorder, lineWidth: 1)
+            }
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(Motion.quick, value: configuration.isPressed)
+            .contentShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
     }
 }
 

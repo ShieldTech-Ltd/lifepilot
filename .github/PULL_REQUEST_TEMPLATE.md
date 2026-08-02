@@ -8,13 +8,13 @@
 
 ## Type of Change
 
-- [ ] `feat` — new feature
-- [ ] `fix` — bug fix
-- [ ] `refactor` — code change that neither fixes a bug nor adds a feature
-- [ ] `docs` — documentation only
-- [ ] `style` — formatting, no logic change
-- [ ] `test` — adding or correcting tests
-- [ ] `chore` — tooling, build, or dependency changes
+- [ ] `feat` - new feature
+- [ ] `fix` - bug fix
+- [ ] `refactor` - code change that neither fixes a bug nor adds a feature
+- [ ] `docs` - documentation only
+- [ ] `style` - formatting, no logic change
+- [ ] `test` - adding or correcting tests
+- [ ] `chore` - tooling, build, or dependency changes
 
 ## Changes
 

@@ -1,13 +1,7 @@
 import Foundation
-import LifePilotCore
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Data & Privacy. States the product's real privacy commitments (see
-/// docs/PRODUCT_VISION.md's "Privacy is a default, not a setting"
-/// principle) and offers a genuinely functional reset of the local-only
-/// state this phase has introduced - useful for demoing the app
-/// repeatedly from a clean slate.
 public struct DataPrivacyView: View {
     @State private var didReset = false
     @State private var isShowingResetConfirmation = false
@@ -22,48 +16,92 @@ public struct DataPrivacyView: View {
     }
 
     public var body: some View {
-        List {
-            Section("Our Commitment") {
-                privacyRow(symbolName: "lock.fill", text: "On-device processing wherever possible.")
-                privacyRow(symbolName: "eye.slash.fill", text: "Least-privilege integrations - LifePilot only reads what it needs.")
-                privacyRow(symbolName: "person.fill.checkmark", text: "Nothing executes without your explicit approval.")
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                ScreenHeader(
+                    eyebrow: "Private by default",
+                    title: "Data & privacy",
+                    subtitle: "See the boundaries clearly and reset every local demo preference in one place."
+                )
 
-            Section {
-                Button(role: .destructive) {
-                    isShowingResetConfirmation = true
-                } label: {
-                    Label("Reset Local Demo Data", systemImage: "arrow.counterclockwise")
+                CardContainer {
+                    VStack(alignment: .leading, spacing: Spacing.lg) {
+                        privacyRow(symbolName: "iphone.gen3", title: "Local-first", text: "Process on device wherever possible.", color: .LifePilot.accentStart)
+                        privacyRow(symbolName: "eye.slash.fill", title: "Least privilege", text: "Read only the context each feature needs.", color: .LifePilot.accentEnd)
+                        privacyRow(symbolName: "person.fill.checkmark", title: "Explicit approval", text: "Never execute an action without your decision.", color: .LifePilot.signalSuccess)
+                    }
                 }
-            } footer: {
-                Text(didReset
-                    ? "Local preferences were reset. Relaunch the app to see onboarding again."
-                    : "Clears onboarding status, profile edits, and connected app toggles stored on this device.")
+
+                NavigationLink {
+                    PrivacyPolicyView()
+                } label: {
+                    Label("Read the LifePilot privacy policy", systemImage: "doc.text.fill")
+                        .font(.LifePilot.body.weight(.semibold))
+                        .foregroundStyle(Color.LifePilot.textPrimary)
+                        .frame(maxWidth: .infinity, minHeight: 52)
+                        .lifePilotGlass(cornerRadius: CornerRadius.md, isInteractive: true)
+                }
+                .buttonStyle(.lifePilotPressable)
+                .accessibilityIdentifier("privacy.policy")
+
+                CardContainer {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
+                        Label("Local demo controls", systemImage: "internaldrive.fill")
+                            .font(.LifePilot.titleMedium)
+                            .foregroundStyle(Color.LifePilot.textPrimary)
+                        Text(didReset
+                            ? "Local preferences were reset. Relaunch the app to see onboarding again."
+                            : "Reset profile edits, approvals, source switches, appearance, and onboarding on this device.")
+                            .font(.LifePilot.caption)
+                            .foregroundStyle(Color.LifePilot.textSecondary)
+
+                        Button(role: .destructive) {
+                            isShowingResetConfirmation = true
+                        } label: {
+                            Label("Reset local demo data", systemImage: "arrow.counterclockwise")
+                                .font(.LifePilot.body.weight(.semibold))
+                                .foregroundStyle(Color.LifePilot.signalRisk)
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                                .background(Color.LifePilot.signalRisk.opacity(0.1), in: RoundedRectangle(cornerRadius: CornerRadius.md))
+                        }
+                        .buttonStyle(.lifePilotPressable)
+                        .accessibilityIdentifier("privacy.reset")
+                    }
+                }
             }
+            .padding(Spacing.lg)
         }
-        .navigationTitle("Data & Privacy")
+        .lifePilotScreenBackground(energy: .prominent)
+        .navigationTitle("Privacy")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .confirmationDialog(
             "Reset the local demo?",
             isPresented: $isShowingResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Reset Demo Data", role: .destructive) {
-                resetLocalDemoState()
-            }
+            Button("Reset Demo Data", role: .destructive) { resetLocalDemoState() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This clears the profile, approval history, source switches, and onboarding status on this device.")
+            Text("This clears the profile, approval history, source switches, appearance, and onboarding status on this device.")
         }
     }
 
-    private func privacyRow(symbolName: String, text: String) -> some View {
-        HStack(spacing: Spacing.md) {
+    private func privacyRow(symbolName: String, title: String, text: String, color: Color) -> some View {
+        HStack(alignment: .top, spacing: Spacing.md) {
             Image(systemName: symbolName)
-                .foregroundStyle(LinearGradient.LifePilot.accent)
-                .frame(width: 24)
-            Text(text)
-                .font(.LifePilot.body)
-                .foregroundStyle(Color.LifePilot.textPrimary)
+                .foregroundStyle(color)
+                .frame(width: 42, height: 42)
+                .background(color.opacity(0.12), in: Circle())
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(title)
+                    .font(.LifePilot.body.weight(.semibold))
+                    .foregroundStyle(Color.LifePilot.textPrimary)
+                Text(text)
+                    .font(.LifePilot.caption)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+            }
         }
     }
 
@@ -74,7 +112,5 @@ public struct DataPrivacyView: View {
 }
 
 #Preview {
-    NavigationStack {
-        DataPrivacyView()
-    }
+    NavigationStack { DataPrivacyView() }
 }

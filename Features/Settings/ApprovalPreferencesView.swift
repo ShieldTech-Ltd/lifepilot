@@ -2,12 +2,6 @@ import LifePilotCore
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Approval Preferences. The core guarantee - every action passes through
-/// approval before it executes - isn't a setting a user can turn off; see
-/// docs/ARCHITECTURE.md's Dependency Rule 4, "Execution is gated by
-/// construction." The locked toggle below makes that guarantee visible
-/// rather than configurable; the notification toggle beneath it is the one
-/// real preference this screen owns.
 public struct ApprovalPreferencesView: View {
     private let session: DemoSessionStore
 
@@ -20,51 +14,94 @@ public struct ApprovalPreferencesView: View {
     }
 
     public var body: some View {
-        List {
-            Section {
-                Toggle("Require approval before any action executes", isOn: .constant(true))
-                    .disabled(true)
-            } footer: {
-                Text("This is a guarantee, not a setting - LifePilot never executes without your approval.")
-            }
+        ScrollView {
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                ScreenHeader(
+                    eyebrow: "Human in control",
+                    title: "Approvals",
+                    subtitle: "Understand the risk, review the reasoning, and decide what happens next."
+                )
 
-            Section("Risk Levels") {
-                ForEach(RiskLevel.allCases, id: \.self) { level in
+                CardContainer {
                     HStack(spacing: Spacing.md) {
-                        SignalBadge(style: level == .low ? .success : .risk, text: level.rawValue.capitalized)
-                        Text(description(for: level))
-                            .font(.LifePilot.caption)
-                            .foregroundStyle(Color.LifePilot.textSecondary)
-                        Spacer(minLength: 0)
+                        Image(systemName: "lock.shield.fill")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(Color.LifePilot.signalSuccess)
+                            .frame(width: 52, height: 52)
+                            .background(Color.LifePilot.signalSuccess.opacity(0.13), in: Circle())
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
+                            Text("Approval is always required")
+                                .font(.LifePilot.body.weight(.semibold))
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+                            Text("This safety guarantee cannot be switched off.")
+                                .font(.LifePilot.caption)
+                                .foregroundStyle(Color.LifePilot.textSecondary)
+                        }
+                        Spacer()
+                        Text("LOCKED")
+                            .font(.LifePilot.utility)
+                            .foregroundStyle(Color.LifePilot.signalSuccess)
                     }
-                    .padding(.vertical, Spacing.xs)
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.md) {
+                    SectionHeader(title: "Risk guide", symbolName: "exclamationmark.shield.fill")
+                    CardContainer {
+                        VStack(spacing: Spacing.md) {
+                            ForEach(RiskLevel.allCases, id: \.self) { level in
+                                HStack(spacing: Spacing.md) {
+                                    SignalBadge(style: level == .low ? .success : .risk, text: level.rawValue.capitalized)
+                                    Text(description(for: level))
+                                        .font(.LifePilot.caption)
+                                        .foregroundStyle(Color.LifePilot.textSecondary)
+                                    Spacer(minLength: 0)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: Spacing.md) {
+                    SectionHeader(title: "Notifications", symbolName: "bell.badge.fill")
+                    CardContainer {
+                        Toggle(
+                            isOn: Binding(
+                                get: { session.notifyOnHighRisk },
+                                set: { session.setNotifyOnHighRisk($0) }
+                            )
+                        ) {
+                            VStack(alignment: .leading, spacing: Spacing.xs) {
+                                Text("High-risk alerts")
+                                    .font(.LifePilot.body.weight(.semibold))
+                                    .foregroundStyle(Color.LifePilot.textPrimary)
+                                Text("Notify me immediately when careful review is needed.")
+                                    .font(.LifePilot.caption)
+                                    .foregroundStyle(Color.LifePilot.textSecondary)
+                            }
+                        }
+                        .tint(Color.LifePilot.signalSuccess)
+                        .accessibilityIdentifier("approvals.highRiskNotifications")
+                    }
                 }
             }
-
-            Section("Notifications") {
-                Toggle(
-                    "Notify me immediately for high-risk actions",
-                    isOn: Binding(
-                        get: { session.notifyOnHighRisk },
-                        set: { session.setNotifyOnHighRisk($0) }
-                    )
-                )
-            }
+            .padding(Spacing.lg)
         }
-        .navigationTitle("Approval Preferences")
+        .lifePilotScreenBackground(energy: .prominent)
+        .navigationTitle("Approvals")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 
     private func description(for level: RiskLevel) -> String {
         switch level {
-        case .low: "Reversible or informational - safe to approve quickly."
+        case .low: "Reversible or informational."
         case .medium: "Worth a second look before approving."
-        case .high: "Review carefully - harder to undo."
+        case .high: "Review carefully because it is harder to undo."
         }
     }
 }
 
 #Preview {
-    NavigationStack {
-        ApprovalPreferencesView()
-    }
+    NavigationStack { ApprovalPreferencesView() }
 }

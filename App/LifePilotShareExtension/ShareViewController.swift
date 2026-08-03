@@ -56,25 +56,24 @@ private final class ShareImportModel: ObservableObject {
                 .prefix(Self.maximumAttachmentCount) ?? []
             guard !providers.isEmpty else { throw ShareImportError.noContent }
 
-            if let provider = providers.first(where: supportsCalendarFile),
-               let text = try await loadTextOrFile(from: provider) {
-                draft = CalendarInvitationParser.draft(from: text)
-                return
+            if let provider = providers.first(where: supportsCalendarFile) {
+                if let text = try await loadTextOrFile(from: provider) {
+                    draft = CalendarInvitationParser.draft(from: text)
+                    return
+                }
             }
 
-            if let provider = providers.first(where: {
-                $0.hasItemConformingToTypeIdentifier(UTType.image.identifier)
-            })
-            {
+            if let provider = providers.first(where: supportsImage) {
                 let data = try await loadData(from: provider, typeIdentifier: UTType.image.identifier)
                 draft = try await ScheduleScreenshotParser.parse(imageData: data)
                 return
             }
 
-            if let provider = providers.first(where: supportsTextOrURL),
-               let text = try await loadTextOrFile(from: provider) {
-                draft = CalendarInvitationParser.draft(from: text)
-                return
+            if let provider = providers.first(where: supportsTextOrURL) {
+                if let text = try await loadTextOrFile(from: provider) {
+                    draft = CalendarInvitationParser.draft(from: text)
+                    return
+                }
             }
 
             throw ShareImportError.unsupportedContent
@@ -116,6 +115,10 @@ private final class ShareImportModel: ObservableObject {
     private func supportsTextOrURL(_ provider: NSItemProvider) -> Bool {
         provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier)
             || provider.hasItemConformingToTypeIdentifier(UTType.url.identifier)
+    }
+
+    private func supportsImage(_ provider: NSItemProvider) -> Bool {
+        provider.hasItemConformingToTypeIdentifier(UTType.image.identifier)
     }
 
     private func loadTextOrFile(from provider: NSItemProvider) async throws -> String? {

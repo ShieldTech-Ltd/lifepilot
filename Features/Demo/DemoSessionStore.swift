@@ -3,16 +3,13 @@ import LifePilotCore
 import LifePilotGhostBrain
 import LifePilotMocks
 
-// The shared demo session intentionally centralises cross-tab state and profile updates.
-// swiftlint:disable type_body_length function_parameter_count
-
 /// Shared, app-wide state for the TechFest prototype. It gives every tab
 /// one coherent model of the day while keeping the external integrations
 /// explicitly simulated. Replacing this store with live services does not
 /// require changing the presentation flow.
 @Observable
 @MainActor
-public final class DemoSessionStore {
+public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     public private(set) var model: GhostBrainModel?
     public private(set) var activities: [DemoActivity] = []
     public private(set) var emailMessages: [EmailMessage] = []
@@ -225,7 +222,7 @@ public final class DemoSessionStore {
         university: String,
         location: String,
         briefingTime: String
-    ) {
+    ) { // swiftlint:disable:this function_parameter_count
         self.displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         self.course = course.trimmingCharacters(in: .whitespacesAndNewlines)

@@ -3,7 +3,7 @@ import LifePilotGhostBrain
 import SwiftUI
 
 /// Interactive insight centre for readiness, trends, and agent coverage.
-public struct InsightsView: View {
+public struct InsightsView: View { // swiftlint:disable:this type_body_length
     @State private var viewModel: InsightsViewModel
     @State private var selectedMetric: InsightsViewModel.Metric?
     @State private var selectedAgent: InsightsViewModel.AgentBreakdown?

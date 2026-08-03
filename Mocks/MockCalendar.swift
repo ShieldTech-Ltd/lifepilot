@@ -1,16 +1,15 @@
 import Foundation
 import LifePilotCore
 
-// Keeping the complete sample day together makes its ordering and timing auditable.
-// swiftlint:disable function_body_length
-
 /// Realistic sample calendar data for previews, tests, and Phase 3's
 /// mock-driven screens. Not used by production code; see
 /// docs/MASTER_ROADMAP.md Phase 7 for the real EventKit-backed source.
 public enum MockCalendar {
     /// A full day's worth of varied events, anchored relative to `now` so
     /// previews always show a plausible "today."
-    public static func events(relativeTo now: Date = Date()) -> [CalendarEvent] {
+    public static func events(
+        relativeTo now: Date = Date()
+    ) -> [CalendarEvent] { // swiftlint:disable:this function_body_length
         let calendar = Calendar.current
         var events = [
             CalendarEvent(

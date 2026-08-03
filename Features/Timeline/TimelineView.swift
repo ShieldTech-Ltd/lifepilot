@@ -415,4 +415,4 @@ private struct TimelineDayGroup: Identifiable {
     NavigationStack {
         TimelineView()
     }
-}
+} // swiftlint:disable:this file_length

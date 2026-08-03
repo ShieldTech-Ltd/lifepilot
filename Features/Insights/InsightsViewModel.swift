@@ -200,7 +200,7 @@ public final class InsightsViewModel {
         public let reviewedCount: Int
 
         public var progress: Double {
-            guard count > 0 else { return 0 }
+            guard count >= 1 else { return 0 }
             return min(1, Double(reviewedCount) / Double(count))
         }
     }

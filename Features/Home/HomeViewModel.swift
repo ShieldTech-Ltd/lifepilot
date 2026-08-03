@@ -73,9 +73,11 @@ public final class HomeViewModel {
     }
 
     public var upcomingEvents: [CalendarEvent] { session.visibleEvents }
+
     public var eventsAhead: [CalendarEvent] {
         upcomingEvents.filter { $0.endDate > eventReferenceDate }
     }
+
     public var nextEvent: CalendarEvent? { eventsAhead.first }
     public var laterEvents: [CalendarEvent] { Array(eventsAhead.dropFirst()) }
     public var signals: [DaySignal] { session.visibleSignals }
@@ -159,8 +161,7 @@ public final class HomeViewModel {
         }
         for reminder in remote {
             var reconciled = reminder
-            if let identifier = reminder.externalIdentifier,
-               let existing = existingByExternal[identifier] {
+            if let identifier = reminder.externalIdentifier, let existing = existingByExternal[identifier] {
                 reconciled = TaskItem(
                     id: existing.id,
                     title: reminder.title,

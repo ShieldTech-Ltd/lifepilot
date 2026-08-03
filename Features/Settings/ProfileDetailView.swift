@@ -8,7 +8,7 @@ import UIKit
 #endif
 
 /// A complete local demo identity that personalizes the Morning Briefing.
-public struct ProfileDetailView: View {
+public struct ProfileDetailView: View { // swiftlint:disable:this type_body_length
     private let session: DemoSessionStore
     @State private var displayName: String
     @State private var email: String

@@ -3,12 +3,9 @@ import LifePilotDesignSystem
 import LifePilotGhostBrain
 import SwiftUI
 
-// The showcase screen remains one cohesive SwiftUI composition for visual review.
-// swiftlint:disable file_length type_body_length function_body_length
-
 /// The Morning Briefing: explained recommendations, connected-source
 /// signals, schedule, working quick actions, and shared approval history.
-public struct HomeView: View {
+public struct HomeView: View { // swiftlint:disable:this type_body_length
     @State private var viewModel: HomeViewModel
     @State private var selectedRecommendation: BriefingCard.Content?
     @State private var selectedEvent: CalendarEvent?
@@ -24,7 +21,7 @@ public struct HomeView: View {
         self.init(session: DemoSessionStore(ghostBrain: ghostBrain))
     }
 
-    public var body: some View {
+    public var body: some View { // swiftlint:disable:this function_body_length
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl + Spacing.xs) {
                 primaryHeader
@@ -545,4 +542,4 @@ public struct HomeView: View {
 
 #Preview {
     HomeView(ghostBrain: MockRecommendationProvider())
-}
+} // swiftlint:disable:this file_length

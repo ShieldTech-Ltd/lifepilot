@@ -91,10 +91,10 @@ private final class ShareImportModel: ObservableObject {
         )
         SharedImportedEventStore.add(event)
 
-        if let current = UpcomingEventWidgetStore.load(),
-           current.endDate > Date(),
-           current.startDate <= event.startDate
-        {
+        let current = UpcomingEventWidgetStore.load()
+        let keepsCurrentEvent = (current?.endDate ?? .distantPast) > Date()
+            && (current?.startDate ?? .distantFuture) <= event.startDate
+        if keepsCurrentEvent {
             // Keep the earlier event already visible in the widget.
         } else {
             UpcomingEventWidgetStore.save(event: event)

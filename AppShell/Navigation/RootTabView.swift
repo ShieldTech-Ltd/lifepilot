@@ -14,10 +14,11 @@ public struct RootTabView: View {
     private static var initialTab: AppTab {
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
-        if let flagIndex = arguments.firstIndex(of: "-LifePilotDemoTab"),
-           arguments.indices.contains(flagIndex + 1),
-           let tab = AppTab(rawValue: arguments[flagIndex + 1])
-        {
+        let flagIndex = arguments.firstIndex(of: "-LifePilotDemoTab")
+        let tabName = flagIndex.flatMap { index in
+            arguments.indices.contains(index + 1) ? arguments[index + 1] : nil
+        }
+        if let tabName, let tab = AppTab(rawValue: tabName) {
             return tab
         }
         #endif

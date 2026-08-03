@@ -21,7 +21,7 @@ public struct HomeView: View { // swiftlint:disable:this type_body_length
         self.init(session: DemoSessionStore(ghostBrain: ghostBrain))
     }
 
-    public var body: some View { // swiftlint:disable:this function_body_length
+    public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Spacing.xl + Spacing.xs) {
                 primaryHeader
@@ -358,6 +358,7 @@ public struct HomeView: View { // swiftlint:disable:this type_body_length
         return "\(start) to \(end)"
     }
 
+    // swiftlint:disable:next function_body_length
     private func eventPreview(_ event: CalendarEvent) -> some View {
         NavigationStack {
             ScrollView {

@@ -3,6 +3,7 @@ import PhotosUI
 import SwiftUI
 
 /// Unified, filterable timeline with inspectable and reviewable entries.
+// swiftlint:disable:next type_body_length
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
     @State private var selectedEntry: TimelineEntry?
@@ -294,6 +295,7 @@ public struct TimelineView: View {
         return date.formatted(.dateTime.weekday(.wide).day().month(.wide))
     }
 
+    // swiftlint:disable:next function_body_length
     private func entrySheet(_ entry: TimelineEntry) -> some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: Spacing.lg) {

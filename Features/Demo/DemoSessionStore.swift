@@ -215,6 +215,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         publishNextEvent()
     }
 
+    // swiftlint:disable:next function_parameter_count
     public func updateProfile(
         displayName: String,
         email: String,
@@ -222,7 +223,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         university: String,
         location: String,
         briefingTime: String
-    ) { // swiftlint:disable:this function_parameter_count
+    ) {
         self.displayName = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         self.course = course.trimmingCharacters(in: .whitespacesAndNewlines)

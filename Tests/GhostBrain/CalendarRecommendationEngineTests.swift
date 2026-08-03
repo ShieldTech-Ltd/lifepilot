@@ -27,6 +27,40 @@ final class CalendarRecommendationEngineTests: XCTestCase {
         XCTAssertEqual(conflict?.sourceAgent, .calendar)
     }
 
+    func testOverlapIsDetectedBetweenNonAdjacentEvents() {
+        // A long event containing a short, nested event, plus a third event
+        // that overlaps the long one but not the nested one — a conflict
+        // that only shows up when every pair is checked, not just
+        // consecutive pairs in start-time order.
+        let engine = CalendarRecommendationEngine(now: referenceDate)
+        let long = CalendarEvent(
+            title: "All-Hands",
+            startDate: referenceDate.addingTimeInterval(0),
+            endDate: referenceDate.addingTimeInterval(3600 * 2) // 08:00-10:00
+        )
+        let nested = CalendarEvent(
+            title: "Quick Sync",
+            startDate: referenceDate.addingTimeInterval(600),
+            endDate: referenceDate.addingTimeInterval(1200) // 08:10-08:20, inside `long`
+        )
+        let third = CalendarEvent(
+            title: "Client Call",
+            startDate: referenceDate.addingTimeInterval(3600 * 1.8),
+            endDate: referenceDate.addingTimeInterval(3600 * 2.2) // 09:48-10:12, overlaps `long` only
+        )
+
+        let recommendations = engine.recommendations(from: [long, nested, third])
+
+        let conflictTitles = recommendations
+            .filter { $0.riskLevel == .medium }
+            .map(\.title)
+        XCTAssertTrue(
+            conflictTitles.contains { $0.contains(long.title) && $0.contains(third.title) },
+            "Expected a conflict between \"\(long.title)\" and \"\(third.title)\" even though they " +
+                "aren't adjacent in start-time order. Got: \(conflictTitles)"
+        )
+    }
+
     func testTightGapBetweenEventsProducesALowRiskHeadsUp() {
         let engine = CalendarRecommendationEngine(now: referenceDate)
         let first = CalendarEvent(

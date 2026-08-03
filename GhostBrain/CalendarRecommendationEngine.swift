@@ -101,11 +101,25 @@ struct CalendarRecommendationEngine {
         }
     }
 
-    /// Consecutive (i, i+1) pairs from a sorted event list — the unit both
-    /// the conflict and tight-gap rules reason over.
+    /// Consecutive (i, i+1) pairs from a sorted event list — the unit the
+    /// tight-gap rule reasons over (a gap only exists between neighbors).
     private func adjacentPairs(_ events: [CalendarEvent]) -> [(CalendarEvent, CalendarEvent)] {
         guard events.count > 1 else { return [] }
         return zip(events, events.dropFirst()).map { ($0, $1) }
+    }
+
+    /// Every unordered pair (i, j) with i < j from a sorted event list — the
+    /// unit the conflict rule reasons over, since an overlap can exist
+    /// between any two events, not just neighbors in start-time order.
+    private func allPairs(_ events: [CalendarEvent]) -> [(CalendarEvent, CalendarEvent)] {
+        guard events.count > 1 else { return [] }
+        var pairs: [(CalendarEvent, CalendarEvent)] = []
+        for i in events.indices {
+            for j in events.index(after: i)..<events.endIndex {
+                pairs.append((events[i], events[j]))
+            }
+        }
+        return pairs
     }
 
     private static func time(_ date: Date) -> String {

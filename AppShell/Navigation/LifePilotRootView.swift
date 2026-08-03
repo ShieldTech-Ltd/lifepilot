@@ -48,5 +48,5 @@ public struct LifePilotRootView: View {
 }
 
 #Preview {
-    LifePilotRootView()
+    LifePilotRootView(dependencies: .preview)
 }

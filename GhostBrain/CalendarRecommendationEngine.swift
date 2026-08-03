@@ -24,8 +24,11 @@ struct CalendarRecommendationEngine {
         let sorted = events.sorted { $0.startDate < $1.startDate }
 
         // Rule 1: overlapping events are a scheduling conflict — always
-        // surfaced regardless of how far away they are.
-        for (lhs, rhs) in adjacentPairs(sorted) where lhs.overlaps(rhs) {
+        // surfaced regardless of how far away they are. Checked over every
+        // pair, not just adjacent ones: a long event can overlap a later,
+        // non-adjacent event even when the event directly after it (in
+        // start-time order) doesn't overlap either one.
+        for (lhs, rhs) in allPairs(sorted) where lhs.overlaps(rhs) {
             results.append(
                 RecommendationModel(
                     title: "Resolve conflict between \"\(lhs.title)\" and \"\(rhs.title)\"",

@@ -50,5 +50,5 @@ public struct RootTabView: View {
 }
 
 #Preview {
-    RootTabView(dependencies: .live)
+    RootTabView(dependencies: .preview)
 }

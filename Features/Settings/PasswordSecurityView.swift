@@ -34,7 +34,10 @@ public struct PasswordSecurityView: View {
             } header: {
                 Text("Password")
             } footer: {
-                Text("Do not enter a password you use anywhere else. Use at least eight characters of throwaway demo text. LifePilot never stores it.")
+                Text(
+                    "Do not enter a password you use anywhere else. Use at least eight characters "
+                        + "of throwaway demo text. LifePilot never stores it."
+                )
             }
 
             if let errorMessage {

@@ -46,7 +46,10 @@ public struct LiveExperiencesView: View {
                         Text(manager.isActive ? "Live Activity running" : "See your next priority at a glance")
                             .font(.LifePilot.body.weight(.semibold))
                             .foregroundStyle(Color.LifePilot.textPrimary)
-                        Text("The demo keeps \(nextEvent?.title ?? "your next priority") visible on the Lock Screen and Dynamic Island.")
+                        Text(
+                            "The demo keeps \(nextEvent?.title ?? "your next priority") visible on the Lock Screen "
+                                + "and Dynamic Island."
+                        )
                             .font(.LifePilot.caption)
                             .foregroundStyle(Color.LifePilot.textSecondary)
                     }
@@ -102,7 +105,8 @@ public struct LiveExperiencesView: View {
         .background(Color.black, in: Capsule())
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "Dynamic Island preview, \(nextEvent?.title ?? "day ready") at \(nextEventTime), day \(readinessPercent) percent ready"
+            "Dynamic Island preview, \(nextEvent?.title ?? "day ready") at \(nextEventTime), "
+                + "day \(readinessPercent) percent ready"
         )
     }
 

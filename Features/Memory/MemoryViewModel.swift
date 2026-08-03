@@ -73,7 +73,9 @@ public final class MemoryViewModel {
                     id: "routine-project-lab",
                     symbolName: "repeat",
                     title: projectLab.title,
-                    detail: "Usually scheduled around \(projectLab.startDate.formatted(date: .omitted, time: .shortened))."
+                    detail: "Usually scheduled around "
+                        + projectLab.startDate.formatted(date: .omitted, time: .shortened)
+                        + "."
                 ))
             }
             if let standup = session.visibleEvents.first(where: { $0.title.contains("Stand-up") }) {

@@ -3,6 +3,9 @@ import LifePilotCore
 import LifePilotGhostBrain
 import LifePilotMocks
 
+// The shared demo session intentionally centralises cross-tab state and profile updates.
+// swiftlint:disable type_body_length function_parameter_count
+
 /// Shared, app-wide state for the TechFest prototype. It gives every tab
 /// one coherent model of the day while keeping the external integrations
 /// explicitly simulated. Replacing this store with live services does not

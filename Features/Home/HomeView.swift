@@ -3,6 +3,9 @@ import LifePilotDesignSystem
 import LifePilotGhostBrain
 import SwiftUI
 
+// The showcase screen remains one cohesive SwiftUI composition for visual review.
+// swiftlint:disable file_length type_body_length function_body_length
+
 /// The Morning Briefing: explained recommendations, connected-source
 /// signals, schedule, working quick actions, and shared approval history.
 public struct HomeView: View {
@@ -120,7 +123,10 @@ public struct HomeView: View {
                             }
                             .padding(.horizontal, Spacing.sm)
                             .padding(.vertical, Spacing.sm)
-                            .background(Color.LifePilot.selectionFill, in: RoundedRectangle(cornerRadius: CornerRadius.md))
+                            .background(
+                                Color.LifePilot.selectionFill,
+                                in: RoundedRectangle(cornerRadius: CornerRadius.md)
+                            )
                         }
 
                         HStack {
@@ -309,7 +315,6 @@ public struct HomeView: View {
 
     // MARK: - Upcoming Schedule
 
-    @ViewBuilder
     private var upcomingScheduleSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             SectionHeader(title: "Later in your agenda", symbolName: "calendar")
@@ -341,8 +346,12 @@ public struct HomeView: View {
 
     private func eventDayLabel(_ date: Date) -> String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) { return "Today" }
-        if calendar.isDateInTomorrow(date) { return "Tomorrow" }
+        if calendar.isDateInToday(date) {
+            return "Today"
+        }
+        if calendar.isDateInTomorrow(date) {
+            return "Tomorrow"
+        }
         return date.formatted(.dateTime.weekday(.abbreviated).day())
     }
 

@@ -4,6 +4,9 @@ import XCTest
 @testable import LifePilotFeatures
 @testable import LifePilotServices
 
+// Permission recovery scenarios stay together to make the full local-only flow auditable.
+// swiftlint:disable type_body_length function_body_length
+
 @MainActor
 final class PermissionFlowTests: XCTestCase {
     func testOnboardingDoesNotRequestBeforeEducationAction() async {

@@ -62,11 +62,15 @@ public struct MockRecommendationProvider: GhostBrainServing {
         let staleThreshold: TimeInterval = 2 * 24 * 3600
         if let overdueEmail = MockEmail.messages(relativeTo: now)
             .filter({ $0.requiresReply && now.timeIntervalSince($0.receivedAt) > staleThreshold })
-            .max(by: { now.timeIntervalSince($0.receivedAt) < now.timeIntervalSince($1.receivedAt) }) {
+            .max(by: {
+                now.timeIntervalSince($0.receivedAt) < now.timeIntervalSince($1.receivedAt)
+            })
+        {
             recommendations.append(RecommendationModel(
                 title: "Reply to \(overdueEmail.sender) about \"\(overdueEmail.subject)\"",
                 reasoning: "This email has been waiting since "
-                    + "\(overdueEmail.receivedAt.formatted(date: .abbreviated, time: .omitted)) and looks time-sensitive.",
+                    + overdueEmail.receivedAt.formatted(date: .abbreviated, time: .omitted)
+                    + " and looks time-sensitive.",
                 sourceAgent: .email,
                 riskLevel: .low,
                 urgency: .normal,

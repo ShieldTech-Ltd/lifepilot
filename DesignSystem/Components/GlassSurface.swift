@@ -40,6 +40,7 @@ public struct GlassModifier: ViewModifier {
     }
 
     public func body(content: Content) -> some View {
+        #if compiler(>=6.2)
         if #available(iOS 26.0, macOS 26.0, *) {
             if cornerRadius > 0 {
                 content
@@ -54,6 +55,9 @@ public struct GlassModifier: ViewModifier {
         } else {
             fallback(content: content)
         }
+        #else
+        fallback(content: content)
+        #endif
     }
 
     @ViewBuilder

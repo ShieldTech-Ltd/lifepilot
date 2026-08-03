@@ -32,7 +32,12 @@ public struct TimelineView: View {
                     status: viewModel.selectedFilter.rawValue,
                     tint: Color.LifePilot.accentEnd
                 )
-                .listRowInsets(EdgeInsets(top: Spacing.md, leading: Spacing.lg, bottom: Spacing.sm, trailing: Spacing.lg))
+                .listRowInsets(EdgeInsets(
+                    top: Spacing.md,
+                    leading: Spacing.lg,
+                    bottom: Spacing.sm,
+                    trailing: Spacing.lg
+                ))
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
 
@@ -159,7 +164,11 @@ public struct TimelineView: View {
                         .foregroundStyle(Color.LifePilot.textPrimary)
                     Text(importStatusText)
                         .font(.LifePilot.caption)
-                        .foregroundStyle(importErrorMessage == nil ? Color.LifePilot.textSecondary : Color.LifePilot.signalRisk)
+                        .foregroundStyle(
+                            importErrorMessage == nil
+                                ? Color.LifePilot.textSecondary
+                                : Color.LifePilot.signalRisk
+                        )
                         .multilineTextAlignment(.leading)
                 }
 
@@ -182,7 +191,9 @@ public struct TimelineView: View {
     }
 
     private var importStatusText: String {
-        if let importErrorMessage { return importErrorMessage }
+        if let importErrorMessage {
+            return importErrorMessage
+        }
         if let importedEventTitle {
             return "Added \(importedEventTitle) to your schedule."
         }
@@ -271,9 +282,15 @@ public struct TimelineView: View {
 
     private func dayTitle(_ date: Date) -> String {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) { return "Today" }
-        if calendar.isDateInTomorrow(date) { return "Tomorrow" }
-        if calendar.isDateInYesterday(date) { return "Yesterday" }
+        if calendar.isDateInToday(date) {
+            return "Today"
+        }
+        if calendar.isDateInTomorrow(date) {
+            return "Tomorrow"
+        }
+        if calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        }
         return date.formatted(.dateTime.weekday(.wide).day().month(.wide))
     }
 

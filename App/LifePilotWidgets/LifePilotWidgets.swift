@@ -22,15 +22,15 @@ private struct BriefingEntry: WidgetKit.TimelineEntry {
 }
 
 private struct BriefingProvider: TimelineProvider {
-    func placeholder(in context: Context) -> BriefingEntry {
+    func placeholder(in _: Context) -> BriefingEntry {
         entry
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (BriefingEntry) -> Void) {
+    func getSnapshot(in _: Context, completion: @escaping (BriefingEntry) -> Void) {
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<BriefingEntry>) -> Void) {
+    func getTimeline(in _: Context, completion: @escaping (Timeline<BriefingEntry>) -> Void) {
         let nextRefresh = min(entry.nextDate.addingTimeInterval(60), Date().addingTimeInterval(60 * 30))
         completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
     }

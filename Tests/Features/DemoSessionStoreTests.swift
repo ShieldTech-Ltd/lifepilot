@@ -104,7 +104,7 @@ final class DemoSessionStoreTests: XCTestCase {
         XCTAssertNil(defaults.data(forKey: StorageKey.profileImageData))
     }
 
-    func testImportedScreenshotEventPersistsAndAppearsAcrossHomeAndTimeline() async {
+    func testImportedScreenshotEventPersistsAndAppearsAcrossHomeAndTimeline() {
         let defaults = makeDefaults()
         defer { clear(defaults) }
         let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)

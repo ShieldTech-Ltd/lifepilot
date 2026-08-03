@@ -62,7 +62,10 @@ private final class ShareImportModel: ObservableObject {
                 return
             }
 
-            if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.image.identifier) }) {
+            if let provider = providers.first(where: {
+                $0.hasItemConformingToTypeIdentifier(UTType.image.identifier)
+            })
+            {
                 let data = try await loadData(from: provider, typeIdentifier: UTType.image.identifier)
                 draft = try await ScheduleScreenshotParser.parse(imageData: data)
                 return
@@ -89,7 +92,10 @@ private final class ShareImportModel: ObservableObject {
         )
         SharedImportedEventStore.add(event)
 
-        if let current = UpcomingEventWidgetStore.load(), current.endDate > Date(), current.startDate <= event.startDate {
+        if let current = UpcomingEventWidgetStore.load(),
+           current.endDate > Date(),
+           current.startDate <= event.startDate
+        {
             // Keep the earlier event already visible in the widget.
         } else {
             UpcomingEventWidgetStore.save(event: event)
@@ -114,43 +120,65 @@ private final class ShareImportModel: ObservableObject {
 
     private func loadTextOrFile(from provider: NSItemProvider) async throws -> String? {
         let calendarIdentifier = UTType(filenameExtension: "ics")?.identifier ?? "public.calendar-event"
-        let identifiers = [calendarIdentifier, UTType.plainText.identifier, UTType.url.identifier, UTType.data.identifier]
+        let identifiers = [
+            calendarIdentifier,
+            UTType.plainText.identifier,
+            UTType.url.identifier,
+            UTType.data.identifier,
+        ]
 
         for identifier in identifiers where provider.hasItemConformingToTypeIdentifier(identifier) {
             let item = try await loadItem(from: provider, typeIdentifier: identifier)
-            if let text = item as? String { return try validated(text: text) }
+            if let text = item as? String {
+                return try validated(text: text)
+            }
             if let url = item as? URL {
-                if url.isFileURL { return try loadBoundedTextFile(from: url) }
+                if url.isFileURL {
+                    return try loadBoundedTextFile(from: url)
+                }
                 return try validated(text: url.absoluteString)
             }
             if let data = item as? Data {
-                guard data.count <= Self.maximumTextBytes else { throw ShareImportError.contentTooLarge }
-                if let text = String(data: data, encoding: .utf8) { return text }
+                guard data.count <= Self.maximumTextBytes else {
+                    throw ShareImportError.contentTooLarge
+                }
+                if let text = String(data: data, encoding: .utf8) {
+                    return text
+                }
             }
         }
         return nil
     }
 
     private func validated(text: String) throws -> String {
-        guard text.utf8.count <= Self.maximumTextBytes else { throw ShareImportError.contentTooLarge }
+        guard text.utf8.count <= Self.maximumTextBytes else {
+            throw ShareImportError.contentTooLarge
+        }
         return text
     }
 
     private func loadBoundedTextFile(from url: URL) throws -> String? {
         let didAccess = url.startAccessingSecurityScopedResource()
         defer {
-            if didAccess { url.stopAccessingSecurityScopedResource() }
+            if didAccess {
+                url.stopAccessingSecurityScopedResource()
+            }
         }
 
         let handle = try FileHandle(forReadingFrom: url)
         defer { try? handle.close() }
         let data = try handle.read(upToCount: Self.maximumTextBytes + 1) ?? Data()
-        guard data.count <= Self.maximumTextBytes else { throw ShareImportError.contentTooLarge }
+        guard data.count <= Self.maximumTextBytes else {
+            throw ShareImportError.contentTooLarge
+        }
         return String(data: data, encoding: .utf8)
     }
 
-    private func loadItem(from provider: NSItemProvider, typeIdentifier: String) async throws -> NSSecureCoding? {
-        return try await withCheckedThrowingContinuation { continuation in
+    private func loadItem(
+        from provider: NSItemProvider,
+        typeIdentifier: String
+    ) async throws -> NSSecureCoding? {
+        try await withCheckedThrowingContinuation { continuation in
             provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
                 if let error {
                     continuation.resume(throwing: error)

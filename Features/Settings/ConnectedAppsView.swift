@@ -51,7 +51,10 @@ public struct ConnectedAppsView: View {
                             Text("Add invitations to LifePilot")
                                 .font(.LifePilot.body.weight(.semibold))
                                 .foregroundStyle(Color.LifePilot.textPrimary)
-                            Text("In Apple Mail or Gmail, open Share and choose LifePilot. Calendar files, invitation text, links, and schedule screenshots are supported.")
+                            Text(
+                                "In Apple Mail or Gmail, open Share and choose LifePilot. Calendar files, "
+                                    + "invitation text, links, and schedule screenshots are supported."
+                            )
                                 .font(.LifePilot.caption)
                                 .foregroundStyle(Color.LifePilot.textSecondary)
                         }

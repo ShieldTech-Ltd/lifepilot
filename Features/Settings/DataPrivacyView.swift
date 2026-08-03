@@ -26,9 +26,24 @@ public struct DataPrivacyView: View {
 
                 CardContainer {
                     VStack(alignment: .leading, spacing: Spacing.lg) {
-                        privacyRow(symbolName: "iphone.gen3", title: "Local-first", text: "Process on device wherever possible.", color: .LifePilot.accentStart)
-                        privacyRow(symbolName: "eye.slash.fill", title: "Least privilege", text: "Read only the context each feature needs.", color: .LifePilot.accentEnd)
-                        privacyRow(symbolName: "person.fill.checkmark", title: "Explicit approval", text: "Never execute an action without your decision.", color: .LifePilot.signalSuccess)
+                        privacyRow(
+                            symbolName: "iphone.gen3",
+                            title: "Local-first",
+                            text: "Process on device wherever possible.",
+                            color: .LifePilot.accentStart
+                        )
+                        privacyRow(
+                            symbolName: "eye.slash.fill",
+                            title: "Least privilege",
+                            text: "Read only the context each feature needs.",
+                            color: .LifePilot.accentEnd
+                        )
+                        privacyRow(
+                            symbolName: "person.fill.checkmark",
+                            title: "Explicit approval",
+                            text: "Never execute an action without your decision.",
+                            color: .LifePilot.signalSuccess
+                        )
                     }
                 }
 
@@ -51,7 +66,9 @@ public struct DataPrivacyView: View {
                             .foregroundStyle(Color.LifePilot.textPrimary)
                         Text(didReset
                             ? "Local preferences were reset. Relaunch the app to see onboarding again."
-                            : "Reset profile edits, approvals, source switches, appearance, and onboarding on this device.")
+                            : "Reset profile edits, approvals, source switches, appearance, "
+                                + "and onboarding on this device."
+                        )
                             .font(.LifePilot.caption)
                             .foregroundStyle(Color.LifePilot.textSecondary)
 
@@ -62,7 +79,10 @@ public struct DataPrivacyView: View {
                                 .font(.LifePilot.body.weight(.semibold))
                                 .foregroundStyle(Color.LifePilot.signalRisk)
                                 .frame(maxWidth: .infinity, minHeight: 50)
-                                .background(Color.LifePilot.signalRisk.opacity(0.1), in: RoundedRectangle(cornerRadius: CornerRadius.md))
+                                .background(
+                                    Color.LifePilot.signalRisk.opacity(0.1),
+                                    in: RoundedRectangle(cornerRadius: CornerRadius.md)
+                                )
                         }
                         .buttonStyle(.lifePilotPressable)
                         .accessibilityIdentifier("privacy.reset")
@@ -84,7 +104,10 @@ public struct DataPrivacyView: View {
             Button("Reset Demo Data", role: .destructive) { resetLocalDemoState() }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This clears the profile, approval history, source switches, appearance, and onboarding status on this device.")
+            Text(
+                "This clears the profile, approval history, source switches, appearance, "
+                    + "and onboarding status on this device."
+            )
         }
     }
 

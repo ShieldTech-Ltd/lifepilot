@@ -16,7 +16,8 @@ public struct RootTabView: View {
         let arguments = ProcessInfo.processInfo.arguments
         if let flagIndex = arguments.firstIndex(of: "-LifePilotDemoTab"),
            arguments.indices.contains(flagIndex + 1),
-           let tab = AppTab(rawValue: arguments[flagIndex + 1]) {
+           let tab = AppTab(rawValue: arguments[flagIndex + 1])
+        {
             return tab
         }
         #endif
@@ -91,7 +92,6 @@ public struct RootTabView: View {
         }
     }
 
-    @ViewBuilder
     private func tabRoot(for tab: AppTab) -> some View {
         NavigationStack {
             destination(for: tab)
@@ -133,12 +133,17 @@ private extension View {
     @ViewBuilder
     func lifePilotTabChrome(minimisationEnabled: Bool) -> some View {
         #if os(iOS)
+        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             tabBarMinimizeBehavior(minimisationEnabled ? .onScrollDown : .never)
         } else {
             toolbarBackground(.ultraThinMaterial, for: .tabBar)
                 .toolbarBackground(.visible, for: .tabBar)
         }
+        #else
+        toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+        #endif
         #else
         self
         #endif

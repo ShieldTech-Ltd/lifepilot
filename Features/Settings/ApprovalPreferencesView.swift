@@ -50,7 +50,10 @@ public struct ApprovalPreferencesView: View {
                         VStack(spacing: Spacing.md) {
                             ForEach(RiskLevel.allCases, id: \.self) { level in
                                 HStack(spacing: Spacing.md) {
-                                    SignalBadge(style: level == .low ? .success : .risk, text: level.rawValue.capitalized)
+                                    SignalBadge(
+                                        style: level == .low ? .success : .risk,
+                                        text: level.rawValue.capitalized
+                                    )
                                     Text(description(for: level))
                                         .font(.LifePilot.caption)
                                         .foregroundStyle(Color.LifePilot.textSecondary)

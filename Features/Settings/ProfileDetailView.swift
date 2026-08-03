@@ -63,7 +63,9 @@ public struct ProfileDetailView: View {
                                 .controlSize(.small)
                                 .tint(Color.LifePilot.controlPrimaryText)
                         } else {
-                            Image(systemName: didSave && !hasUnsavedChanges ? "checkmark.circle.fill" : "tray.and.arrow.down.fill")
+                            Image(systemName: didSave && !hasUnsavedChanges
+                                ? "checkmark.circle.fill"
+                                : "tray.and.arrow.down.fill")
                         }
 
                         Text(saveButtonTitle)
@@ -266,8 +268,12 @@ public struct ProfileDetailView: View {
     }
 
     private var saveButtonTitle: String {
-        if isSaving { return "Saving profile" }
-        if didSave, !hasUnsavedChanges { return "Profile saved" }
+        if isSaving {
+            return "Saving profile"
+        }
+        if didSave, !hasUnsavedChanges {
+            return "Profile saved"
+        }
         return "Save changes"
     }
 

@@ -110,12 +110,15 @@ public struct OnboardingView: View {
     }
 
     private var buttonTitle: String {
-        if viewModel.isLastStep { return "Open my briefing" }
-        if viewModel.currentStep.id == "calendar" { return "Continue with demo data" }
+        if viewModel.isLastStep {
+            return "Open my briefing"
+        }
+        if viewModel.currentStep.id == "calendar" {
+            return "Continue with demo data"
+        }
         return "Continue"
     }
 
-    @ViewBuilder
     private var contextPill: some View {
         Group {
             switch viewModel.currentStep.id {

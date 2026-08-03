@@ -22,7 +22,8 @@ public struct MemoryView: View {
                 ScreenHeader(
                     eyebrow: "Visible and correctable",
                     title: "Memory",
-                    subtitle: "Review what LifePilot has learned. Keep useful context or forget anything that is wrong.",
+                    subtitle: "Review what LifePilot has learned. Keep useful context "
+                        + "or forget anything that is wrong.",
                     symbolName: "brain.head.profile",
                     status: "\(visibleFactCount) facts",
                     tint: Color.LifePilot.accentAI

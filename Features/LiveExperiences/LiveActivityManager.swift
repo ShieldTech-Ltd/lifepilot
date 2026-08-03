@@ -76,11 +76,14 @@ public final class LiveActivityManager {
     public var activitiesAreEnabled: Bool { false }
 
     public init() {}
-    public func start(studentName: String, nextItem: String, detail: String, progress: Double) {
+    public func start(studentName _: String, nextItem _: String, detail _: String, progress _: Double) {
         errorMessage = "Live Activities are available on supported iPhones."
     }
+
     public func end() async {}
+
     public func refreshWidgets() {}
+
     public func refreshState() {}
 }
 #endif

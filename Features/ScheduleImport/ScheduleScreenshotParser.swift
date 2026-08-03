@@ -133,7 +133,8 @@ public enum ScheduleScreenshotParser {
     }
 
     private static func firstTimeMatch(in lines: [String]) -> TimeMatch? {
-        let rangePattern = #"(?i)\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?\s*(?:-|to)\s*([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?\b"#
+        let rangePattern = #"(?i)\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?"#
+            + #"\s*(?:-|to)\s*([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?\b"#
         let singlePattern = #"(?i)\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?\b"#
 
         for line in lines {
@@ -187,7 +188,8 @@ public enum ScheduleScreenshotParser {
 
     private static func removingTimes(from value: String) -> String {
         value.replacingOccurrences(
-            of: #"(?i)\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?(?:\s*(?:-|to)\s*([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?)?\b"#,
+            of: #"(?i)\b([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?"#
+                + #"(?:\s*(?:-|to)\s*([01]?\d|2[0-3])[:.]([0-5]\d)\s*(am|pm)?)?\b"#,
             with: "",
             options: .regularExpression
         )
@@ -196,7 +198,8 @@ public enum ScheduleScreenshotParser {
     private static func looksLikeDateOrTime(_ value: String) -> Bool {
         value.range(of: #"\b([01]?\d|2[0-3])[:.]([0-5]\d)\b"#, options: .regularExpression) != nil
             || value.range(
-                of: #"(?i)\b(mon|tue|wed|thu|fri|sat|sun|january|february|march|april|may|june|july|august|september|october|november|december)\b"#,
+                of: #"(?i)\b(mon|tue|wed|thu|fri|sat|sun|january|february|march|april|may|june|july"#
+                    + #"|august|september|october|november|december)\b"#,
                 options: .regularExpression
             ) != nil
             || value.range(of: #"\b\d{1,2}/\d{1,2}/\d{2,4}\b"#, options: .regularExpression) != nil

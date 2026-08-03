@@ -1,6 +1,9 @@
 import Foundation
 import LifePilotCore
 
+// Keeping the complete sample day together makes its ordering and timing auditable.
+// swiftlint:disable function_body_length
+
 /// Realistic sample calendar data for previews, tests, and Phase 3's
 /// mock-driven screens. Not used by production code; see
 /// docs/MASTER_ROADMAP.md Phase 7 for the real EventKit-backed source.

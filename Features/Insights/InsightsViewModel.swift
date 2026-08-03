@@ -53,7 +53,8 @@ public final class InsightsViewModel {
                     trend: .flat,
                     symbolName: "wave.3.right.circle.fill",
                     tint: Color.LifePilot.accentEnd,
-                    detail: "Useful changes detected across your active timetable, inbox, travel, and spending sources.",
+                    detail: "Useful changes detected across your active timetable, inbox, travel, "
+                        + "and spending sources.",
                     actionLabel: "Open unified timeline"
                 ),
                 Metric(
@@ -63,7 +64,8 @@ public final class InsightsViewModel {
                     trend: approved > 0 ? .up : .flat,
                     symbolName: "clock.badge.checkmark.fill",
                     tint: Color.LifePilot.accentAI,
-                    detail: "A conservative estimate based on five minutes of planning or follow-up avoided per approved action.",
+                    detail: "A conservative estimate based on five minutes of planning or follow-up "
+                        + "avoided per approved action.",
                     actionLabel: "See how it was saved"
                 ),
             ]
@@ -143,7 +145,8 @@ public final class InsightsViewModel {
                 trend: .up,
                 symbolName: "wand.and.stars",
                 tint: Color.LifePilot.signalWarning,
-                detail: "Recommendations LifePilot prepared during this period before they became manual planning work.",
+                detail: "Recommendations LifePilot prepared during this period before they became "
+                    + "manual planning work.",
                 actionLabel: "Review current actions"
             ),
             Metric(
@@ -197,7 +200,8 @@ public final class InsightsViewModel {
         public let reviewedCount: Int
 
         public var progress: Double {
-            count == 0 ? 0 : min(1, Double(reviewedCount) / Double(count))
+            guard count > 0 else { return 0 }
+            return min(1, Double(reviewedCount) / Double(count))
         }
     }
 

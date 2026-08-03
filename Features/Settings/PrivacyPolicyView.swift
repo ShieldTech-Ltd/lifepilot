@@ -15,23 +15,34 @@ public struct PrivacyPolicyView: View {
 
                 policySection(
                     title: "What LifePilot stores",
-                    text: "Your profile details, preferences, approval history, imported events, and an optional profile photo are stored locally on your device. Widget and Share extension data uses LifePilot's private App Group."
+                    text: "Your profile details, preferences, approval history, imported events, and an optional "
+                        + "profile photo are stored locally on your device. Widget and Share extension data uses "
+                        + "LifePilot's private App Group."
                 )
                 policySection(
                     title: "Photos and screenshots",
-                    text: "LifePilot can access only the photos you select. A profile photo is stored locally until you remove it or reset the app. Schedule screenshots are processed on device with Apple's text recognition, and the source image is not retained by LifePilot."
+                    text: "LifePilot can access only the photos you select. A profile photo is stored locally until "
+                        + "you remove it or reset the app. Schedule screenshots are processed on device with Apple's "
+                        + "text recognition, and the source image is not retained by LifePilot."
                 )
                 policySection(
                     title: "Collection and sharing",
-                    text: "This showcase build does not transmit personal data to LifePilot, analytics providers, advertising networks, AI services, or other third parties. It does not track you across apps or websites. Connected sources use realistic demonstration data and do not access real accounts."
+                    text: "This showcase build does not transmit personal data to LifePilot, analytics providers, "
+                        + "advertising networks, AI services, or other third parties. It does not track you across "
+                        + "apps or websites. Connected sources use realistic demonstration data and do not access "
+                        + "real accounts."
                 )
                 policySection(
                     title: "Retention and deletion",
-                    text: "Local information remains until you remove it, reset local demo data in Settings, or uninstall LifePilot. Resetting clears profile edits, approval history, source switches, appearance, onboarding state, and imported events."
+                    text: "Local information remains until you remove it, reset local demo data in Settings, or "
+                        + "uninstall LifePilot. Resetting clears profile edits, approval history, source switches, "
+                        + "appearance, onboarding state, and imported events."
                 )
                 policySection(
                     title: "Your choices",
-                    text: "You can pause any connected demo source, remove your profile photo, decline a prepared action, or reset all local data. LifePilot never sends, books, purchases, or moves money without an explicit decision."
+                    text: "You can pause any connected demo source, remove your profile photo, decline a prepared "
+                        + "action, or reset all local data. LifePilot never sends, books, purchases, or acts outside "
+                        + "the app without an explicit decision."
                 )
 
                 Link("tamimtarafder12@gmail.com", destination: supportEmailURL)

@@ -163,7 +163,11 @@ public struct DesignSystemCatalogView: View {
             CardContainer {
                 VStack(spacing: 0) {
                     TimelineRow(content: .init(time: "09:00", title: "Algorithms Lecture", subtitle: "Room 2.04"))
-                    TimelineRow(content: .init(time: "12:00", title: "Lunch with Maya", subtitle: "Spitalfields Market"))
+                    TimelineRow(content: .init(
+                        time: "12:00",
+                        title: "Lunch with Maya",
+                        subtitle: "Spitalfields Market"
+                    ))
                 }
             }
         }

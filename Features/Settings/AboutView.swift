@@ -31,9 +31,21 @@ public struct AboutView: View {
 
                 CardContainer {
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        aboutRow(symbol: "brain.head.profile", title: "Context, not clutter", detail: "One briefing across timetable, inbox, travel, and spending.")
-                        aboutRow(symbol: "checkmark.shield.fill", title: "You approve every action", detail: "LifePilot prepares the next step and waits for your decision.")
-                        aboutRow(symbol: "lock.fill", title: "Private by design", detail: "The showcase uses local demo data and does not connect to real accounts.")
+                        aboutRow(
+                            symbol: "brain.head.profile",
+                            title: "Context, not clutter",
+                            detail: "One briefing across timetable, inbox, travel, and spending."
+                        )
+                        aboutRow(
+                            symbol: "checkmark.shield.fill",
+                            title: "You approve every action",
+                            detail: "LifePilot prepares the next step and waits for your decision."
+                        )
+                        aboutRow(
+                            symbol: "lock.fill",
+                            title: "Private by design",
+                            detail: "The showcase uses local demo data and does not connect to real accounts."
+                        )
                     }
                 }
 

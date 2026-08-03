@@ -1,4 +1,5 @@
 import Foundation
+import LifePilotCore
 import LifePilotGhostBrain
 
 /// Derives visible memory from the shared session and its enabled sources.
@@ -6,13 +7,35 @@ import LifePilotGhostBrain
 @MainActor
 public final class MemoryViewModel {
     public let session: DemoSessionStore
+    public private(set) var memoryItems: [MemoryItem] = []
+    public private(set) var selectedKind: MemoryItem.Kind?
+    private let preferenceStore: (any PreferenceStore)?
 
     public init(session: DemoSessionStore) {
         self.session = session
+        preferenceStore = nil
     }
 
     public convenience init() {
         self.init(session: DemoSessionStore(ghostBrain: MockRecommendationProvider()))
+    }
+
+    public init(preferenceStore: any PreferenceStore) {
+        session = DemoSessionStore(ghostBrain: MockRecommendationProvider())
+        self.preferenceStore = preferenceStore
+    }
+
+    public var filteredItems: [MemoryItem] {
+        guard let selectedKind else { return memoryItems }
+        return memoryItems.filter { $0.kind == selectedKind }
+    }
+
+    public var pinnedItems: [MemoryItem] {
+        filteredItems.filter(\.isPinned)
+    }
+
+    public func setKind(_ kind: MemoryItem.Kind?) {
+        selectedKind = kind
     }
 
     public var sections: [MemorySection] {
@@ -90,7 +113,11 @@ public final class MemoryViewModel {
     }
 
     public func load() async {
-        await session.prepare()
+        if let preferenceStore {
+            memoryItems = await preferenceStore.allMemory()
+        } else {
+            await session.prepare()
+        }
     }
 }
 

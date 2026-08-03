@@ -107,6 +107,19 @@ Full detail lives in [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and [docs/ENGINE
 - Direct pushes to `main` and `develop` are disabled by branch protection; everything goes through review.
 - Force-pushes to shared branches (`main`, `develop`) are disabled.
 
+### Solo maintainer (required reading)
+
+GitHub will not let `@TFT444` **Approve** their own PRs (hard limit). To still ship as a solo admin:
+
+1. Run `./scripts/enable-solo-admin-merge.sh` (sets required approvals to `0`, turns off code-owner requirement + admin lockout) — details in [docs/SOLO_MAINTAINER_REVIEW.md](docs/SOLO_MAINTAINER_REVIEW.md)
+2. Optionally keep **Cursor Bugbot + Approval Agents** when you want a second-identity Approve again
+
+- Bugbot focus: [.cursor/BUGBOT.md](.cursor/BUGBOT.md)
+- Approval rules: [APPROVAL_POLICY.md](APPROVAL_POLICY.md)
+- Related issue: [#7](https://github.com/TFT444/lifepilot/issues/7)
+
+On open PRs you can comment `cursor review` or `bugbot run` to trigger Bugbot after it is enabled in the Cursor dashboard.
+
 ---
 
 Questions not covered here? Open a [Question issue](.github/ISSUE_TEMPLATE/question.yml) or start a Discussion.

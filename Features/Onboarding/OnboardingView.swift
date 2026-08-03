@@ -3,7 +3,7 @@ import SwiftUI
 
 public struct OnboardingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var viewModel = OnboardingViewModel()
+    @State private var viewModel = OnboardingViewModel(steps: OnboardingStep.showcaseSteps)
     private let session: DemoSessionStore
     private let onFinish: () -> Void
 

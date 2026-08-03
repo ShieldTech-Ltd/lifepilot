@@ -7,12 +7,20 @@ public struct OnboardingStep: Identifiable {
     public let symbolName: String
     public let title: String
     public let message: String
+    public let permission: PermissionKind?
 
-    public init(id: String, symbolName: String, title: String, message: String) {
+    public init(
+        id: String,
+        symbolName: String,
+        title: String,
+        message: String,
+        permission: PermissionKind? = nil
+    ) {
         self.id = id
         self.symbolName = symbolName
         self.title = title
         self.message = message
+        self.permission = permission
     }
 
     public static let allSteps: [OnboardingStep] = [
@@ -26,16 +34,37 @@ public struct OnboardingStep: Identifiable {
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
-            title: "Preview connected sources",
-            message: "This TechFest build uses realistic UK student data to show how LifePilot combines "
-                + "your timetable, inbox, travel, and spending without accessing a real account."
+            title: "Connect your calendar",
+            message: "Bring lectures, deadlines, and invitations into one student-first timeline.",
+            permission: .calendar
+        ),
+        OnboardingStep(
+            id: "reminders",
+            symbolName: "checklist",
+            title: "Bring in your reminders",
+            message: "See open commitments beside your LifePilot tasks, or connect them later.",
+            permission: .reminders
+        ),
+        OnboardingStep(
+            id: "notifications",
+            symbolName: "bell.badge.fill",
+            title: "Choose helpful alerts",
+            message: "Get briefings and approved leave-by alerts without exposing sensitive previews.",
+            permission: .notifications
+        ),
+        OnboardingStep(
+            id: "location",
+            symbolName: "location.fill",
+            title: "Add local context",
+            message: "Location improves UK weather and travel guidance. LifePilot still works if you skip it.",
+            permission: .location
         ),
         OnboardingStep(
             id: "approvals",
             symbolName: "checkmark.shield.fill",
             title: "You're always in control",
             message: "LifePilot prepares recommendations. Nothing sends, books, "
-                + "or moves money without your explicit approval."
+                + "or acts outside LifePilot without your explicit approval."
         ),
         OnboardingStep(
             id: "ready",
@@ -43,5 +72,19 @@ public struct OnboardingStep: Identifiable {
             title: "You're ready",
             message: "Your student briefing is waiting."
         ),
+    ]
+
+    /// Concise, permission-free sequence used by the self-contained TechFest demo.
+    public static let showcaseSteps: [OnboardingStep] = [
+        allSteps[0],
+        OnboardingStep(
+            id: "calendar",
+            symbolName: "calendar",
+            title: "Preview connected sources",
+            message: "This TechFest build uses realistic UK student data to show how LifePilot combines "
+                + "your timetable, inbox, travel, and spending without accessing a real account."
+        ),
+        allSteps[5],
+        allSteps[6],
     ]
 }

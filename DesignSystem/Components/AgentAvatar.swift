@@ -31,9 +31,12 @@ public struct AgentAvatar: View {
         switch agent {
         case .calendar: Color.LifePilot.accentEnd
         case .email: Color.LifePilot.accentAI
+        case .task: Color.LifePilot.signalSuccess
         case .travel: Color.LifePilot.accentStart
+        case .weather: Color.LifePilot.signalInfo
         case .finance: Color.LifePilot.accentWarm
         case .memory: Color.LifePilot.signalInfo
+        case .planning: Color.LifePilot.accentEnd
         case .reminder: Color.LifePilot.signalRisk
         case .shopping: Color.LifePilot.accentAI
         case .health: Color.LifePilot.signalSuccess

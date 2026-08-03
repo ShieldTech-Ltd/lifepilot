@@ -34,7 +34,7 @@ Format adapted from [Michael Nygard's ADR template](https://cognitect.com/blog/2
 
 **Status:** Accepted
 
-**Context:** LifePilot reasons over sensitive, consequential data (calendars, email, finances) and could technically act on the user's behalf (send an email, book travel, move money).
+**Context:** LifePilot reasons over sensitive, consequential data (calendars, reminders, and daily schedule context) and could technically act on the user's behalf (change a calendar event, book travel).
 
 **Decision:** No high-risk action executes without explicit, per-action user approval, enforced architecturally (see [Dependency Rules](ARCHITECTURE.md#dependency-rules), point 4) rather than as a UI convention that could be bypassed.
 

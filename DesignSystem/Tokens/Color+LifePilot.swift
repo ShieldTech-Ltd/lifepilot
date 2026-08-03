@@ -91,6 +91,9 @@ extension Color {
             light: Color(hex: 0x8A5A26),
             dark: Color(hex: 0xD7A66A)
         )
+        public static let accentTeal = accentStart
+        public static let onAccent = Color.white
+        public static let borderSubtle = separator
 
         // MARK: - Text
 
@@ -147,6 +150,12 @@ extension LinearGradient {
 
         public static let warm = LinearGradient(
             colors: [Color.LifePilot.accentWarm, Color.LifePilot.signalRisk],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+
+        public static let hero = LinearGradient(
+            colors: [Color.LifePilot.accentStart, Color.LifePilot.accentEnd, Color.LifePilot.accentAI],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )

@@ -18,4 +18,4 @@
 #   DesignSystem/Tokens/Color+LifePilot.swift and
 #   AppShell/Navigation/RootTabView.swift) - a known SwiftFormat limitation
 #   around preprocessor directives, not a real formatting defect.
---disable redundantReturn,extensionAccessControl,wrapPropertyBodies,conditionalAssignment,numberFormatting,indent
+--disable redundantReturn,extensionAccessControl,wrapPropertyBodies,conditionalAssignment,numberFormatting,indent,hoistAwait

@@ -1,0 +1,46 @@
+---
+description: LifePilot daily-life MVP scope, architecture, safety, and workflow
+globs:
+alwaysApply: true
+---
+
+# LifePilot Cursor rules
+
+## Product scope (permanent)
+
+LifePilot is a privacy-first daily-life assistant: tasks, reminders, personal/work events and schedules, unified Today timeline, morning/anytime briefing, conflict and preparation detection, weather/travel context, routines/preferences, explainable suggestions, and approval-gated external writes.
+
+**Out of scope — remove, do not add:**
+- Banking, balances, transactions, spending, budgets, bills, payments, investments
+- Shopping, price tracking, checkout, purchase automation
+- HealthKit / medical / health intelligence as a shipping MVP feature (deferred only)
+- Apple Mail content ingestion and automatic message sending
+- Embedding OpenAI or any API secrets in the client, repo, tests, or assets
+
+## Architecture
+
+`App → AppShell → Features → Core protocols/models ← Services/Integrations`  
+`GhostBrain/Planning → Core only`
+
+- Features depend on protocols, never concretions in Mocks/Services.
+- AppShell is the composition root.
+- AI never receives execution credentials and never calls system integrations directly.
+- Every external write goes through ActionProposal → explicit Approval → Executor (revalidate, idempotent, auditable).
+
+## Quality bar
+
+- Offline-first with persisted LifePilot-owned data; Calendar/Reminders remain source of truth when connected.
+- Least privilege; request permission only at the feature that needs it.
+- Recommendations always carry evidence, freshness, and reason.
+- No fake charts, dead buttons, or screenshot-as-implementation.
+- Prefer extending existing DesignSystem / Core types over one-off styling or duplicate models.
+
+## Workflow
+
+- **Before any work:** `git fetch origin develop` and start from **latest `develop`**. Diff open PRs targeting `develop` and existing paths for the same issue/feature — **do not duplicate**. Prefer extending or superseding an open branch/PR over opening a parallel one.
+- If another open PR already contains the change, update that branch (or clearly mark it superseded) instead of re-implementing.
+- Work on `feature/*` or `cursor/*` branches — never commit directly to `main` or `develop`.
+- Small conventional commits after verified slices.
+- Update `docs/IMPLEMENTATION_STATUS.md` with real evidence after each stage.
+- Never claim a check passed unless it ran and passed. If Xcode/swift is unavailable locally, say so and use CI results.
+- Search the repo before creating replacements.

@@ -19,7 +19,7 @@ final class HomeViewModelTests: XCTestCase {
     func testLoadHandlesFailingProviderGracefully() async {
         struct FailingProvider: GhostBrainServing {
             func currentModel() async throws -> GhostBrainModel {
-                throw DomainError.unavailable("test failure")
+                throw DomainError.unavailableNamed("test failure")
             }
         }
 

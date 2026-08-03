@@ -7,8 +7,7 @@ import LifePilotCore
 public enum MockCalendar {
     /// A full day's worth of varied events, anchored relative to `now` so
     /// previews always show a plausible "today."
-    // swiftlint:disable:next function_body_length
-    public static func events(
+    public static func events( // swiftlint:disable:this function_body_length
         relativeTo now: Date = Date()
     ) -> [CalendarEvent] {
         let calendar = Calendar.current

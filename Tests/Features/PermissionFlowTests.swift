@@ -5,7 +5,7 @@ import XCTest
 @testable import LifePilotServices
 
 @MainActor
-final class PermissionFlowTests: XCTestCase { // swiftlint:disable:this type_body_length
+final class PermissionFlowTests: XCTestCase {
     func testOnboardingDoesNotRequestBeforeEducationAction() async {
         let calendar = PermissionCalendar(nextState: .authorized)
         let viewModel = OnboardingViewModel(

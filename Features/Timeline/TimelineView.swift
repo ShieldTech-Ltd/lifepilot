@@ -3,8 +3,7 @@ import PhotosUI
 import SwiftUI
 
 /// Unified, filterable timeline with inspectable and reviewable entries.
-// swiftlint:disable:next type_body_length
-public struct TimelineView: View {
+public struct TimelineView: View { // swiftlint:disable:this type_body_length
     @State private var viewModel: TimelineViewModel
     @State private var selectedEntry: TimelineEntry?
     @State private var reviewedEntryIDs: Set<UUID> = []

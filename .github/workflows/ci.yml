@@ -118,7 +118,7 @@ jobs:
             xcrun simctl launch \
               --terminate-running-process \
               "$simulator_id" \
-              com.lifepilot.app
+              com.ritiksah.lifepilot
           )"
           echo "$launch_output" | tee "$CI_ARTIFACTS/simulator-launch.log"
 

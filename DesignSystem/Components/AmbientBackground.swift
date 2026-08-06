@@ -1,53 +1,53 @@
 import SwiftUI
 
-/// Soft radial washes behind briefing / timeline screens (Phase 2 dark glass look).
+/// A restrained photographic canvas inspired by native iOS materials.
+/// The study environment supplies real-world depth while an adaptive scrim
+/// keeps text and controls readable in either system appearance.
 public struct AmbientBackground: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var shifted = false
+    private let energy: Energy
 
-    public init() {}
+    public init(energy: Energy = .subtle) {
+        self.energy = energy
+    }
 
     public var body: some View {
-        ZStack {
-            Color.LifePilot.backgroundPrimary
-            RadialGradient(
-                colors: [
-                    Color.LifePilot.accentStart.opacity(0.28),
-                    Color.clear,
-                ],
-                center: .topTrailing,
-                startRadius: 20,
-                endRadius: 320
-            )
-            .offset(x: shifted ? -18 : 0, y: shifted ? 12 : 0)
-            RadialGradient(
-                colors: [
-                    Color.LifePilot.accentEnd.opacity(0.18),
-                    Color.clear,
-                ],
-                center: .bottomLeading,
-                startRadius: 10,
-                endRadius: 280
-            )
-            .offset(x: shifted ? 16 : 0, y: shifted ? -10 : 0)
-            Circle()
-                .fill(Color.LifePilot.accentTeal.opacity(0.07))
-                .frame(width: 220, height: 220)
-                .blur(radius: 42)
-                .offset(x: shifted ? 150 : 175, y: shifted ? 240 : 270)
+        GeometryReader { proxy in
+            ZStack {
+                Color.LifePilot.backgroundPrimary
+
+                if energy == .prominent {
+                    Image("LifePilotBackdrop")
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                        .clipped()
+                        .saturation(0.84)
+                        .contrast(0.96)
+                        .blur(radius: 0.6)
+                        .overlay(Color.LifePilot.backdropScrim)
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .clipped()
         }
         .ignoresSafeArea()
+        .allowsHitTesting(false)
         .accessibilityHidden(true)
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: 2.2).repeatCount(2, autoreverses: true)) {
-                shifted = true
-            }
-        }
+    }
+
+    public enum Energy: Equatable {
+        case subtle
+        case prominent
     }
 }
 
-/// Elevated card with a subtle accent border for Phase 2 glass-adjacent surfaces.
+extension View {
+    public func lifePilotScreenBackground(energy: AmbientBackground.Energy = .subtle) -> some View {
+        background { AmbientBackground(energy: energy) }
+    }
+}
+
+/// Elevated card retained for develop features that need a stronger accent edge.
 public struct GlowCard<Content: View>: View {
     private let content: Content
 
@@ -60,19 +60,16 @@ public struct GlowCard<Content: View>: View {
             .padding(Spacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.LifePilot.backgroundElevated.opacity(0.92))
-            .overlay(
+            .overlay {
                 RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
-                    .stroke(
-                        LinearGradient.LifePilot.accent.opacity(0.35),
-                        lineWidth: 1
-                    )
-            )
+                    .stroke(LinearGradient.LifePilot.accent.opacity(0.35), lineWidth: 1)
+            }
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
             .lifePilotShadow(ShadowStyle.LifePilot.card)
     }
 }
 
-/// Compact context tile used on Home (weather, meetings, leave-by).
+/// Compact context tile used for weather, meeting, and leave-by summaries.
 public struct ContextTile: View {
     private let symbolName: String
     private let title: String
@@ -108,16 +105,16 @@ public struct ContextTile: View {
         .padding(Spacing.md)
         .frame(maxWidth: .infinity, minHeight: 108, alignment: .topLeading)
         .background(Color.LifePilot.backgroundElevated)
-        .overlay(
+        .overlay {
             RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
                 .stroke(accent.opacity(0.25), lineWidth: 1)
-        )
+        }
         .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 }
 
-/// Banner for offline / denied / stale states — never silent failure.
+/// Banner for offline, denied, stale, and other recoverable states.
 public struct StatusBanner: View {
     public enum Style: String, Sendable, Equatable {
         case info

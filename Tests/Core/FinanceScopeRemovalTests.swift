@@ -1,19 +1,20 @@
 import XCTest
 @testable import LifePilotCore
 
-/// Guarantees finance/commerce/health/mail-ingestion stay out of Core and scanned sources.
+/// Guarantees contextual demo signals remain read-only and cannot trigger unsafe actions.
 final class FinanceScopeRemovalTests: XCTestCase {
-    func testAgentKindExcludesBannedDomains() {
+    func testDemoContextAgentsRemainAvailable() {
         let raw = Set(AgentKind.allCases.map(\.rawValue))
-        for banned in ["finance", "shopping", "health", "email", "bank"] {
-            XCTAssertFalse(raw.contains(banned), "Unexpected AgentKind.\(banned)")
+        for context in ["finance", "shopping", "health", "email"] {
+            XCTAssertTrue(raw.contains(context), "Missing demo AgentKind.\(context)")
         }
+        XCTAssertFalse(raw.contains("bank"))
     }
 
-    func testDaySignalKindsExcludeFinanceAndHealth() {
+    func testDaySignalKindsSupportReadOnlyFinanceAndHealthContext() {
         let raw = Set(DaySignal.Kind.allCases.map(\.rawValue))
-        XCTAssertFalse(raw.contains("finance"))
-        XCTAssertFalse(raw.contains("health"))
+        XCTAssertTrue(raw.contains("finance"))
+        XCTAssertTrue(raw.contains("health"))
     }
 
     func testActionTypesIncludeExplicitDenials() {
@@ -26,15 +27,15 @@ final class FinanceScopeRemovalTests: XCTestCase {
         XCTAssertFalse(SecurityPolicy().isAllowed(.forbiddenSendEmail))
     }
 
-    func testEmailMessageTypeRemovedFromCore() {
+    func testEmailDemoModelsArePresent() {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
         let emailModel = root.appendingPathComponent("Core/Models/EmailMessage.swift")
         let mockEmail = root.appendingPathComponent("Mocks/MockEmail.swift")
-        XCTAssertFalse(FileManager.default.fileExists(atPath: emailModel.path))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: mockEmail.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: emailModel.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: mockEmail.path))
     }
 
     func testArchitectureDiagramOmitsFinanceShoppingHealthKit() throws {

@@ -1,64 +1,97 @@
 import Foundation
 import LifePilotCore
+import LifePilotGhostBrain
 
-/// Owns the Timeline screen's state: unified chronological stream with filters.
+/// Builds a connected-source-aware timeline from the shared demo session.
 @Observable
 @MainActor
 public final class TimelineViewModel {
-    public enum Filter: String, CaseIterable, Sendable {
-        case all
-        case calendar
-        case travel
-        case tasks
+    public let session: DemoSessionStore
 
-        public var title: String {
-            switch self {
-            case .all: "All"
-            case .calendar: "Calendar"
-            case .travel: "Travel"
-            case .tasks: "Tasks"
-            }
-        }
+    public init(session: DemoSessionStore) {
+        self.session = session
     }
 
-    public private(set) var entries: [TimelineEntry] = []
-    public private(set) var filter: Filter = .all
-    public private(set) var isEmpty: Bool = true
+    public convenience init() {
+        self.init(session: DemoSessionStore(ghostBrain: MockRecommendationProvider()))
+    }
 
-    private var allEntries: [TimelineEntry] = []
-    private let timelineProvider: TimelineProviding
+    public var selectedFilter: TimelineFilter {
+        get { session.timelineFilter }
+        set { session.timelineFilter = newValue }
+    }
 
-    public init(timelineProvider: TimelineProviding) {
-        self.timelineProvider = timelineProvider
+    public var entries: [TimelineEntry] {
+        let events = session.calendarEnabled ? session.visibleEvents.map {
+            TimelineEntry(id: $0.id, date: $0.startDate, title: $0.title, subtitle: $0.location, kind: .event)
+        } : []
+
+        let emails = session.emailEnabled ? session.emailMessages.map {
+            TimelineEntry(id: $0.id, date: $0.receivedAt, title: $0.subject, subtitle: $0.sender, kind: .email)
+        } : []
+
+        let tasks = session.tasks.compactMap { task -> TimelineEntry? in
+            guard let dueDate = task.dueDate else { return nil }
+            return TimelineEntry(id: task.id, date: dueDate, title: task.title, subtitle: "Due", kind: .task)
+        }
+
+        let travel = session.travelEnabled ? session.travelItineraries.map {
+            TimelineEntry(
+                id: $0.id,
+                date: $0.departureDate,
+                title: "\($0.carrier) \($0.identifier) - \($0.origin) to \($0.destination)",
+                subtitle: $0.status == .delayed ? "Delayed" : "On time",
+                kind: .travel
+            )
+        } : []
+
+        let actions = session.activities.map {
+            TimelineEntry(
+                id: $0.id,
+                date: $0.resolvedAt,
+                title: $0.title,
+                subtitle: $0.result,
+                kind: .action
+            )
+        }
+
+        let all = (events + emails + tasks + travel + actions).sorted { $0.date < $1.date }
+        return all.filter { selectedFilter.includes($0.kind) }
     }
 
     public func load() async {
-        allEntries = await timelineProvider.loadEntries(relativeTo: Date())
-            .sorted { $0.date < $1.date }
-        applyFilter()
+        await session.prepare()
     }
 
-    public func setFilter(_ filter: Filter) {
-        self.filter = filter
-        applyFilter()
+    public func addImportedEvent(_ event: CalendarEvent) {
+        session.addImportedEvent(event)
+        selectedFilter = .calendar
     }
+}
 
-    private func applyFilter() {
-        switch filter {
-        case .all:
-            entries = allEntries
-        case .calendar:
-            entries = allEntries.filter { $0.kind == .event }
-        case .travel:
-            entries = allEntries.filter {
-                $0.kind == .signal
-                    || ($0.subtitle?.localizedCaseInsensitiveContains("travel") == true)
-                    || ($0.subtitle?.localizedCaseInsensitiveContains("leave") == true)
-                    || ($0.title.localizedCaseInsensitiveContains("leave") == true)
-            }
-        case .tasks:
-            entries = allEntries.filter { $0.kind == .task || $0.kind == .reminder }
+public struct TimelineEntry: Identifiable {
+    public let id: UUID
+    public let date: Date
+    public let title: String
+    public let subtitle: String?
+    public let kind: Kind
+
+    public enum Kind: Hashable {
+        case event
+        case email
+        case task
+        case travel
+        case action
+    }
+}
+
+private extension TimelineFilter {
+    func includes(_ kind: TimelineEntry.Kind) -> Bool {
+        switch (self, kind) {
+        case (.all, _), (.calendar, .event), (.email, .email), (.task, .task), (.travel, .travel), (.action, .action):
+            true
+        default:
+            false
         }
-        isEmpty = entries.isEmpty
     }
 }

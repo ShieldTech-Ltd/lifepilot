@@ -1,157 +1,174 @@
 import LifePilotDesignSystem
 import SwiftUI
 
-/// The onboarding flow shown on first launch. See `OnboardingViewModel`
-/// for step progression and `OnboardingStep` for step content.
 public struct OnboardingView: View {
-    @State private var viewModel: OnboardingViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.openURL) private var openURL
+    @State private var viewModel = OnboardingViewModel(steps: OnboardingStep.showcaseSteps)
+    private let session: DemoSessionStore
     private let onFinish: () -> Void
 
-    public init(
-        permissions: PermissionDependencies = PermissionDependencies(),
-        skipHandler: @escaping (PermissionKind) async -> Void = { _ in },
-        onFinish: @escaping () -> Void
-    ) {
-        _viewModel = State(
-            initialValue: OnboardingViewModel(
-                permissions: permissions,
-                skipHandler: skipHandler
-            )
-        )
+    public init(session: DemoSessionStore, onFinish: @escaping () -> Void) {
+        self.session = session
         self.onFinish = onFinish
+    }
+
+    public init(onFinish: @escaping () -> Void) {
+        self.init(session: DemoSessionStore(), onFinish: onFinish)
     }
 
     public var body: some View {
         ZStack {
-            AmbientBackground()
+            AmbientBackground(energy: .subtle)
 
-            VStack(spacing: Spacing.xl) {
-                ProgressView(value: viewModel.progress)
-                    .tint(Color.LifePilot.accentEnd)
-                    .padding(.horizontal, Spacing.lg)
+            VStack(spacing: Spacing.lg) {
+                topBar
 
-                Spacer()
+                Spacer(minLength: Spacing.sm)
 
-                VStack(spacing: Spacing.lg) {
-                    ZStack {
-                        Circle()
-                            .fill(LinearGradient.LifePilot.hero.opacity(0.18))
-                            .frame(width: 112, height: 112)
-                        Image(systemName: viewModel.currentStep.symbolName)
-                            .font(.system(size: IconSize.xl, weight: .medium))
-                            .foregroundStyle(LinearGradient.LifePilot.hero)
-                    }
-                    .accessibilityHidden(true)
+                CardContainer {
+                    VStack(spacing: Spacing.lg) {
+                        stepGraphic
 
-                    Text(viewModel.currentStep.title)
-                        .font(.LifePilot.titleLarge)
-                        .foregroundStyle(Color.LifePilot.textPrimary)
-                        .multilineTextAlignment(.center)
+                        VStack(spacing: Spacing.sm) {
+                            Text(viewModel.currentStep.title)
+                                .font(.LifePilot.titleLarge)
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+                                .multilineTextAlignment(.center)
 
-                    Text(viewModel.currentStep.message)
-                        .font(.LifePilot.body)
-                        .foregroundStyle(Color.LifePilot.textSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, Spacing.lg)
-
-                    if viewModel.currentStepIndex == 0 {
-                        GlassSurface(cornerRadius: CornerRadius.md) {
-                            HStack(spacing: Spacing.sm) {
-                                Image(systemName: "lock.shield.fill")
-                                    .foregroundStyle(Color.LifePilot.accentTeal)
-                                Text("Useful without an account. Permissions stay optional.")
-                                    .font(.LifePilot.caption)
-                                    .foregroundStyle(Color.LifePilot.textSecondary)
-                            }
-                            .padding(Spacing.md)
+                            Text(viewModel.currentStep.message)
+                                .font(.LifePilot.body)
+                                .foregroundStyle(Color.LifePilot.textSecondary)
+                                .multilineTextAlignment(.center)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, Spacing.sm)
                         }
-                        .padding(.horizontal, Spacing.lg)
-                    }
 
-                    if let message = viewModel.permissionMessage {
-                        StatusBanner(
-                            message: message,
-                            style: viewModel.permissionState == .denied
-                                ? .warning
-                                : .info
-                        )
-                        .padding(.horizontal, Spacing.lg)
+                        contextPill
                     }
+                    .frame(maxWidth: .infinity, minHeight: 390)
                 }
                 .id(viewModel.currentStep.id)
-                .transition(reduceMotion
-                    ? .opacity
-                    : .opacity.combined(with: .move(edge: .trailing)))
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .trailing)),
+                    removal: .opacity.combined(with: .move(edge: .leading))
+                ))
 
-                Spacer()
+                Spacer(minLength: Spacing.sm)
 
-                actionButtons
-                    .padding(.horizontal, Spacing.lg)
-                .padding(.bottom, Spacing.lg)
+                Button(buttonTitle) {
+                    if viewModel.isLastStep {
+                        onFinish()
+                    } else {
+                        withAnimation(Motion.deliberate) { viewModel.advance() }
+                    }
+                }
+                .buttonStyle(.lifePilotPrimary)
+                .accessibilityIdentifier("onboarding.continue")
+            }
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.md)
+        }
+        .lifePilotAnimation(Motion.deliberate, reduceMotion: reduceMotion, value: viewModel.currentStepIndex)
+    }
+
+    private var topBar: some View {
+        HStack {
+            Button {
+                withAnimation(Motion.standard) { viewModel.goBack() }
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(Color.LifePilot.textPrimary)
+                    .frame(width: 44, height: 44)
+                    .lifePilotGlass(cornerRadius: CornerRadius.full)
+            }
+            .buttonStyle(.lifePilotPressable)
+            .opacity(viewModel.currentStepIndex == 0 ? 0 : 1)
+            .disabled(viewModel.currentStepIndex == 0)
+            .accessibilityIdentifier("onboarding.back")
+
+            Spacer()
+
+            HStack(spacing: Spacing.sm) {
+                ForEach(viewModel.steps.indices, id: \.self) { index in
+                    Capsule()
+                        .fill(index <= viewModel.currentStepIndex
+                            ? Color.LifePilot.accentStart
+                            : Color.LifePilot.textSecondary.opacity(0.18))
+                        .frame(width: index == viewModel.currentStepIndex ? 28 : 8, height: 8)
+                }
+            }
+
+            Spacer()
+
+            Text("\(viewModel.currentStepIndex + 1)/\(viewModel.steps.count)")
+                .font(.LifePilot.utility)
+                .foregroundStyle(Color.LifePilot.textSecondary)
+                .frame(width: 44, height: 44)
+        }
+    }
+
+    private var buttonTitle: String {
+        if viewModel.isLastStep {
+            return "Open my briefing"
+        }
+        if viewModel.currentStep.id == "calendar" {
+            return "Continue with demo data"
+        }
+        return "Continue"
+    }
+
+    private var contextPill: some View {
+        Group {
+            switch viewModel.currentStep.id {
+            case "calendar":
+                Label("\(session.connectedSourceCount) UK demo sources ready", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(Color.LifePilot.signalSuccess)
+            case "approvals":
+                Label("Approval is always required", systemImage: "lock.shield.fill")
+                    .foregroundStyle(Color.LifePilot.signalSuccess)
+            case "ready":
+                Label("Built around your BSc Computing day", systemImage: "graduationcap.fill")
+                    .foregroundStyle(Color.LifePilot.accentStart)
+            default:
+                Label("Student-first, designed for everyone", systemImage: "person.3.fill")
+                    .foregroundStyle(Color.LifePilot.accentEnd)
             }
         }
-        .lifePilotAnimation(
-            Motion.deliberate,
-            reduceMotion: reduceMotion,
-            value: viewModel.currentStepIndex
-        )
-        .task(id: viewModel.currentStep.id) {
-            await viewModel.refreshCurrentPermission()
-        }
+        .font(.LifePilot.utility)
+        .padding(.horizontal, Spacing.md)
+        .padding(.vertical, Spacing.sm)
+        .lifePilotGlass(cornerRadius: CornerRadius.full)
     }
 
     @ViewBuilder
-    private var actionButtons: some View {
-        if !viewModel.permissionHandled, let permission = viewModel.currentStep.permission {
-            VStack(spacing: Spacing.sm) {
-                Button(
-                    viewModel.isRequestingPermission
-                        ? "Requesting..."
-                        : "Connect \(permission.displayName)"
-                ) {
-                    Task { await viewModel.requestCurrentPermission() }
-                }
-                .buttonStyle(.lifePilotPrimary)
-                .disabled(viewModel.isRequestingPermission)
-
-                Button("Not Now") {
-                    Task { await viewModel.skipCurrentPermission() }
-                }
-                .buttonStyle(.lifePilotSecondary)
-                .disabled(viewModel.isRequestingPermission)
-            }
+    private var stepGraphic: some View {
+        if viewModel.currentStep.id == "welcome" {
+            Image("LifePilotLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 132, height: 132)
+                .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
+                .shadow(color: Color.black.opacity(0.18), radius: 18, y: 9)
+                .accessibilityLabel("LifePilot logo")
         } else {
-            VStack(spacing: Spacing.sm) {
-                if viewModel.permissionState == .denied {
-                    Button("Open System Settings") {
-                        if let url = PermissionSystemSettings.url {
-                            openURL(url)
-                        }
-                    }
-                    .buttonStyle(.lifePilotSecondary)
-                }
-
-                Button(viewModel.isLastStep ? "Get Started" : "Continue") {
-                    continueFlow()
-                }
-                .buttonStyle(.lifePilotPrimary)
-            }
+            Image(systemName: viewModel.currentStep.symbolName)
+                .font(.system(size: 48, weight: .semibold))
+                .foregroundStyle(iconColor)
+                .frame(width: 112, height: 112)
+                .background(iconColor.opacity(0.12), in: Circle())
+                .overlay { Circle().stroke(Color.LifePilot.glassBorder, lineWidth: 1) }
         }
     }
 
-    private func continueFlow() {
-        if viewModel.isLastStep {
-            onFinish()
-        } else {
-            withAnimation(reduceMotion ? nil : Motion.deliberate) {
-                viewModel.advance()
-            }
+    private var iconColor: Color {
+        switch viewModel.currentStep.id {
+        case "calendar": Color.LifePilot.accentEnd
+        case "approvals": Color.LifePilot.signalSuccess
+        default: Color.LifePilot.accentStart
         }
     }
 }
 
-#Preview {
-    OnboardingView(onFinish: {})
-}
+#Preview { OnboardingView(onFinish: {}) }

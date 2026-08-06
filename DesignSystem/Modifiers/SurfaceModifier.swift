@@ -20,12 +20,16 @@ public struct SurfaceModifier: ViewModifier {
         content
             .background(fill)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(Color.LifePilot.glassBorder.opacity(0.65), lineWidth: 1)
+            }
     }
 }
 
 extension View {
     /// Applies the standard elevated-surface background and corner radius,
-    /// without padding or shadow — compose with `.padding(...)` and
+    /// without padding or shadow - compose with `.padding(...)` and
     /// `.lifePilotShadow(...)` directly, or use `CardContainer` for the
     /// common all-in-one case.
     public func lifePilotSurface(

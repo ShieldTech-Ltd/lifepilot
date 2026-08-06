@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Shadow tokens for elevated surfaces. Kept subtle by design, per
-/// docs/DESIGN_SYSTEM.md's "Calm by default" principle — LifePilot should
+/// docs/DESIGN_SYSTEM.md's "Calm by default" principle - LifePilot should
 /// never feel like it's shouting, including through heavy drop shadows.
 public struct ShadowStyle {
     public let color: Color
@@ -11,10 +11,10 @@ public struct ShadowStyle {
 
     public enum LifePilot {
         public static let card = ShadowStyle(
-            color: Color.black.opacity(0.12),
-            radius: 12,
+            color: Color.black.opacity(0.14),
+            radius: 18,
             x: 0,
-            y: 4
+            y: 8
         )
 
         public static let elevated = ShadowStyle(

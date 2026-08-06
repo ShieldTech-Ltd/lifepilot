@@ -1,105 +1,101 @@
-import LifePilotCore
 import LifePilotDesignSystem
 import LifePilotFeatures
-import LifePilotServices
 import SwiftUI
 
-/// Root tabs with universal quick capture (#36).
+/// The root `TabView`, hosting the five tabs defined in `AppTab`. Each tab
+/// wraps its screen in its own `NavigationStack`, per SwiftUI's recommended
+/// pattern for independent per-tab navigation history.
 public struct RootTabView: View {
-    private let dependencies: AppDependencies
-    @State private var selectedTab: AppTab = .home
-    @State private var isCapturing = false
-    @State private var captureKind: AppRoute.QuickCaptureKind = .task
-    @State private var captureConfirmation: String?
-    @State private var isSearching = false
-    @State private var permissionRevision = 0
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var session: DemoSessionStore
+    @State private var selectedTab: AppTab = Self.initialTab
+    @State private var tabBarMinimisationEnabled = false
+
+    private static var initialTab: AppTab {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        let flagIndex = arguments.firstIndex(of: "-LifePilotDemoTab")
+        let tabName = flagIndex.flatMap { index in
+            arguments.indices.contains(index + 1) ? arguments[index + 1] : nil
+        }
+        if let tabName, let tab = AppTab(rawValue: tabName) {
+            return tab
+        }
+        #endif
+        return .home
+    }
 
     public init(dependencies: AppDependencies) {
-        self.dependencies = dependencies
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
+    }
+
+    public init(session: DemoSessionStore) {
+        _session = State(initialValue: session)
     }
 
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(AppTab.allCases) { tab in
-                NavigationStack {
-                    destination(for: tab)
-                        .toolbar {
-                            ToolbarItem(placement: .primaryAction) {
-                                Button {
-                                    isSearching = true
-                                } label: {
-                                    Image(systemName: "magnifyingglass")
-                                }
-                                .accessibilityLabel("Search")
-                            }
-                        }
-                }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.symbolName)
-                }
-                .tag(tab)
+        Group {
+            #if os(iOS)
+            if #available(iOS 18.0, *) {
+                modernTabView
+            } else {
+                legacyTabView
             }
+            #else
+            legacyTabView
+            #endif
         }
         .tint(Color.LifePilot.accentEnd)
-        #if os(iOS)
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .toolbarBackground(.visible, for: .tabBar)
-        #endif
-        .overlay(alignment: .bottomTrailing) {
-            Button {
-                captureKind = .task
-                isCapturing = true
-            } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 44))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(LinearGradient.LifePilot.accent)
-                    .padding(.trailing, Spacing.lg)
-                    .padding(.bottom, Spacing.xl)
+        .lifePilotTabChrome(minimisationEnabled: tabBarMinimisationEnabled)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                session.reloadSharedEvents()
             }
-            .accessibilityLabel("Quick capture")
         }
-        .sheet(isPresented: $isCapturing) {
-            QuickCaptureView(
-                dependencies: quickCaptureDependencies,
-                initialDestination: captureKind,
-                onSaved: { message in
-                    isCapturing = false
-                    captureConfirmation = message
-                },
-                onCancel: {
-                    isCapturing = false
-                }
-            )
-            .presentationDetents([.medium, .large])
+        .task {
+            await session.prepare()
         }
-        .alert(
-            "Capture Saved",
-            isPresented: Binding(
-                get: { captureConfirmation != nil },
-                set: {
-                    if !$0 {
-                        captureConfirmation = nil
-                    }
-                }
-            )
-        ) {
-            Button("OK", role: .cancel) { captureConfirmation = nil }
-        } message: {
-            Text(captureConfirmation ?? "")
+        .task(id: selectedTab) {
+            #if os(iOS)
+            guard #available(iOS 26.0, *) else { return }
+            tabBarMinimisationEnabled = false
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            tabBarMinimisationEnabled = true
+            #endif
         }
-        .sheet(isPresented: $isSearching) {
-            NavigationStack {
-                SearchView(
-                    taskStore: dependencies.taskStore,
-                    eventStore: dependencies.eventStore
-                )
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") { isSearching = false }
-                    }
+    }
+
+    #if os(iOS)
+    @available(iOS 18.0, *)
+    private var modernTabView: some View {
+        TabView(selection: $selectedTab) {
+            ForEach(AppTab.allCases) { tab in
+                Tab(tab.title, systemImage: tab.symbolName, value: tab) {
+                    tabRoot(for: tab)
                 }
+                .accessibilityIdentifier("tab.\(tab.rawValue)")
             }
+        }
+    }
+    #endif
+
+    private var legacyTabView: some View {
+        TabView(selection: $selectedTab) {
+            ForEach(AppTab.allCases) { tab in
+                tabRoot(for: tab)
+                    .tabItem {
+                        Label(tab.title, systemImage: tab.symbolName)
+                            .accessibilityIdentifier("tab.\(tab.rawValue)")
+                    }
+                    .tag(tab)
+            }
+        }
+    }
+
+    private func tabRoot(for tab: AppTab) -> some View {
+        NavigationStack {
+            destination(for: tab)
         }
     }
 
@@ -107,83 +103,54 @@ public struct RootTabView: View {
     private func destination(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            HomeView(
-                viewModel: HomeViewModel(
-                    taskStore: dependencies.taskStore,
-                    eventStore: dependencies.eventStore,
-                    preferenceStore: dependencies.preferenceStore,
-                    planningEngine: dependencies.planningEngine,
-                    integrations: HomeBriefingIntegrations(
-                        calendar: dependencies.calendarIntegration,
-                        reminders: dependencies.remindersIntegration,
-                        weather: dependencies.weatherIntegration,
-                        travel: dependencies.travelIntegration,
-                        transit: dependencies.transitIntegration,
-                        location: dependencies.locationProvider
-                    )
-                )
-            )
-            .id(permissionRevision)
-            .navigationTitle("")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
+            HomeView(session: session) { filter in
+                session.timelineFilter = filter
+                selectedTab = .timeline
+            }
+                .navigationTitle("")
+                #if os(iOS)
+                .navigationBarTitleDisplayMode(.inline)
+                #endif
         case .timeline:
-            TimelineView(timelineProvider: dependencies.timelineProvider)
-        case .tasks:
-            TasksView(
-                taskStore: dependencies.taskStore,
-                notifications: taskNotificationCoordinator
-            )
+            TimelineView(session: session)
+        case .memory:
+            MemoryView(session: session)
         case .insights:
             InsightsView(
-                taskStore: dependencies.taskStore,
-                eventStore: dependencies.eventStore,
-                preferenceStore: dependencies.preferenceStore
-            )
-        case .settings:
-            SettingsView(
-                preferenceStore: dependencies.preferenceStore,
-                actionExecutor: dependencies.actionExecutor,
-                approvalStore: dependencies.approvalStore,
-                connections: SettingsConnections(
-                    cloudSync: dependencies.cloudSync,
-                    permissions: permissionDependencies
-                ),
-                onPermissionsChanged: {
-                    permissionRevision += 1
+                session: session,
+                onReviewApprovals: { selectedTab = .home },
+                onOpenTimeline: { filter in
+                    session.timelineFilter = filter
+                    selectedTab = .timeline
                 }
             )
+        case .settings:
+            SettingsView(session: session)
         }
     }
+}
 
-    private var permissionDependencies: PermissionDependencies {
-        PermissionDependencies(
-            calendar: dependencies.calendarIntegration,
-            reminders: dependencies.remindersIntegration,
-            notifications: dependencies.notificationScheduler,
-            location: dependencies.locationProvider
-        )
-    }
-
-    private var quickCaptureDependencies: QuickCaptureDependencies {
-        QuickCaptureDependencies(
-            taskStore: dependencies.taskStore,
-            eventStore: dependencies.eventStore,
-            approvalStore: dependencies.approvalStore,
-            reminders: dependencies.remindersIntegration,
-            notifications: taskNotificationCoordinator
-        )
-    }
-
-    private var taskNotificationCoordinator: TaskNotificationCoordinator {
-        TaskNotificationCoordinator(
-            scheduler: dependencies.notificationScheduler,
-            preferenceStore: dependencies.preferenceStore
-        )
+private extension View {
+    @ViewBuilder
+    func lifePilotTabChrome(minimisationEnabled: Bool) -> some View {
+        #if os(iOS)
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            tabBarMinimizeBehavior(minimisationEnabled ? .onScrollDown : .never)
+        } else {
+            toolbarBackground(.ultraThinMaterial, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+        }
+        #else
+        toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+        #endif
+        #else
+        self
+        #endif
     }
 }
 
 #Preview {
-    RootTabView(dependencies: .preview)
+    RootTabView(dependencies: .live)
 }

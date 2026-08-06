@@ -28,52 +28,63 @@ public struct OnboardingStep: Identifiable {
             id: "welcome",
             symbolName: "sparkle",
             title: "Meet LifePilot",
-            message: "An AI operating system that prepares your day before you ask — not another app to check."
+            message: "A student-first AI planner for lectures, deadlines, travel, and money. "
+                + "Built for UK campus life and designed to grow with everyone."
         ),
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
             title: "Connect your calendar",
-            message: "LifePilot reads your schedule to build your Morning Briefing "
-                + "and catch conflicts before they happen.",
+            message: "Bring lectures, deadlines, and invitations into one student-first timeline.",
             permission: .calendar
         ),
         OnboardingStep(
             id: "reminders",
             symbolName: "checklist",
             title: "Bring in your reminders",
-            message: "Connect Apple Reminders to see open commitments beside "
-                + "LifePilot tasks. You can keep them separate and connect later.",
+            message: "See open commitments beside your LifePilot tasks, or connect them later.",
             permission: .reminders
         ),
         OnboardingStep(
             id: "notifications",
             symbolName: "bell.badge.fill",
             title: "Choose helpful alerts",
-            message: "Notifications are used only for briefings, reminders, and "
-                + "approved leave-by alerts. Sensitive previews stay off by default.",
+            message: "Get briefings and approved leave-by alerts without exposing sensitive previews.",
             permission: .notifications
         ),
         OnboardingStep(
             id: "location",
             symbolName: "location.fill",
             title: "Add local context",
-            message: "Location When In Use improves weather and leave-by guidance. "
-                + "LifePilot still works when you skip it.",
+            message: "Location improves UK weather and travel guidance. LifePilot still works if you skip it.",
             permission: .location
         ),
         OnboardingStep(
             id: "approvals",
             symbolName: "checkmark.shield.fill",
             title: "You're always in control",
-            message: "LifePilot prepares recommendations — nothing changes your "
-                + "calendar, reminders, or external apps without your explicit approval."
+            message: "LifePilot prepares recommendations. Nothing sends, books, "
+                + "or acts outside LifePilot without your explicit approval."
         ),
         OnboardingStep(
             id: "ready",
             symbolName: "arrow.right.circle.fill",
             title: "You're ready",
-            message: "Your Morning Briefing is waiting."
+            message: "Your student briefing is waiting."
         ),
+    ]
+
+    /// Concise, permission-free sequence used by the self-contained TechFest demo.
+    public static let showcaseSteps: [OnboardingStep] = [
+        allSteps[0],
+        OnboardingStep(
+            id: "calendar",
+            symbolName: "calendar",
+            title: "Preview connected sources",
+            message: "This TechFest build uses realistic UK student data to show how LifePilot combines "
+                + "your timetable, inbox, travel, and spending without accessing a real account."
+        ),
+        allSteps[5],
+        allSteps[6],
     ]
 }

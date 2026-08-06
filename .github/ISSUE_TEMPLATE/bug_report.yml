@@ -54,10 +54,10 @@ body:
     attributes:
       label: Severity
       options:
-        - Low — cosmetic or minor inconvenience
-        - Medium — degrades a feature but has a workaround
-        - High — blocks a core workflow
-        - Critical — data loss, crash, or security impact
+        - Low - cosmetic or minor inconvenience
+        - Medium - degrades a feature but has a workaround
+        - High - blocks a core workflow
+        - Critical - data loss, crash, or security impact
     validations:
       required: true
 

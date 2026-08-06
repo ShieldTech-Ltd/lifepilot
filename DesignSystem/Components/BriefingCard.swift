@@ -1,14 +1,15 @@
+import Foundation
 import LifePilotCore
 import SwiftUI
 
 /// Summarized unit of the Morning Briefing, per docs/DESIGN_SYSTEM.md's
 /// Components table. Renders a single recommendation with its source
-/// agent, title, and reasoning — the reasoning is always visible, never
+/// agent, title, and reasoning - the reasoning is always visible, never
 /// hidden behind a disclosure, per the Explain principle in
 /// README.md's Core Philosophy.
 ///
 /// `BriefingCard` takes plain view data (`Content`) rather than a domain
-/// model directly — `DesignSystem` stays reusable independent of any one
+/// model directly - `DesignSystem` stays reusable independent of any one
 /// domain module's types. The owning Feature's ViewModel is responsible
 /// for mapping its domain model (e.g. `RecommendationModel` from
 /// `LifePilotGhostBrain`) into `Content`. See docs/ARCHITECTURE.md's
@@ -35,6 +36,10 @@ public struct BriefingCard: View {
                     if let badgeText = content.riskBadgeText {
                         SignalBadge(style: .risk, text: badgeText)
                     }
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.LifePilot.textTertiary)
                 }
 
                 Text(content.title)
@@ -46,6 +51,10 @@ public struct BriefingCard: View {
                     .font(.LifePilot.body)
                     .foregroundStyle(Color.LifePilot.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+
+                Label("Review prepared action", systemImage: "hand.tap.fill")
+                    .font(.LifePilot.utility)
+                    .foregroundStyle(Color.LifePilot.accentStart)
             }
         }
         .accessibilityElement(children: .combine)
@@ -53,13 +62,25 @@ public struct BriefingCard: View {
 
     /// Plain view data for `BriefingCard`. Mapped from a domain model
     /// (e.g. `RecommendationModel`) by the owning Feature's ViewModel.
-    public struct Content {
+    ///
+    /// `Identifiable` (rather than a plain struct) so a screen presenting
+    /// multiple `BriefingCard`s can track which one a user tapped - e.g.
+    /// to drive an `ApprovalSheet` via `.sheet(item:)`.
+    public struct Content: Identifiable {
+        public let id: UUID
         public let title: String
         public let reasoning: String
         public let sourceAgent: AgentKind
         public let riskBadgeText: String?
 
-        public init(title: String, reasoning: String, sourceAgent: AgentKind, riskBadgeText: String? = nil) {
+        public init(
+            id: UUID = UUID(),
+            title: String,
+            reasoning: String,
+            sourceAgent: AgentKind,
+            riskBadgeText: String? = nil
+        ) {
+            self.id = id
             self.title = title
             self.reasoning = reasoning
             self.sourceAgent = sourceAgent

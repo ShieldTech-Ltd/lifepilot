@@ -1,148 +1,186 @@
 import Foundation
 import LifePilotCore
 import LifePilotDesignSystem
+import LifePilotGhostBrain
 
-/// Optional system integrations for Home briefing enrichment.
+/// Optional system integrations used by the store-backed compatibility path.
 public struct HomeBriefingIntegrations: Sendable {
-    public var calendar: any CalendarIntegrating
     public var reminders: any RemindersIntegrating
-    public var weather: any WeatherIntegrating
-    public var travel: any TravelTimeIntegrating
-    public var transit: any TransitProviding
-    public var location: any LocationProviding
 
-    public init(
-        calendar: any CalendarIntegrating = UnavailableCalendarIntegration(),
-        reminders: any RemindersIntegrating = UnavailableRemindersIntegration(),
-        weather: any WeatherIntegrating = UnavailableWeatherIntegration(),
-        travel: any TravelTimeIntegrating = UnavailableTravelTimeIntegration(),
-        transit: any TransitProviding = UnavailableTransitProvider(),
-        location: any LocationProviding = UnavailableLocationProvider()
-    ) {
-        self.calendar = calendar
+    public init(reminders: any RemindersIntegrating = UnavailableRemindersIntegration()) {
         self.reminders = reminders
-        self.weather = weather
-        self.travel = travel
-        self.transit = transit
-        self.location = location
     }
 }
 
-/// User-visible recovery banner on Home.
-public struct HomeStatusBanner: Equatable, Sendable {
-    public var message: String
-    public var style: StatusBanner.Style
-
-    public init(message: String, style: StatusBanner.Style) {
-        self.message = message
-        self.style = style
-    }
-}
-
-/// Store- and planning-backed Home / Morning Briefing state.
+/// Adapts the shared demo session into Home-specific view data.
 @Observable
 @MainActor
 public final class HomeViewModel {
-    public internal(set) var greeting: String = ""
-    public internal(set) var dateText: String = ""
-    public internal(set) var recommendations: [BriefingCard.Content] = []
-    public internal(set) var upcomingEvents: [CalendarEvent] = []
-    public internal(set) var topTasks: [TaskItem] = []
-    public internal(set) var findings: [PlanningFinding] = []
-    public internal(set) var weatherSummary: String?
-    public internal(set) var leaveBySummary: String?
-    public internal(set) var transitDepartures: [TransitDeparture] = []
-    public internal(set) var transitStatuses: [TransitLineStatus] = []
-    public internal(set) var transitFetchedAt: Date?
-    public internal(set) var transitSource: String?
-    public internal(set) var transitStopName: String?
-    public internal(set) var transitIsStale = false
-    public internal(set) var transitConfigured = false
-    public internal(set) var freshnessSummary: String = "Local"
-    public internal(set) var lastUpdated: Date?
-    public internal(set) var statusBanner: HomeStatusBanner?
-    public internal(set) var loadState: LoadableState<Bool> = .idle
-    public internal(set) var isLoading = false
+    public let session: DemoSessionStore
+    public private(set) var topTasks: [TaskItem] = []
+    public private(set) var findings: [PlanningFinding] = []
+    public private(set) var freshnessSummary = "Local"
 
-    let taskStore: any TaskStore
-    let eventStore: any EventStore
-    let preferenceStore: any PreferenceStore
-    let planningEngine: any PlanningEngine
-    let integrations: HomeBriefingIntegrations
-    let clock: any ClockProviding
+    private let taskStore: (any TaskStore)?
+    private let eventStore: (any EventStore)?
+    private let preferenceStore: (any PreferenceStore)?
+    private let integrations: HomeBriefingIntegrations?
+
+    public init(session: DemoSessionStore) {
+        self.session = session
+        taskStore = nil
+        eventStore = nil
+        preferenceStore = nil
+        integrations = nil
+    }
+
+    public convenience init(ghostBrain: GhostBrainServing) {
+        self.init(session: DemoSessionStore(ghostBrain: ghostBrain))
+    }
 
     public init(
         taskStore: any TaskStore,
         eventStore: any EventStore,
         preferenceStore: any PreferenceStore,
-        planningEngine: any PlanningEngine = DeterministicPlanningEngine(),
-        integrations: HomeBriefingIntegrations = HomeBriefingIntegrations(),
-        clock: any ClockProviding = SystemClock()
+        integrations: HomeBriefingIntegrations = HomeBriefingIntegrations()
     ) {
+        session = DemoSessionStore()
         self.taskStore = taskStore
         self.eventStore = eventStore
         self.preferenceStore = preferenceStore
-        self.planningEngine = planningEngine
         self.integrations = integrations
-        self.clock = clock
     }
 
+    public var greeting: String {
+        let greetingWord = session.model?.greetingContext.timeOfDay.greetingWord ?? "Good morning"
+        return "\(greetingWord), \(session.firstName)"
+    }
+
+    public var dateText: String {
+        session.model?.generatedAt.formatted(.dateTime.weekday(.wide).month(.wide).day()) ?? ""
+    }
+
+    public var recommendations: [BriefingCard.Content] {
+        session.availableRecommendations.map { recommendation in
+            BriefingCard.Content(
+                id: recommendation.id,
+                title: recommendation.title,
+                reasoning: recommendation.reasoning,
+                sourceAgent: recommendation.sourceAgent,
+                riskBadgeText: recommendation.riskLevel == .low ? nil : recommendation.riskLevel.rawValue.capitalized
+            )
+        }
+    }
+
+    public var upcomingEvents: [CalendarEvent] { session.visibleEvents }
+
+    public var eventsAhead: [CalendarEvent] {
+        upcomingEvents.filter { $0.endDate > eventReferenceDate }
+    }
+
+    public var nextEvent: CalendarEvent? { eventsAhead.first }
+    public var laterEvents: [CalendarEvent] { Array(eventsAhead.dropFirst()) }
+    public var signals: [DaySignal] { session.visibleSignals }
+    public var recentActivity: [DemoActivity] { session.activities }
+    public var displayName: String { session.displayName }
+    public var profileImageData: Data? { session.profileImageData }
+    public var profileContextText: String { "Prepared for \(session.briefingTime) • \(session.course)" }
+    public var pendingCount: Int { session.availableRecommendations.count }
+    public var connectedSourceCount: Int { session.connectedSourceCount }
+
+    public var readinessProgress: Double { session.readinessProgress }
+
+    public var readinessText: String { "\(Int(readinessProgress * 100))%" }
+    public var isLoading: Bool { session.isLoading }
+    public var isPrepared: Bool { session.isPrepared }
+    public var loadErrorMessage: String? { session.loadErrorMessage }
+
     public func load() async {
-        isLoading = true
-        loadState = .loading
-        defer { isLoading = false }
-
-        let now = clock.now()
-        let preferences = await preferenceStore.loadPreferences()
-        let localTasks = await taskStore.allTasks()
-        let hydratedTasks = await hydrateTasks(local: localTasks)
-        let hydrated = await hydrateEvents(now: now)
-        let weather = try? await integrations.weather.currentWeather()
-        let transit = await loadTransit(preferences: preferences, now: now)
-        let leaveBy = await enrichLeaveBy(
-            events: hydrated.events,
-            weather: weather,
-            preferences: preferences,
-            now: now
-        )
-
-        applyBriefing(
-            now: now,
-            preferences: preferences,
-            tasks: hydratedTasks.tasks,
-            events: hydrated.events,
-            extraFindings: leaveBy.findings + transit.findings
-        )
-        applyTransit(transit)
-        leaveBySummary = leaveBy.summary
-        weatherSummary = weather.map {
-            "\($0.temperatureFahrenheit)° \($0.condition.rawValue)"
+        guard let taskStore, let integrations else {
+            await session.prepare()
+            return
         }
 
-        var notes = hydrated.notes
-        notes.append(contentsOf: hydratedTasks.notes)
-        if weather != nil {
-            notes.append("Weather")
+        let local = await taskStore.allTasks()
+        let state = await integrations.reminders.authorizationState()
+        switch state {
+        case .authorized, .limited:
+            do {
+                let remote = try await integrations.reminders.fetchOpenReminders()
+                await reconcileReminders(local: local, remote: remote, in: taskStore)
+                topTasks = await taskStore.allTasks().filter { !$0.isCompleted }
+                freshnessSummary = "Local data · Reminders connected"
+            } catch {
+                topTasks = local.filter { !$0.isCompleted }
+                freshnessSummary = "Local data · Reminders unavailable"
+            }
+        default:
+            topTasks = local.filter { !$0.isCompleted }
+            freshnessSummary = "Local data"
         }
-        if leaveBy.summary != nil {
-            notes.append("Leave-by")
-        }
-        if let transitNote = transit.note {
-            notes.append(transitNote)
-        }
-        freshnessSummary = notes.joined(separator: " · ")
-        lastUpdated = now
-        statusBanner = await makeStatusBanner(
-            calendarNotes: hydrated.notes,
-            hasWeather: weather != nil,
-            transitError: transit.errorMessage
-        )
-        loadState = recommendations.isEmpty && upcomingEvents.isEmpty && topTasks.isEmpty
-            ? .empty
-            : .loaded(true)
     }
 
     public func refresh() async {
         await load()
+    }
+
+    public func retry() async {
+        await session.retry()
+    }
+
+    public func approve(_ content: BriefingCard.Content) {
+        session.resolve(content.id, approved: true)
+    }
+
+    public func dismiss(_ content: BriefingCard.Content) {
+        session.resolve(content.id, approved: false)
+    }
+
+    private var eventReferenceDate: Date {
+        session.model?.generatedAt ?? Date()
+    }
+
+    private func reconcileReminders(
+        local: [TaskItem],
+        remote: [TaskItem],
+        in taskStore: any TaskStore
+    ) async {
+        var existingByExternal: [String: TaskItem] = [:]
+        for task in local {
+            if let identifier = task.externalIdentifier {
+                existingByExternal[identifier] = task
+            }
+        }
+        let remoteIdentifiers = Set(remote.compactMap(\.externalIdentifier))
+        for task in local where task.source == .eventKitReminders {
+            guard let identifier = task.externalIdentifier,
+                  !remoteIdentifiers.contains(identifier)
+            else { continue }
+            try? await taskStore.delete(id: task.id)
+            existingByExternal.removeValue(forKey: identifier)
+        }
+        for reminder in remote {
+            var reconciled = reminder
+            if let identifier = reminder.externalIdentifier, let existing = existingByExternal[identifier] {
+                reconciled = TaskItem(
+                    id: existing.id,
+                    title: reminder.title,
+                    notes: reminder.notes,
+                    dueDate: reminder.dueDate,
+                    isCompleted: reminder.isCompleted,
+                    completedAt: reminder.completedAt,
+                    recurrence: reminder.recurrence,
+                    source: .eventKitReminders,
+                    externalIdentifier: identifier,
+                    syncState: .synced,
+                    createdAt: existing.createdAt,
+                    updatedAt: Date()
+                )
+            }
+            try? await taskStore.save(reconciled)
+            if let identifier = reconciled.externalIdentifier {
+                existingByExternal[identifier] = reconciled
+            }
+        }
     }
 }

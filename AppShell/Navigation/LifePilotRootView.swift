@@ -1,113 +1,55 @@
 import LifePilotCore
 import LifePilotFeatures
-import LifePilotServices
 import SwiftUI
 
-/// Top-level Splash → Onboarding → Main with persisted launch state (#35).
+/// The top-level view controlling the Splash → Onboarding → Main app
+/// transition. This is the single entry point the thin Xcode app target
+/// (`App/`) is expected to instantiate - see `docs/ARCHITECTURE.md`'s note
+/// that `Package.swift` builds the first buildable units ahead of the full
+/// iOS app wrapper.
 public struct LifePilotRootView: View {
     @State private var phase: LaunchPhase = .splash
-    @State private var launchError: String?
-    @State private var preferredScheme: ColorScheme?
-    private let dependencies: AppDependencies
-    private let launchStore: any LaunchStateStoring
+    @AppStorage(StorageKey.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+    @State private var session: DemoSessionStore
 
     public init(dependencies: AppDependencies = .live) {
-        self.dependencies = dependencies
-        launchStore = PreferenceBackedLaunchStore(
-            preferenceStore: dependencies.preferenceStore
-        )
-    }
-
-    public init(
-        dependencies: AppDependencies,
-        launchStore: any LaunchStateStoring
-    ) {
-        self.dependencies = dependencies
-        self.launchStore = launchStore
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
     }
 
     public var body: some View {
         Group {
             switch phase {
             case .splash:
-                SplashView()
+                SplashView(session: session)
             case .onboarding:
-                OnboardingView(
-                    permissions: permissionDependencies,
-                    skipHandler: { permission in
-                        await recordSkippedPermission(permission)
-                    },
-                    onFinish: {
-                        Task { await completeOnboarding() }
+                OnboardingView(session: session, onFinish: {
+                    hasCompletedOnboarding = true
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        phase = .main
                     }
-                )
+                })
             case .main:
-                RootTabView(dependencies: dependencies)
+                RootTabView(session: session)
             }
         }
-        .preferredColorScheme(preferredScheme)
-        .overlay(alignment: .bottom) {
-            if let launchError {
-                Text(launchError)
-                    .font(.caption)
-                    .padding()
-                    .background(.ultraThinMaterial)
-            }
-        }
+        .preferredColorScheme(preferredColorScheme)
         .task {
-            BriefingBackgroundScheduler.register()
-            BriefingBackgroundScheduler.scheduleNext()
-            await boot()
+            // A brief, deliberate splash duration - long enough to read as
+            // intentional, short enough not to feel like a delay. See
+            // docs/DESIGN_SYSTEM.md's Motion principle.
+            try? await Task.sleep(for: .seconds(1.25))
+            withAnimation(.easeInOut(duration: 0.35)) {
+                phase = hasCompletedOnboarding ? .main : .onboarding
+            }
         }
     }
 
-    private func boot() async {
-        try? await Task.sleep(for: .seconds(1.2))
-        let state = await launchStore.load()
-        let preferences = await dependencies.preferenceStore.loadPreferences()
-        preferredScheme = switch preferences.appearance {
+    private var preferredColorScheme: ColorScheme? {
+        switch session.appearancePreference {
         case .system: nil
         case .light: .light
         case .dark: .dark
         }
-        withAnimation(.easeInOut(duration: 0.35)) {
-            phase = state.shouldShowOnboarding ? .onboarding : .main
-        }
-    }
-
-    private func completeOnboarding() async {
-        do {
-            try await launchStore.save(
-                LaunchState(
-                    hasCompletedOnboarding: true,
-                    onboardingVersion: LaunchState.currentOnboardingVersion,
-                    isLocalOnlyMode: true
-                )
-            )
-            withAnimation(.easeInOut(duration: 0.35)) {
-                phase = .main
-            }
-        } catch {
-            launchError = "Could not save onboarding progress. Continuing locally."
-            withAnimation(.easeInOut(duration: 0.35)) {
-                phase = .main
-            }
-        }
-    }
-
-    private func recordSkippedPermission(_ permission: PermissionKind) async {
-        var preferences = await dependencies.preferenceStore.loadPreferences()
-        preferences.skippedPermissionIDs.insert(permission.rawValue)
-        try? await dependencies.preferenceStore.savePreferences(preferences)
-    }
-
-    private var permissionDependencies: PermissionDependencies {
-        PermissionDependencies(
-            calendar: dependencies.calendarIntegration,
-            reminders: dependencies.remindersIntegration,
-            notifications: dependencies.notificationScheduler,
-            location: dependencies.locationProvider
-        )
     }
 
     private enum LaunchPhase {

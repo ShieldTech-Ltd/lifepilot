@@ -1,36 +1,31 @@
 import Foundation
 import LifePilotCore
 
-/// Realistic sample task data for previews and tests.
+/// Realistic sample task/reminder data for previews, tests, and Phase 3's
+/// mock-driven screens.
 public enum MockTasks {
     public static func items(relativeTo now: Date = Date()) -> [TaskItem] {
         [
             TaskItem(
-                title: "Send updated deck to the board",
+                title: "Finish the TechFest presentation",
                 dueDate: now.addingTimeInterval(3 * 3600),
-                priority: .high,
-                estimatedDuration: 45 * 60,
-                context: .work
+                priority: .high
             ),
             TaskItem(
-                title: "Renew passport before the trip",
-                dueDate: now.addingTimeInterval(14 * 24 * 3600),
-                priority: .normal,
-                context: .personal
+                title: "Test LifePilot on the demo iPhone",
+                dueDate: now.addingTimeInterval(5 * 3600),
+                priority: .normal
             ),
             TaskItem(
-                title: "Pick up dry cleaning",
+                title: "Print project QR cards",
                 dueDate: now.addingTimeInterval(6 * 3600),
-                priority: .low,
-                context: .personal
+                priority: .low
             ),
             TaskItem(
-                title: "Book dentist appointment",
+                title: "Submit module reflection",
                 dueDate: nil,
                 isCompleted: true,
-                completedAt: now.addingTimeInterval(-86400),
-                priority: .low,
-                context: .personal
+                priority: .low
             ),
         ]
     }

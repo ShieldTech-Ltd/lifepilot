@@ -76,7 +76,7 @@ instead of `[CalendarEvent]`. Callers must migrate to the new type.
 Full detail lives in [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and [docs/ENGINEERING_GUIDE.md](docs/ENGINEERING_GUIDE.md). At a glance:
 
 - Swift code follows the project's [Style Guide](docs/STYLE_GUIDE.md#swift-style-guide), enforced by SwiftLint and SwiftFormat in CI.
-- Architecture follows MVVM with dependency injection — see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
+- Architecture follows MVVM with dependency injection - see [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - New logic requires tests. See [Testing Strategy](docs/ENGINEERING_GUIDE.md#testing-strategy).
 - Public types and non-obvious logic should be documented with `///` doc comments.
 
@@ -86,7 +86,7 @@ Full detail lives in [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and [docs/ENGINE
 2. Create a branch from `develop` following the [naming convention](#branch-naming) above.
 3. Make focused, atomic commits using [Conventional Commits](#commit-messages).
 4. Ensure the project builds, lints, and all tests pass locally.
-5. Open a Pull Request against `develop` using the [PR template](.github/PULL_REQUEST_TEMPLATE.md) — fill in every section, including screenshots for UI changes.
+5. Open a Pull Request against `develop` using the [PR template](.github/PULL_REQUEST_TEMPLATE.md) - fill in every section, including screenshots for UI changes.
 6. Link related issues (`Closes #123`).
 7. Ensure CI is green before requesting review.
 8. Address review feedback with additional commits; avoid force-pushing mid-review unless asked to.
@@ -95,14 +95,14 @@ Full detail lives in [docs/STYLE_GUIDE.md](docs/STYLE_GUIDE.md) and [docs/ENGINE
 ## Issue Process
 
 - Search existing issues before opening a new one.
-- Use the appropriate [issue template](.github/ISSUE_TEMPLATE/) — bug, feature, task, documentation, performance, security, or question.
+- Use the appropriate [issue template](.github/ISSUE_TEMPLATE/) - bug, feature, task, documentation, performance, security, or question.
 - Provide enough detail for a maintainer to act without follow-up questions: reproduction steps, environment, expected vs. actual behavior.
 - Security vulnerabilities must go through the private disclosure process in [SECURITY.md](SECURITY.md), not a public issue.
 
 ## Review Process
 
 - Every Pull Request requires at least one approving review before merge (see [CODEOWNERS](.github/CODEOWNERS)).
-- CI (build, lint, test) must pass before merge — no exceptions, no `--no-verify`.
+- CI (build, lint, test) must pass before merge - no exceptions, no `--no-verify`.
 - Reviewers focus on correctness, architecture fit, test coverage, and adherence to the style guide.
 - Direct pushes to `main` and `develop` are disabled by branch protection; everything goes through review.
 - Force-pushes to shared branches (`main`, `develop`) are disabled.

@@ -1,24 +1,31 @@
 # LifePilot Brand Assets
 
-This directory is the single source of truth for the LifePilot mark. Every icon, favicon, and app-store asset should be generated from `logo.svg` — never redrawn from scratch.
+This directory contains the public LifePilot identity used by the repository, product demo, and App Store preparation.
 
 ## Files
 
 | File | Description |
 |---|---|
-| `logo.svg` | Primary lockup — mark on the dark background. Source of truth for all derived assets. |
-| `logo-1024.png` | 1024×1024 raster export for app icon / marketing. |
+| `lifepilot-app-icon.png` | Current 1024px product mark and source for repository previews. |
+| `lifepilot-study-backdrop.jpg` | Previous user-provided illustrated study-wall backdrop retained for reference. |
+| `lifepilot-monochrome-backdrop.jpg` | User-provided monochrome painting, restored to 3072 × 5504 for the native app and web demo. |
+| `logo.svg` | Legacy vector lockup retained for historical documentation only. |
 
 ## Usage
 
-- **README / GitHub:** referenced directly as `Assets/brand/logo.svg`.
-- **App icon:** `App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` (single-size iOS 17+ asset).
-- **Website:** `Website/public/logo.svg` plus `favicon.ico`, `favicon-32.png`, `apple-touch-icon.png`.
+- **README / GitHub:** references `Assets/brand/lifepilot-app-icon.png`.
+- **App icon:** `App/LifePilotApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` uses the same artwork without alpha.
+- **In-app identity:** `LifePilotLogo.imageset` contains the optimised display asset used by launch, onboarding, and About.
+- **Web demo:** both entry pages use this current artwork on their animated landing screen.
 
-## Regenerating rasters
+## Export notes
+
+The App Store icon must remain 1024 by 1024 pixels and must not contain an alpha channel. The in-app version may be smaller because it is rendered inside SwiftUI at display size.
 
 ```sh
-./scripts/generate-brand-icons.sh
+# verify the current App Store source
+sips -g pixelWidth -g pixelHeight -g hasAlpha \
+  App/LifePilotApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
 ```
 
-Requires `cairosvg` or `rsvg-convert`, and Pillow (`pip install cairosvg pillow`).
+When the mark changes, update the app icon, in-app image set, and this repository preview together.

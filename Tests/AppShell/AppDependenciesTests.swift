@@ -23,13 +23,9 @@ final class AppDependenciesTests: XCTestCase {
         XCTAssertFalse(tasks.isEmpty)
     }
 
-    func testLiveGhostBrainIsDeterministicUnavailable() async {
+    func testLiveGhostBrainProvidesDeterministicDemoModel() async throws {
         let dependencies = AppDependencies.live
-        do {
-            _ = try await dependencies.ghostBrain.currentModel()
-            XCTFail("GhostBrainService should stay unavailable; use planning engine")
-        } catch {
-            // expected
-        }
+        let model = try await dependencies.ghostBrain.currentModel()
+        XCTAssertFalse(model.recommendations.isEmpty)
     }
 }

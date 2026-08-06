@@ -1,7 +1,7 @@
 import LifePilotCore
 import SwiftUI
 
-/// The internal design-system showcase — every reusable component in
+/// The internal design-system showcase - every reusable component in
 /// `DesignSystem/Components/`, rendered together for visual review. Not
 /// part of the shipping app's navigation (per this PR's mandate not to
 /// touch `AppShell`/`RootTabView`); reach it via its `#Preview` in Xcode,
@@ -148,7 +148,7 @@ public struct DesignSystemCatalogView: View {
                     Text("Wednesday, July 9")
                         .font(.LifePilot.caption)
                         .foregroundStyle(Color.LifePilot.textSecondary)
-                    Text("Good morning, Alex")
+                    Text("Good morning, Ritik")
                         .font(.LifePilot.titleLarge)
                         .foregroundStyle(Color.LifePilot.textPrimary)
                 }
@@ -162,8 +162,12 @@ public struct DesignSystemCatalogView: View {
         catalogSection(title: "Timeline Row", symbolName: "list.bullet") {
             CardContainer {
                 VStack(spacing: 0) {
-                    TimelineRow(content: .init(time: "9:00 AM", title: "Morning Standup", subtitle: "Zoom"))
-                    TimelineRow(content: .init(time: "12:30 PM", title: "Lunch with Sam", subtitle: "Tatte Bakery"))
+                    TimelineRow(content: .init(time: "09:00", title: "Algorithms Lecture", subtitle: "Room 2.04"))
+                    TimelineRow(content: .init(
+                        time: "12:00",
+                        title: "Lunch with Maya",
+                        subtitle: "Spitalfields Market"
+                    ))
                 }
             }
         }

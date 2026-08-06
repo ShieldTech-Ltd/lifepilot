@@ -3,24 +3,43 @@ import XCTest
 
 final class MockDataTests: XCTestCase {
     func testMockCalendarProducesNonEmptyEvents() {
-        XCTAssertFalse(MockCalendar.events().isEmpty)
+        let events = MockCalendar.events()
+        XCTAssertFalse(events.isEmpty)
+        XCTAssertTrue(events.contains(where: { $0.title == "TechFest Demo Rehearsal" }))
     }
 
-    func testMockTasksProduceInboxAndDueItems() {
-        let tasks = MockTasks.items()
-        XCTAssertFalse(tasks.isEmpty)
+    func testMockEmailProducesNonEmptyMessages() {
+        XCTAssertFalse(MockEmail.messages().isEmpty)
     }
 
-    func testMockNotificationsExcludeBannedAgents() {
-        let agents = Set(MockNotifications.items().compactMap(\.sourceAgent))
-        XCTAssertFalse(agents.contains(.security) && agents.isEmpty)
-        for banned in ["finance", "shopping", "health", "email"] {
-            XCTAssertFalse(agents.map(\.rawValue).contains(banned))
-        }
+    func testMockTasksProducesNonEmptyItems() {
+        XCTAssertFalse(MockTasks.items().isEmpty)
     }
 
-    func testMockWeatherAndTravelExist() {
-        XCTAssertNotNil(MockWeather.snapshot())
-        XCTAssertFalse(MockTravel.itineraries().isEmpty)
+    func testMockTravelProducesNonEmptyItineraries() {
+        let itineraries = MockTravel.itineraries()
+        XCTAssertFalse(itineraries.isEmpty)
+        XCTAssertTrue(itineraries.contains(where: { $0.destination == "London Euston" }))
+    }
+
+    func testMockFinanceProducesNonEmptyTransactions() {
+        let transactions = MockFinance.transactions()
+        XCTAssertFalse(transactions.isEmpty)
+        XCTAssertTrue(transactions.allSatisfy { $0.formattedAmount.contains("£") })
+    }
+
+    func testMockFinanceFlagsAtLeastOneAnomaly() {
+        let transactions = MockFinance.transactions()
+        XCTAssertTrue(transactions.contains { $0.isAnomalous })
+    }
+
+    func testMockNotificationsProducesNonEmptyItems() {
+        XCTAssertFalse(MockNotifications.items().isEmpty)
+    }
+
+    func testMockWeatherProducesAValidPrecipitationChance() {
+        let snapshot = MockWeather.snapshot()
+        XCTAssertGreaterThanOrEqual(snapshot.precipitationChance, 0)
+        XCTAssertLessThanOrEqual(snapshot.precipitationChance, 1)
     }
 }

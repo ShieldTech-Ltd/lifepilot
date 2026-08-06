@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Visual identity for a given AI agent's output, per docs/DESIGN_SYSTEM.md's
 /// Components table. Used wherever a recommendation or signal needs to be
-/// attributed to the agent that produced it — see docs/MASTER_ROADMAP.md
+/// attributed to the agent that produced it - see docs/MASTER_ROADMAP.md
 /// Phase 6's UX requirement that agent output be attributable in the UI.
 public struct AgentAvatar: View {
     private let agent: AgentKind
@@ -19,8 +19,28 @@ public struct AgentAvatar: View {
             .font(.system(size: size * 0.45, weight: .medium))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(LinearGradient.LifePilot.accent)
+            .background(agentColor, in: Circle())
+            .overlay {
+                Circle().stroke(Color.white.opacity(0.24), lineWidth: 1)
+            }
             .clipShape(Circle())
             .accessibilityLabel("\(agent.displayName) agent")
+    }
+
+    private var agentColor: Color {
+        switch agent {
+        case .calendar: Color.LifePilot.accentEnd
+        case .email: Color.LifePilot.accentAI
+        case .task: Color.LifePilot.signalSuccess
+        case .travel: Color.LifePilot.accentStart
+        case .weather: Color.LifePilot.signalInfo
+        case .finance: Color.LifePilot.accentWarm
+        case .memory: Color.LifePilot.signalInfo
+        case .planning: Color.LifePilot.accentEnd
+        case .reminder: Color.LifePilot.signalRisk
+        case .shopping: Color.LifePilot.accentAI
+        case .health: Color.LifePilot.signalSuccess
+        case .security: Color.LifePilot.textSecondary
+        }
     }
 }

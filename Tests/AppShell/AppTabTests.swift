@@ -6,10 +6,9 @@ final class AppTabTests: XCTestCase {
         XCTAssertEqual(AppTab.allCases.count, 5)
         XCTAssertTrue(AppTab.allCases.contains(.home))
         XCTAssertTrue(AppTab.allCases.contains(.timeline))
-        XCTAssertTrue(AppTab.allCases.contains(.tasks))
+        XCTAssertTrue(AppTab.allCases.contains(.memory))
         XCTAssertTrue(AppTab.allCases.contains(.insights))
         XCTAssertTrue(AppTab.allCases.contains(.settings))
-        XCTAssertFalse(AppTab.allCases.map(\.rawValue).contains("memory"))
     }
 
     func testEveryTabHasATitleAndSymbol() {

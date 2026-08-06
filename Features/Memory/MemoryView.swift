@@ -1,245 +1,235 @@
-import LifePilotCore
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Explicit preferences, routines, places, and corrections — never silent memory.
+/// Transparent, user-correctable view of the context LifePilot remembers.
 public struct MemoryView: View {
     @State private var viewModel: MemoryViewModel
-    @State private var isAdding = false
+    @State private var selectedMemory: MemorySelection?
+    @State private var hiddenFactIDs: Set<String> = []
+    @State private var confirmedFactIDs: Set<String> = []
 
-    public init(preferenceStore: any PreferenceStore) {
-        _viewModel = State(initialValue: MemoryViewModel(preferenceStore: preferenceStore))
+    public init(session: DemoSessionStore) {
+        _viewModel = State(initialValue: MemoryViewModel(session: session))
+    }
+
+    public init() {
+        self.init(session: DemoSessionStore())
     }
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                InsightHero(
-                    title: "Your rulebook",
-                    detail: "Only preferences you add or confirm become permanent Memory."
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                ScreenHeader(
+                    eyebrow: "Visible and correctable",
+                    title: "Memory",
+                    subtitle: "Review what LifePilot has learned. Keep useful context "
+                        + "or forget anything that is wrong.",
+                    symbolName: "brain.head.profile",
+                    status: "\(visibleFactCount) facts",
+                    tint: Color.LifePilot.accentAI
                 )
-                filterBar
-                content
-            }
-            .padding(Spacing.lg)
-        }
-        .background(AmbientBackground())
-        .navigationTitle("Memory")
-        .task { await viewModel.load() }
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    isAdding = true
-                } label: {
-                    Label("Add Memory", systemImage: "plus")
-                }
-            }
-        }
-        .sheet(isPresented: $isAdding) {
-            NavigationStack {
-                memoryComposer
-                    .navigationTitle("Add Memory")
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { isAdding = false }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Save") {
-                                Task {
-                                    try? await viewModel.addDraft()
-                                    isAdding = false
-                                }
-                            }
-                            .disabled(
-                                viewModel.draftTitle
-                                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                                    .isEmpty
-                            )
-                        }
-                    }
-            }
-            .presentationDetents([.medium])
-        }
-    }
 
-    private var filterBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: Spacing.sm) {
-                FilterChip(
-                    title: "All",
-                    isSelected: viewModel.selectedKind == nil,
-                    action: { viewModel.setKind(nil) }
-                )
-                ForEach(MemoryItem.Kind.allCases, id: \.self) { kind in
-                    FilterChip(
-                        title: kind.rawValue.capitalized,
-                        isSelected: viewModel.selectedKind == kind,
-                        action: { viewModel.setKind(kind) }
+                memoryStatus
+
+                if visibleSections.isEmpty {
+                    EmptyStateView(
+                        symbolName: "brain.head.profile",
+                        message: hiddenFactIDs.isEmpty
+                            ? "LifePilot hasn't learned anything yet today."
+                            : "You forgot every memory in this session. Restore them to review again."
                     )
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.filteredItems.isEmpty {
-            EmptyStateView(
-                symbolName: "brain.head.profile",
-                message: "Nothing saved in this category. Add a preference, routine, "
-                    + "place, or correction when it becomes useful."
-            )
-        } else {
-            VStack(alignment: .leading, spacing: Spacing.md) {
-                if !viewModel.pinnedItems.isEmpty {
-                    SectionHeader(title: "Pinned", symbolName: "pin.fill")
-                    ForEach(viewModel.pinnedItems) { item in
-                        memoryRow(item)
+                } else {
+                    ForEach(visibleSections) { section in
+                        memorySection(section)
                     }
                 }
-                SectionHeader(title: "Memory", symbolName: "brain.head.profile")
-                ForEach(viewModel.unpinnedItems) { item in
-                    memoryRow(item)
+
+                if !hiddenFactIDs.isEmpty {
+                    Button("Restore forgotten memories") {
+                        withAnimation(Motion.standard) {
+                            hiddenFactIDs.removeAll()
+                        }
+                    }
+                    .buttonStyle(.lifePilotSecondary)
+                    .accessibilityIdentifier("memory.restore")
                 }
             }
+            .padding(.horizontal, Spacing.lg)
+            .padding(.top, Spacing.md)
+            .padding(.bottom, Spacing.xl)
+        }
+        .lifePilotScreenBackground(energy: .prominent)
+        .navigationTitle("")
+        .task { await viewModel.load() }
+        .sheet(item: $selectedMemory) { selection in
+            memorySheet(selection)
+                .presentationDetents([.medium])
         }
     }
 
-    private func memoryRow(_ item: MemoryItem) -> some View {
-        GlowCard {
-            HStack(alignment: .top, spacing: Spacing.md) {
-                Image(systemName: symbol(for: item.kind))
-                    .foregroundStyle(Color.LifePilot.accentTeal)
-                    .frame(width: IconSize.md)
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(item.title)
-                        .font(.LifePilot.body)
+    private var visibleSections: [MemorySection] {
+        viewModel.sections.compactMap { section in
+            let facts = section.facts.filter { !hiddenFactIDs.contains($0.id) }
+            guard !facts.isEmpty else { return nil }
+            return MemorySection(id: section.id, title: section.title, symbolName: section.symbolName, facts: facts)
+        }
+    }
+
+    private var memoryStatus: some View {
+        CardContainer {
+            HStack(spacing: Spacing.lg) {
+                StatusOrbit(
+                    progress: memoryConfidence,
+                    value: "\(Int(memoryConfidence * 100))%",
+                    label: "Confidence",
+                    tint: Color.LifePilot.accentAI,
+                    size: 104
+                )
+
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    Label("Private demo memory", systemImage: "lock.fill")
+                        .font(.LifePilot.utility)
+                        .foregroundStyle(Color.LifePilot.signalSuccess)
+                    Text("\(visibleFactCount) visible facts across \(visibleSections.count) context groups")
+                        .font(.LifePilot.body.weight(.semibold))
                         .foregroundStyle(Color.LifePilot.textPrimary)
-                    Text(item.kind.rawValue.capitalized)
-                        .font(.LifePilot.caption)
-                        .foregroundStyle(Color.LifePilot.accentEnd)
-                    if let detail = item.detail {
-                        Text(detail)
-                            .font(.LifePilot.caption)
-                            .foregroundStyle(Color.LifePilot.textSecondary)
-                    }
-                    Label(item.provenance, systemImage: "checkmark.seal")
+                    Text("Tap any fact to verify or forget it.")
                         .font(.LifePilot.caption)
                         .foregroundStyle(Color.LifePilot.textSecondary)
                 }
+
+                Spacer(minLength: 0)
+            }
+        }
+    }
+
+    private var visibleFactCount: Int {
+        visibleSections.reduce(0) { $0 + $1.facts.count }
+    }
+
+    private var memoryConfidence: Double {
+        guard visibleFactCount > 0 else { return 0 }
+        return min(1, 0.72 + Double(confirmedFactIDs.count) * 0.06)
+    }
+
+    private func memorySection(_ section: MemorySection) -> some View {
+        VStack(alignment: .leading, spacing: Spacing.md) {
+            SectionHeader(title: section.title, symbolName: section.symbolName)
+
+            CardContainer {
+                VStack(spacing: 0) {
+                    ForEach(Array(section.facts.enumerated()), id: \.element.id) { index, fact in
+                        Button {
+                            selectedMemory = MemorySelection(sectionTitle: section.title, fact: fact)
+                        } label: {
+                            factRow(fact)
+                        }
+                        .buttonStyle(.lifePilotPressable)
+                        .accessibilityHint("Opens memory controls")
+                        .accessibilityIdentifier("memory.fact.\(fact.id)")
+
+                        if index < section.facts.count - 1 {
+                            Divider().overlay(Color.LifePilot.glassBorder)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func factRow(_ fact: MemoryFact) -> some View {
+        HStack(spacing: Spacing.md) {
+            Image(systemName: fact.symbolName)
+                .foregroundStyle(Color.LifePilot.accentAI)
+                .frame(width: 38, height: 38)
+                .background(Color.LifePilot.accentAI.opacity(0.12), in: Circle())
+
+            VStack(alignment: .leading, spacing: Spacing.xs) {
+                Text(fact.title)
+                    .font(.LifePilot.body.weight(.semibold))
+                    .foregroundStyle(Color.LifePilot.textPrimary)
+
+                Text(fact.detail)
+                    .font(.LifePilot.caption)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+                    .multilineTextAlignment(.leading)
+            }
+
+            Spacer(minLength: Spacing.xs)
+
+            Image(systemName: confirmedFactIDs.contains(fact.id) ? "checkmark.circle.fill" : "chevron.right")
+                .foregroundStyle(
+                    confirmedFactIDs.contains(fact.id)
+                        ? Color.LifePilot.signalSuccess
+                        : Color.LifePilot.textTertiary
+                )
+        }
+        .frame(minHeight: 68)
+        .contentShape(Rectangle())
+    }
+
+    private func memorySheet(_ selection: MemorySelection) -> some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: Spacing.lg) {
+                HStack(spacing: Spacing.md) {
+                    Image(systemName: selection.fact.symbolName)
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(Color.LifePilot.accentAI)
+                        .frame(width: 54, height: 54)
+                        .background(Color.LifePilot.accentAI.opacity(0.14), in: Circle())
+                    VStack(alignment: .leading, spacing: Spacing.xs) {
+                        Text(selection.sectionTitle.uppercased())
+                            .font(.LifePilot.utility)
+                            .foregroundStyle(Color.LifePilot.accentAI)
+                        Text("Learned from connected demo sources")
+                            .font(.LifePilot.caption)
+                            .foregroundStyle(Color.LifePilot.textSecondary)
+                    }
+                }
+
+                Text(selection.fact.title)
+                    .font(.LifePilot.titleMedium)
+                    .foregroundStyle(Color.LifePilot.textPrimary)
+                Text(selection.fact.detail)
+                    .font(.LifePilot.body)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+
                 Spacer()
-                Menu {
-                    Button(item.isPinned ? "Unpin" : "Pin") {
-                        Task { try? await viewModel.togglePin(item) }
-                    }
-                    Button("Forget", role: .destructive) {
-                        Task { try? await viewModel.forget(item) }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .frame(width: 44, height: 44)
+
+                Button("This is correct") {
+                    confirmedFactIDs.insert(selection.fact.id)
+                    selectedMemory = nil
+                }
+                .buttonStyle(.lifePilotPrimary)
+                .accessibilityIdentifier("memory.confirm")
+
+                Button("Forget for this session", role: .destructive) {
+                    hiddenFactIDs.insert(selection.fact.id)
+                    confirmedFactIDs.remove(selection.fact.id)
+                    selectedMemory = nil
+                }
+                .buttonStyle(.lifePilotSecondary)
+                .accessibilityIdentifier("memory.forget")
+            }
+            .padding(Spacing.lg)
+            .lifePilotScreenBackground(energy: .subtle)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") { selectedMemory = nil }
                 }
             }
-        }
-    }
-
-    private var memoryComposer: some View {
-        VStack(alignment: .leading, spacing: Spacing.lg) {
-            Text("Memory stays visible and reversible. One-off actions are never learned.")
-                .font(.LifePilot.body)
-                .foregroundStyle(Color.LifePilot.textSecondary)
-            TextField("What should LifePilot remember?", text: $viewModel.draftTitle)
-                .lifePilotField()
-            Picker("Kind", selection: $viewModel.draftKind) {
-                ForEach(MemoryItem.Kind.allCases, id: \.self) { kind in
-                    Text(kind.rawValue.capitalized).tag(kind)
-                }
-            }
-            .pickerStyle(.menu)
-            Spacer()
-        }
-        .padding(Spacing.lg)
-        .background(AmbientBackground())
-    }
-
-    private func symbol(for kind: MemoryItem.Kind) -> String {
-        switch kind {
-        case .preference: "slider.horizontal.3"
-        case .routine: "repeat"
-        case .place: "mappin.and.ellipse"
-        case .person: "person.fill"
-        case .workPattern: "briefcase.fill"
-        case .travelBuffer: "car.fill"
-        case .quietHours: "moon.fill"
-        case .correction: "arrow.uturn.backward"
         }
     }
 }
 
-@Observable
-@MainActor
-public final class MemoryViewModel {
-    public private(set) var items: [MemoryItem] = []
-    public private(set) var selectedKind: MemoryItem.Kind?
-    public var draftTitle = ""
-    public var draftKind: MemoryItem.Kind = .preference
+private struct MemorySelection: Identifiable {
+    var id: String { fact.id }
+    let sectionTitle: String
+    let fact: MemoryFact
+}
 
-    private let preferenceStore: any PreferenceStore
-
-    public init(preferenceStore: any PreferenceStore) {
-        self.preferenceStore = preferenceStore
-    }
-
-    public var filteredItems: [MemoryItem] {
-        guard let selectedKind else { return items }
-        return items.filter { $0.kind == selectedKind }
-    }
-
-    public var pinnedItems: [MemoryItem] {
-        filteredItems.filter(\.isPinned)
-    }
-
-    public var unpinnedItems: [MemoryItem] {
-        filteredItems.filter { !$0.isPinned }
-    }
-
-    public func setKind(_ kind: MemoryItem.Kind?) {
-        selectedKind = kind
-    }
-
-    public func load() async {
-        items = await preferenceStore.allMemory()
-            .sorted { lhs, rhs in
-                if lhs.isPinned != rhs.isPinned {
-                    return lhs.isPinned
-                }
-                return lhs.updatedAt > rhs.updatedAt
-            }
-    }
-
-    public func addDraft() async throws {
-        let title = draftTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !title.isEmpty else { return }
-        let item = MemoryItem(
-            kind: draftKind,
-            title: title,
-            provenance: "Explicit user entry"
-        )
-        try await preferenceStore.saveMemory(item)
-        draftTitle = ""
-        await load()
-    }
-
-    public func forget(_ item: MemoryItem) async throws {
-        try await preferenceStore.deleteMemory(id: item.id)
-        await load()
-    }
-
-    public func togglePin(_ item: MemoryItem) async throws {
-        var updated = item
-        updated.isPinned.toggle()
-        updated.updatedAt = Date()
-        try await preferenceStore.saveMemory(updated)
-        await load()
+#Preview {
+    NavigationStack {
+        MemoryView()
     }
 }

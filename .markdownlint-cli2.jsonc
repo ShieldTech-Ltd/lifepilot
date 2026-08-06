@@ -1,6 +1,6 @@
 {
   // Markdown lint configuration for LifePilot documentation.
-  // Defaults are tuned for prose-heavy engineering docs, not terse READMEs —
+  // Defaults are tuned for prose-heavy engineering docs, not terse READMEs -
   // see docs/STYLE_GUIDE.md for the reasoning behind documentation conventions.
   "config": {
     "default": true,
@@ -31,7 +31,7 @@
     "MD041": false,
 
     // The README hero nests an H3 tagline directly under the H1 title by
-    // design — it is not a document outline, it's a landing-page hero.
+    // design - it is not a document outline, it's a landing-page hero.
     "MD001": false,
 
     // The product tagline is a complete sentence and reads correctly with
@@ -39,7 +39,7 @@
     "MD026": false,
 
     // MASTER_ROADMAP.md repeats the same subheadings (Objective, Deliverables,
-    // Risks, ...) under every phase by design — it's a template applied 11
+    // Risks, ...) under every phase by design - it's a template applied 11
     // times. siblings_only still catches genuine accidental duplicates within
     // one section.
     "MD024": { "siblings_only": true }

@@ -1,390 +1,170 @@
-import LifePilotCore
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Wiring bag so SettingsView stays under SwiftLint parameter limits.
-public struct SettingsConnections: Sendable {
-    public var cloudSync: any CloudSyncIntegrating
-    public var permissions: PermissionDependencies
-
-    public init(
-        cloudSync: any CloudSyncIntegrating = DisabledCloudSyncIntegration(),
-        permissions: PermissionDependencies = PermissionDependencies()
-    ) {
-        self.cloudSync = cloudSync
-        self.permissions = permissions
-    }
-}
-
-/// Privacy, connections, briefing time, export, deletion, and approvals.
+/// Settings for the local demo identity, connected sources, approval
+/// preferences, and repeatable showcase data.
 public struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
-    @State private var confirmDelete = false
-    @State private var transitStopID = ""
-    @State private var transitStopName = ""
-    @State private var transitLines = ""
-    @Environment(\.scenePhase) private var scenePhase
-    private let preferenceStore: any PreferenceStore
-    private let actionExecutor: any ActionExecuting
-    private let approvalStore: any ApprovalStore
-    private let onPermissionsChanged: () -> Void
 
-    public init(
-        preferenceStore: any PreferenceStore,
-        actionExecutor: any ActionExecuting,
-        approvalStore: any ApprovalStore,
-        connections: SettingsConnections = SettingsConnections(),
-        onPermissionsChanged: @escaping () -> Void = {}
-    ) {
-        _viewModel = State(
-            initialValue: SettingsViewModel(
-                preferenceStore: preferenceStore,
-                cloudSync: connections.cloudSync,
-                permissions: connections.permissions
-            )
-        )
-        self.preferenceStore = preferenceStore
-        self.actionExecutor = actionExecutor
-        self.approvalStore = approvalStore
-        self.onPermissionsChanged = onPermissionsChanged
+    public init(session: DemoSessionStore) {
+        _viewModel = State(initialValue: SettingsViewModel(session: session))
     }
 
-    public var body: some View {
-        List {
-            Section {
-                HStack(spacing: Spacing.md) {
-                    BrandMark(size: 58)
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("LifePilot")
-                            .font(.LifePilot.titleMedium)
-                        Text("Local-first daily planning")
-                            .font(.LifePilot.caption)
-                            .foregroundStyle(Color.LifePilot.textSecondary)
-                    }
-                }
-                .padding(.vertical, Spacing.sm)
-                .accessibilityElement(children: .combine)
-            }
-
-            Section("Briefing") {
-                Stepper(
-                    "Briefing hour: \(viewModel.preferences.briefingHour):00",
-                    value: Binding(
-                        get: { viewModel.preferences.briefingHour },
-                        set: { newValue in
-                            Task { try? await viewModel.setBriefingHour(newValue) }
-                        }
-                    ),
-                    in: 5 ... 11
-                )
-                Stepper(
-                    "Quiet hours start: \(viewModel.preferences.quietHoursStart ?? 22):00",
-                    value: Binding(
-                        get: { viewModel.preferences.quietHoursStart ?? 22 },
-                        set: { newValue in
-                            Task {
-                                try? await viewModel.setQuietHours(
-                                    start: newValue,
-                                    end: viewModel.preferences.quietHoursEnd ?? 7
-                                )
-                            }
-                        }
-                    ),
-                    in: 0 ... 23
-                )
-                Stepper(
-                    "Quiet hours end: \(viewModel.preferences.quietHoursEnd ?? 7):00",
-                    value: Binding(
-                        get: { viewModel.preferences.quietHoursEnd ?? 7 },
-                        set: { newValue in
-                            Task {
-                                try? await viewModel.setQuietHours(
-                                    start: viewModel.preferences.quietHoursStart ?? 22,
-                                    end: newValue
-                                )
-                            }
-                        }
-                    ),
-                    in: 0 ... 23
-                )
-            }
-
-            Section("Actions") {
-                NavigationLink("Approvals") {
-                    ApprovalsView(
-                        viewModel: ApprovalsViewModel(
-                            executor: actionExecutor,
-                            approvalStore: approvalStore
-                        )
-                    )
-                }
-            }
-
-            TransitSettingsSection(
-                stopID: $transitStopID,
-                stopName: $transitStopName,
-                lines: $transitLines,
-                message: viewModel.transitMessage,
-                onSave: {
-                    Task {
-                        await viewModel.setTransitConfiguration(
-                            stopID: transitStopID,
-                            stopName: transitStopName,
-                            linesText: transitLines
-                        )
-                    }
-                }
-            )
-
-            Section("Sync") {
-                Toggle(
-                    "iCloud sync (optional)",
-                    isOn: Binding(
-                        get: { viewModel.cloudSyncEnabled },
-                        set: { newValue in
-                            Task { await viewModel.setCloudSyncEnabled(newValue) }
-                        }
-                    )
-                )
-                Text("Local-first. Enabling prepares CloudKit for LifePilot-owned data.")
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-                if let syncMessage = viewModel.syncMessage {
-                    Text(syncMessage)
-                        .font(.LifePilot.caption)
-                        .foregroundStyle(Color.LifePilot.textSecondary)
-                }
-            }
-
-            Section("Connections") {
-                ForEach(viewModel.connections) { connection in
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        ConnectionStatusRow(
-                            title: connection.displayName,
-                            state: connection.state,
-                            detail: connection.lastCheckedAt.map {
-                                "Checked \($0.formatted(date: .omitted, time: .shortened))"
-                            }
-                        )
-                        PermissionConnectionAction(connection: connection) { kind in
-                            Task {
-                                await viewModel.requestConnection(kind)
-                                onPermissionsChanged()
-                            }
-                        }
-                    }
-                }
-                if let connectionMessage = viewModel.connectionMessage {
-                    Text(connectionMessage)
-                        .font(.LifePilot.caption)
-                        .foregroundStyle(Color.LifePilot.textSecondary)
-                }
-            }
-
-            Section("Privacy") {
-                Toggle(
-                    "Show sensitive details in notifications",
-                    isOn: Binding(
-                        get: { viewModel.preferences.sensitiveNotificationPreviews },
-                        set: { newValue in
-                            Task { try? await viewModel.setSensitivePreviews(newValue) }
-                        }
-                    )
-                )
-                Text("Off by default — private details stay out of notification previews.")
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-                NavigationLink("Privacy & data flow") {
-                    PrivacyAndDataView()
-                }
-            }
-
-            Section("Appearance") {
-                Picker(
-                    "Theme",
-                    selection: Binding(
-                        get: { viewModel.preferences.appearance },
-                        set: { value in
-                            Task { try? await viewModel.setAppearance(value) }
-                        }
-                    )
-                ) {
-                    ForEach(UserPreferences.AppearancePreference.allCases, id: \.self) { appearance in
-                        Text(appearance.rawValue.capitalized).tag(appearance)
-                    }
-                }
-                Text("LifePilot also respects Reduce Motion, Reduce Transparency, "
-                    + "Increase Contrast, and Dynamic Type.")
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-            }
-
-            Section("Your data") {
-                Text("Memory items: \(viewModel.memoryCount)")
-                    .font(.LifePilot.caption)
-                Button("Export LifePilot data") {
-                    Task { await viewModel.exportData() }
-                }
-                Button("Delete all LifePilot data", role: .destructive) {
-                    confirmDelete = true
-                }
-                if let message = viewModel.exportMessage {
-                    Text(message)
-                        .font(.LifePilot.caption)
-                        .foregroundStyle(Color.LifePilot.textSecondary)
-                }
-            }
-
-            Section("About") {
-                LabeledContent("Version", value: "0.3.0-ship-candidate")
-                Text("Daily-life assistant — tasks, schedules, briefing, and approvals. "
-                    + "No banking, shopping, or medical features.")
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-                NavigationLink("Memory") {
-                    MemoryView(preferenceStore: preferenceStore)
-                }
-            }
-        }
-        .scrollContentBackground(.hidden)
-        .background(AmbientBackground())
-        .navigationTitle("Settings")
-        .task {
-            await viewModel.load()
-            transitStopID = viewModel.preferences.transitStopID
-            transitStopName = viewModel.preferences.transitStopName
-            transitLines = viewModel.preferences.transitLineNames.joined(separator: ", ")
-        }
-        .onChange(of: scenePhase) { _, phase in
-            guard phase == .active else { return }
-            Task {
-                await viewModel.refreshConnections()
-                onPermissionsChanged()
-            }
-        }
-        .confirmationDialog(
-            "Delete all LifePilot-owned local data?",
-            isPresented: $confirmDelete,
-            titleVisibility: .visible
-        ) {
-            Button("Delete all local data", role: .destructive) {
-                Task { await viewModel.deleteAllData() }
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: {
-            Text("This removes tasks, preferences, Memory, approvals, and audit records "
-                + "owned by LifePilot. Apple Calendar and Reminders remain unchanged.")
-        }
+    public init() {
+        self.init(session: DemoSessionStore())
     }
-}
-
-private struct PermissionConnectionAction: View {
-    @Environment(\.openURL) private var openURL
-    let connection: ConnectionCapability
-    let onRequest: (PermissionKind) -> Void
-
-    var body: some View {
-        if let kind = PermissionKind(rawValue: connection.id) {
-            switch connection.state {
-            case .notRequested:
-                Button("Connect \(kind.displayName)") {
-                    onRequest(kind)
-                }
-            case .denied, .limited:
-                Button("Open System Settings") {
-                    if let url = PermissionSystemSettings.url {
-                        openURL(url)
-                    }
-                }
-            case .authorized, .restricted, .unavailable:
-                EmptyView()
-            }
-        }
-    }
-}
-
-private struct TransitSettingsSection: View {
-    @Binding var stopID: String
-    @Binding var stopName: String
-    @Binding var lines: String
-    let message: String?
-    let onSave: () -> Void
-
-    var body: some View {
-        Section("Live transit") {
-            TextField("Stop ID (for example 940GZZLUOXC)", text: $stopID)
-                .accessibilityLabel("Transit stop identifier")
-            TextField("Stop name (optional)", text: $stopName)
-                .accessibilityLabel("Transit stop name")
-            TextField("Lines, separated by commas (optional)", text: $lines)
-                .accessibilityLabel("Relevant transit lines")
-            Button("Save transit stop", action: onSave)
-            Text("Uses TfL's public-data path with no client API secret. "
-                + "Leave the stop ID blank to disable live transit.")
-                .font(.LifePilot.caption)
-                .foregroundStyle(Color.LifePilot.textSecondary)
-            if let message {
-                Text(message)
-                    .font(.LifePilot.caption)
-                    .foregroundStyle(Color.LifePilot.textSecondary)
-            }
-        }
-    }
-}
-
-public struct PrivacyAndDataView: View {
-    public init() {}
 
     public var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Spacing.lg) {
-                InsightHero(
-                    title: "Private by default",
-                    detail: "Core planning works locally and without an account."
+            VStack(alignment: .leading, spacing: Spacing.xl) {
+                ScreenHeader(
+                    eyebrow: "Control centre",
+                    title: "Settings",
+                    subtitle: "Shape how LifePilot prepares, explains, and protects your day.",
+                    symbolName: "gearshape.fill",
+                    status: "Local",
+                    tint: Color.LifePilot.accentWarm
                 )
-                privacyCard(
-                    "On this device",
-                    "Tasks, preferences, Memory, approvals, and audit records stay local "
-                        + "unless you opt into iCloud sync.",
-                    "iphone"
-                )
-                privacyCard(
-                    "Permission by permission",
-                    "Calendar, Reminders, Notifications, and Location remain optional. "
-                        + "Declining one does not block local planning.",
-                    "hand.raised.fill"
-                )
-                privacyCard(
-                    "No hidden automation",
-                    "External writes require an exact proposal and explicit approval.",
-                    "checkmark.shield.fill"
-                )
-                StatusBanner(
-                    message: "The repository privacy notice is a draft and must receive "
-                        + "legal review before App Store publication.",
-                    style: .warning
-                )
+
+                profileCard
+
+                ForEach(viewModel.sections) { section in
+                    let rows = section.rows.filter { $0.id != "profile" }
+                    if !rows.isEmpty {
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text(section.title.uppercased())
+                                .font(.LifePilot.utility)
+                                .tracking(1)
+                                .foregroundStyle(Color.LifePilot.textPrimary)
+
+                            CardContainer {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                                        rowContent(row)
+                                        if index < rows.count - 1 {
+                                            Divider().overlay(Color.LifePilot.glassBorder)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            .padding(Spacing.lg)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.md)
         }
-        .background(AmbientBackground())
-        .navigationTitle("Privacy & Data")
+        .lifePilotScreenBackground(energy: .prominent)
+        .navigationTitle("")
+        .navigationDestination(for: SettingsDestination.self) { destination in
+            destinationView(for: destination)
+        }
     }
 
-    private func privacyCard(_ title: String, _ detail: String, _ symbol: String) -> some View {
-        GlowCard {
-            Label {
+    private var profileCard: some View {
+        NavigationLink(value: SettingsDestination.profile) {
+            HStack(spacing: Spacing.md) {
+                ProfileAvatarView(
+                    imageData: viewModel.session.profileImageData,
+                    displayName: viewModel.session.displayName,
+                    size: 58
+                )
+
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text(title)
+                    Text(viewModel.session.displayName)
                         .font(.LifePilot.titleMedium)
-                    Text(detail)
-                        .font(.LifePilot.body)
+                        .foregroundStyle(Color.LifePilot.textPrimary)
+                    Text("\(viewModel.session.course) · \(viewModel.session.university)")
+                        .font(.LifePilot.caption)
                         .foregroundStyle(Color.LifePilot.textSecondary)
+                        .lineLimit(2)
                 }
-            } icon: {
-                Image(systemName: symbol)
-                    .foregroundStyle(Color.LifePilot.accentTeal)
+
+                Spacer(minLength: Spacing.sm)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.LifePilot.textTertiary)
+            }
+            .padding(Spacing.md)
+            .lifePilotSurface(cornerRadius: CornerRadius.lg, fill: Color.LifePilot.contentSurface)
+            .lifePilotShadow(ShadowStyle.LifePilot.card)
+        }
+        .buttonStyle(.lifePilotPressable)
+        .accessibilityIdentifier("settings.profile")
+    }
+
+    @ViewBuilder
+    private func rowContent(_ row: SettingsRow) -> some View {
+        if let destination = row.destination {
+            NavigationLink(value: destination) {
+                rowLabel(row)
+            }
+        } else {
+            rowLabel(row)
+        }
+    }
+
+    private func rowLabel(_ row: SettingsRow) -> some View {
+        HStack(spacing: Spacing.md) {
+            Image(systemName: row.symbolName)
+                .foregroundStyle(color(for: row.id))
+                .frame(width: 36, height: 36)
+                .background(color(for: row.id).opacity(0.12), in: Circle())
+
+            Text(row.title)
+                .font(.LifePilot.body)
+                .foregroundStyle(Color.LifePilot.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.84)
+                .layoutPriority(1)
+
+            Spacer()
+
+            if let detail = row.detail {
+                Text(detail)
+                    .font(.LifePilot.caption)
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+            }
+
+            if row.destination != nil {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.LifePilot.textTertiary)
             }
         }
+        .frame(minHeight: 56)
+        .contentShape(Rectangle())
+    }
+
+    private func color(for rowID: String) -> Color {
+        switch rowID {
+        case "connected": Color.LifePilot.accentStart
+        case "appearance": Color.LifePilot.accentEnd
+        case "liveExperiences": Color.LifePilot.accentStart
+        case "approvals": Color.LifePilot.signalSuccess
+        case "data": Color.LifePilot.signalWarning
+        case "about": Color.LifePilot.accentAI
+        default: Color.LifePilot.accentEnd
+        }
+    }
+
+    @ViewBuilder
+    private func destinationView(for destination: SettingsDestination) -> some View {
+        switch destination {
+        case .profile: ProfileDetailView(session: viewModel.session)
+        case .connectedApps: ConnectedAppsView(session: viewModel.session)
+        case .approvalPreferences: ApprovalPreferencesView(session: viewModel.session)
+        case .dataPrivacy: DataPrivacyView(session: viewModel.session)
+        case .appearance: AppearanceView(session: viewModel.session)
+        case .liveExperiences: LiveExperiencesView(session: viewModel.session)
+        case .about: AboutView()
+        }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        SettingsView()
     }
 }

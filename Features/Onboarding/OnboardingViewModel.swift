@@ -1,8 +1,10 @@
 import Foundation
 import LifePilotCore
 
-/// Owns onboarding progression and contextual permission requests. A request
-/// can only be triggered while its education step is visible.
+/// Owns the onboarding flow's step progression. Per
+/// docs/MASTER_ROADMAP.md Phase 4's UX requirement, onboarding explains
+/// *why* each step matters rather than dumping permissions upfront -
+/// `OnboardingStep` carries that explanation alongside its content.
 @Observable
 @MainActor
 public final class OnboardingViewModel {
@@ -13,7 +15,6 @@ public final class OnboardingViewModel {
     public private(set) var permissionHandled = false
 
     public let steps: [OnboardingStep]
-
     private let permissions: PermissionDependencies
     private let skipHandler: (PermissionKind) async -> Void
 
@@ -46,10 +47,7 @@ public final class OnboardingViewModel {
         }
         permissionState = await permissions.state(for: permission)
         permissionHandled = permissionState != .notRequested
-        permissionMessage = Self.message(
-            for: permission,
-            state: permissionState
-        )
+        permissionMessage = Self.message(for: permission, state: permissionState)
     }
 
     public func requestCurrentPermission() async {
@@ -57,7 +55,6 @@ public final class OnboardingViewModel {
         isRequestingPermission = true
         permissionMessage = nil
         defer { isRequestingPermission = false }
-
         do {
             permissionState = try await permissions.request(permission)
         } catch {
@@ -66,10 +63,7 @@ public final class OnboardingViewModel {
         }
         permissionHandled = true
         if permissionMessage == nil {
-            permissionMessage = Self.message(
-                for: permission,
-                state: permissionState
-            )
+            permissionMessage = Self.message(for: permission, state: permissionState)
         }
     }
 
@@ -99,25 +93,18 @@ public final class OnboardingViewModel {
         isRequestingPermission = false
     }
 
-    private static func message(
-        for permission: PermissionKind,
-        state: PermissionState
-    ) -> String? {
+    private static func message(for permission: PermissionKind, state: PermissionState) -> String? {
         switch state {
-        case .authorized:
-            "\(permission.displayName) connected."
-        case .limited:
-            "\(permission.displayName) has limited access. You can review it in Settings."
+        case .authorized: "\(permission.displayName) connected."
+        case .limited: "\(permission.displayName) has limited access. You can review it in Settings."
         case .denied:
             "\(permission.displayName) access is off. LifePilot will continue in local-only mode. "
                 + "To connect later, open System Settings and allow access for LifePilot."
         case .restricted:
             "\(permission.displayName) is restricted by this device or account. "
                 + "LifePilot will continue in local-only mode."
-        case .unavailable:
-            "\(permission.displayName) is unavailable on this device."
-        case .notRequested:
-            nil
+        case .unavailable: "\(permission.displayName) is unavailable on this device."
+        case .notRequested: nil
         }
     }
 }

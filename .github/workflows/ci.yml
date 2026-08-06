@@ -144,6 +144,37 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             2>&1 | tee "$CI_ARTIFACTS/native-archive.log"
 
+      - name: Package unsigned IPA for Windows sideloading
+        run: |
+          set -euo pipefail
+
+          app_path="$CI_ARTIFACTS/LifePilot.xcarchive/Products/Applications/LifePilot.app"
+          package_root="$CI_ARTIFACTS/unsigned-ipa"
+          ipa_path="$PWD/$CI_ARTIFACTS/LifePilot-unsigned.ipa"
+
+          if [[ ! -d "$app_path" ]]; then
+            echo "Archived app was not found at $app_path." >&2
+            exit 1
+          fi
+
+          rm -rf "$package_root" "$ipa_path"
+          mkdir -p "$package_root/Payload"
+          cp -R "$app_path" "$package_root/Payload/LifePilot.app"
+          (
+            cd "$package_root"
+            /usr/bin/zip -qry "$ipa_path" Payload
+          )
+
+          test -s "$ipa_path"
+
+      - name: Upload unsigned IPA for Windows sideloading
+        uses: actions/upload-artifact@v4
+        with:
+          name: LifePilot-unsigned-ipa-${{ github.run_id }}
+          path: .build/ci/LifePilot-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Upload native build diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

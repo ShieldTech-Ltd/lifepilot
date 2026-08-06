@@ -16,7 +16,7 @@ permissions:
 jobs:
   build:
     name: Build
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -24,7 +24,7 @@ jobs:
           persist-credentials: false
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
 
       - name: Resolve Swift Package dependencies
         run: swift package resolve
@@ -34,7 +34,7 @@ jobs:
 
   native-app:
     name: Native App
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 30
     env:
       DERIVED_DATA: .build/xcode-derived-data
@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
 
       - name: Prepare diagnostics directory
         run: mkdir -p "$CI_ARTIFACTS"
@@ -79,11 +79,11 @@ jobs:
 
           simulator_id="$(
             xcrun simctl list devices available --json \
-              | jq -r '[.devices[][] | select(.isAvailable and .name == "iPhone 16")] | first | .udid'
+              | jq -r '[.devices[][] | select(.isAvailable and .name == "iPhone 17")] | first | .udid'
           )"
 
           if [[ -z "$simulator_id" || "$simulator_id" == "null" ]]; then
-            echo "No available iPhone 16 Simulator was found." >&2
+            echo "No available iPhone 17 Simulator was found." >&2
             exit 1
           fi
           if [[ ! -d "$APP_PATH" ]]; then

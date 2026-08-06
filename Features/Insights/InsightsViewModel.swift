@@ -53,8 +53,7 @@ public final class InsightsViewModel {
                     trend: .flat,
                     symbolName: "wave.3.right.circle.fill",
                     tint: Color.LifePilot.accentEnd,
-                    detail: "Useful changes detected across your active timetable, inbox, travel, "
-                        + "and spending sources.",
+                    detail: "Useful changes detected across your active events, reminders, and travel sources.",
                     actionLabel: "Open unified timeline"
                 ),
                 Metric(

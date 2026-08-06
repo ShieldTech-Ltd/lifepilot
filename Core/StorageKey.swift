@@ -17,7 +17,6 @@ public enum StorageKey {
     public static let connectedCalendar = "com.lifepilot.connected.calendar"
     public static let connectedEmail = "com.lifepilot.connected.email"
     public static let connectedTravel = "com.lifepilot.connected.travel"
-    public static let connectedFinance = "com.lifepilot.connected.finance"
     public static let approvalsNotifyOnHighRisk = "com.lifepilot.approvals.notifyOnHighRisk"
     public static let approvalHistory = "com.lifepilot.approvals.history"
     public static let resolvedRecommendationKeys = "com.lifepilot.approvals.resolvedRecommendationKeys"
@@ -40,7 +39,6 @@ public enum StorageKey {
         connectedCalendar,
         connectedEmail,
         connectedTravel,
-        connectedFinance,
         approvalsNotifyOnHighRisk,
         approvalHistory,
         resolvedRecommendationKeys,

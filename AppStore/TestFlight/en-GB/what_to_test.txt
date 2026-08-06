@@ -7,4 +7,4 @@ Please test the complete first-run flow and the following paths:
 5. Add the LifePilot widget and confirm it shows the next event.
 6. In Settings, start and end a Live Activity, switch appearance, edit the local profile and review Data & Privacy.
 
-No sign-in is required. Connected sources intentionally use local sample data in this TechFest build.
+No sign-in is required. Connected sources intentionally use local sample data in this personal preview.

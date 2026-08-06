@@ -101,7 +101,7 @@ public struct ApprovalSheet: View {
             sourceName: String = "Ghost Brain",
             sourceSymbolName: String = "sparkles",
             riskText: String = "Low risk",
-            executionNote: String = "Approval records a simulated result for this TechFest demo."
+            executionNote: String = "Approval records a simulated result in this local preview."
         ) {
             self.title = title
             self.reasoning = reasoning

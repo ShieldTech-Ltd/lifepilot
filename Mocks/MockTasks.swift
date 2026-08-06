@@ -7,22 +7,22 @@ public enum MockTasks {
     public static func items(relativeTo now: Date = Date()) -> [TaskItem] {
         [
             TaskItem(
-                title: "Finish the TechFest presentation",
+                title: "Prepare notes for tomorrow",
                 dueDate: now.addingTimeInterval(3 * 3600),
                 priority: .high
             ),
             TaskItem(
-                title: "Test LifePilot on the demo iPhone",
+                title: "Call family",
                 dueDate: now.addingTimeInterval(5 * 3600),
                 priority: .normal
             ),
             TaskItem(
-                title: "Print project QR cards",
+                title: "Pick up groceries",
                 dueDate: now.addingTimeInterval(6 * 3600),
                 priority: .low
             ),
             TaskItem(
-                title: "Submit module reflection",
+                title: "Book the next appointment",
                 dueDate: nil,
                 isCompleted: true,
                 priority: .low

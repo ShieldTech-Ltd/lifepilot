@@ -244,7 +244,7 @@ final class SecurityPolicyAndApprovalTests: XCTestCase {
 
     func testContextAgentsDoNotBroadenAllowedActions() {
         let raw = Set(AgentKind.allCases.map(\.rawValue))
-        XCTAssertTrue(raw.contains("finance"))
+        XCTAssertFalse(raw.contains("finance"))
         XCTAssertTrue(raw.contains("shopping"))
         XCTAssertTrue(raw.contains("health"))
         XCTAssertTrue(raw.contains("email"))

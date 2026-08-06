@@ -7,9 +7,9 @@ public enum MockEmail {
     public static func messages(relativeTo now: Date = Date()) -> [EmailMessage] {
         [
             EmailMessage(
-                sender: "Dr Sarah Ahmed",
-                subject: "TechFest demo checklist: reply by Friday",
-                preview: "Before the showcase, please confirm your presentation slot and equipment checklist.",
+                sender: "Maya Patel",
+                subject: "Dinner plan for Friday",
+                preview: "Can you confirm whether 18:30 still works for you?",
                 receivedAt: now.addingTimeInterval(-3 * 24 * 3600),
                 isUnread: true,
                 requiresReply: true
@@ -23,17 +23,17 @@ public enum MockEmail {
                 requiresReply: false
             ),
             EmailMessage(
-                sender: "GitHub",
-                subject: "[LifePilot] TechFest demo pull request",
-                preview: "The TechFest readiness branch is ready for review.",
+                sender: "Community Centre",
+                subject: "Your weekend class is confirmed",
+                preview: "Your booking is confirmed. Please arrive ten minutes early.",
                 receivedAt: now.addingTimeInterval(-45 * 60),
                 isUnread: false,
                 requiresReply: false
             ),
             EmailMessage(
-                sender: "Maya Patel",
-                subject: "Rehearsal room confirmed",
-                preview: "Room 4.01 is booked for our LifePilot rehearsal at 14:00.",
+                sender: "High Street Dental Practice",
+                subject: "Appointment reminder",
+                preview: "This is a reminder for your appointment today at 14:00.",
                 receivedAt: now.addingTimeInterval(-18 * 3600),
                 isUnread: false,
                 requiresReply: true

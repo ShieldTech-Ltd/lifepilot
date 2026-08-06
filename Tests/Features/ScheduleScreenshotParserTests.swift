@@ -7,8 +7,8 @@ final class ScheduleScreenshotParserTests: XCTestCase {
         let referenceDate = Date(timeIntervalSince1970: 1_780_000_000)
         let draft = ScheduleScreenshotParser.draft(
             from: [
-                "Student timetable",
-                "Database Systems Lecture",
+                "Weekly schedule",
+                "Dentist appointment",
                 "3 August 2026, 13:30 - 14:30",
                 "International House, Room 4.01",
             ],
@@ -16,7 +16,7 @@ final class ScheduleScreenshotParserTests: XCTestCase {
         )
         let calendar = Calendar.current
 
-        XCTAssertEqual(draft.title, "Database Systems Lecture")
+        XCTAssertEqual(draft.title, "Dentist appointment")
         XCTAssertEqual(draft.location, "International House, Room 4.01")
         XCTAssertEqual(calendar.component(.year, from: draft.startDate), 2026)
         XCTAssertEqual(calendar.component(.month, from: draft.startDate), 8)
@@ -41,7 +41,7 @@ final class ScheduleScreenshotParserTests: XCTestCase {
         let invitation = """
         BEGIN:VCALENDAR
         BEGIN:VEVENT
-        SUMMARY:TechFest judging briefing
+        SUMMARY:Weekend football match
         DTSTART:20260803T133000
         DTEND:20260803T143000
         LOCATION:International House\\, Room 4.01
@@ -52,7 +52,7 @@ final class ScheduleScreenshotParserTests: XCTestCase {
         let draft = CalendarInvitationParser.draft(from: invitation)
         let calendar = Calendar.current
 
-        XCTAssertEqual(draft.title, "TechFest judging briefing")
+        XCTAssertEqual(draft.title, "Weekend football match")
         XCTAssertEqual(draft.location, "International House, Room 4.01")
         XCTAssertEqual(calendar.component(.year, from: draft.startDate), 2026)
         XCTAssertEqual(calendar.component(.month, from: draft.startDate), 8)

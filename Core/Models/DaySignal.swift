@@ -36,7 +36,6 @@ public struct DaySignal: Identifiable, Hashable, Sendable {
         case reminder
         case task
         case travel
-        case finance
         case health
         case weather
         case conflict

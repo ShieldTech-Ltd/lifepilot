@@ -114,7 +114,7 @@ public struct OnboardingView: View {
             return "Open my briefing"
         }
         if viewModel.currentStep.id == "calendar" {
-            return "Continue with demo data"
+            return "Continue with sample events"
         }
         return "Continue"
     }
@@ -123,16 +123,16 @@ public struct OnboardingView: View {
         Group {
             switch viewModel.currentStep.id {
             case "calendar":
-                Label("\(session.connectedSourceCount) UK demo sources ready", systemImage: "checkmark.circle.fill")
+                Label("\(session.connectedSourceCount) personal sources ready", systemImage: "checkmark.circle.fill")
                     .foregroundStyle(Color.LifePilot.signalSuccess)
             case "approvals":
                 Label("Approval is always required", systemImage: "lock.shield.fill")
                     .foregroundStyle(Color.LifePilot.signalSuccess)
             case "ready":
-                Label("Built around your BSc Computing day", systemImage: "graduationcap.fill")
+                Label("Built around your everyday life", systemImage: "calendar.badge.clock")
                     .foregroundStyle(Color.LifePilot.accentStart)
             default:
-                Label("Student-first, designed for everyone", systemImage: "person.3.fill")
+                Label("Personal, flexible, and under your control", systemImage: "person.crop.circle.fill")
                     .foregroundStyle(Color.LifePilot.accentEnd)
             }
         }

@@ -28,14 +28,13 @@ public struct OnboardingStep: Identifiable {
             id: "welcome",
             symbolName: "sparkle",
             title: "Meet LifePilot",
-            message: "A student-first AI planner for lectures, deadlines, travel, and money. "
-                + "Built for UK campus life and designed to grow with everyone."
+            message: "A personal planner for events, reminders, work shifts, appointments, and everyday travel."
         ),
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
             title: "Connect your calendar",
-            message: "Bring lectures, deadlines, and invitations into one student-first timeline.",
+            message: "Bring appointments, work shifts, plans, and invitations into one timeline.",
             permission: .calendar
         ),
         OnboardingStep(
@@ -70,19 +69,19 @@ public struct OnboardingStep: Identifiable {
             id: "ready",
             symbolName: "arrow.right.circle.fill",
             title: "You're ready",
-            message: "Your student briefing is waiting."
+            message: "Your daily briefing is waiting."
         ),
     ]
 
-    /// Concise, permission-free sequence used by the self-contained TechFest demo.
+    /// Concise, permission-free sequence used by the self-contained personal preview.
     public static let showcaseSteps: [OnboardingStep] = [
         allSteps[0],
         OnboardingStep(
             id: "calendar",
             symbolName: "calendar",
             title: "Preview connected sources",
-            message: "This TechFest build uses realistic UK student data to show how LifePilot combines "
-                + "your timetable, inbox, travel, and spending without accessing a real account."
+            message: "This preview uses realistic personal events to show how LifePilot organises "
+                + "appointments, work, reminders, and travel without accessing a real account."
         ),
         allSteps[5],
         allSteps[6],

@@ -225,7 +225,7 @@ public struct HomeView: View { // swiftlint:disable:this type_body_length
         if viewModel.pendingCount == 0 {
             return "Your plan is clear. Every prepared action has been reviewed."
         }
-        return "Your student day is organised. Review the last \(viewModel.pendingCount) prepared actions."
+        return "Your day is organised. Review the last \(viewModel.pendingCount) prepared actions."
     }
 
     private func summaryPill(symbol: String, text: String, color: Color) -> some View {

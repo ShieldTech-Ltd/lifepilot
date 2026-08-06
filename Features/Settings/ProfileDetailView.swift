@@ -154,12 +154,12 @@ public struct ProfileDetailView: View { // swiftlint:disable:this type_body_leng
                     Text(displayName.isEmpty ? "Your name" : displayName)
                         .font(.LifePilot.titleMedium)
                         .foregroundStyle(Color.LifePilot.textPrimary)
-                    Text(course.isEmpty ? "Computing student" : course)
+                    Text(course.isEmpty ? "Your daily routine" : course)
                         .font(.LifePilot.body)
                         .foregroundStyle(Color.LifePilot.textSecondary)
                 }
 
-                Label("UK student demo identity", systemImage: "graduationcap.fill")
+                Label("Personal profile stored on this device", systemImage: "person.crop.circle.fill")
                     .font(.LifePilot.caption.weight(.semibold))
                     .foregroundStyle(Color.LifePilot.accentEnd)
             }
@@ -185,11 +185,11 @@ public struct ProfileDetailView: View { // swiftlint:disable:this type_body_leng
 
     private var contextSection: some View {
         VStack(alignment: .leading, spacing: Spacing.md) {
-            SectionHeader(title: "Study & context", symbolName: "graduationcap.fill")
+            SectionHeader(title: "Daily context", symbolName: "calendar.badge.clock")
             CardContainer {
                 VStack(spacing: Spacing.md) {
-                    field("Course", text: $course, identifier: "profile.course")
-                    field("University", text: $university, identifier: "profile.university")
+                    field("Routine", text: $course, identifier: "profile.course")
+                    field("Profile type", text: $university, identifier: "profile.university")
                     field("Location", text: $location, identifier: "profile.location")
                 }
             }

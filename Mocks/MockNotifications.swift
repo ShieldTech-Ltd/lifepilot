@@ -1,8 +1,7 @@
 import Foundation
 import LifePilotCore
 
-/// Realistic sample notification data for previews, tests, and Phase 3's
-/// mock-driven screens.
+/// Realistic sample notification data for previews, tests, and the offline demo.
 public enum MockNotifications {
     public static func items(relativeTo now: Date = Date()) -> [NotificationItem] {
         [
@@ -14,15 +13,15 @@ public enum MockNotifications {
                 isRead: false
             ),
             NotificationItem(
-                title: "Unusual charge detected",
-                body: "A £34 charge at an unfamiliar merchant was flagged for review.",
+                title: "Appointment coming up",
+                body: "Your dentist appointment starts at 14:00. Leave enough travel time.",
                 receivedAt: now.addingTimeInterval(-2 * 3600),
-                sourceAgent: .finance,
+                sourceAgent: .calendar,
                 isRead: false
             ),
             NotificationItem(
                 title: "Morning briefing ready",
-                body: "Your student day is prepared. 3 recommendations are waiting.",
+                body: "Your day is prepared. Helpful recommendations are waiting.",
                 receivedAt: now.addingTimeInterval(-6 * 3600),
                 sourceAgent: nil,
                 isRead: true

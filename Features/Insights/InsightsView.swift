@@ -343,10 +343,9 @@ public struct InsightsView: View { // swiftlint:disable:this type_body_length
 
     private func agentExplanation(_ agent: String) -> String {
         switch agent {
-        case "calendar": "Finds timetable conflicts and protects the time you need to move between classes and events."
+        case "calendar": "Finds schedule conflicts and protects the time you need between appointments and events."
         case "email": "Surfaces messages that need a reply and prepares the context before you open your inbox."
         case "travel": "Connects UK travel disruption with the rest of your day so delays are visible early."
-        case "finance": "Flags unusual spending and upcoming renewals without moving money or changing accounts."
         default: "Connects useful context to your daily briefing while keeping every action under your control."
         }
     }

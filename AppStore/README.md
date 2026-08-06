@@ -4,7 +4,7 @@ This directory contains the reviewed en-GB submission copy and real Simulator sc
 
 ## Submission identity
 
-- App Store name: `LifePilot: Student AI Planner`
+- App Store name: `LifePilot: Daily Life Planner`
 - On-device display name: `LifePilot`
 - Primary language: English (UK)
 - Primary category: Productivity
@@ -46,7 +46,7 @@ The app declares `ITSAppUsesNonExemptEncryption` as `NO`. It uses only encryptio
 
 - Age rating expectation: 4+, subject to completing Apple's current questionnaire.
 - Content rights: confirm written permission or an appropriate licence for the supplied study-room background and app icon before public distribution.
-- University relationship: describe the app as a student project. Do not imply that Ulster University sponsors or endorses it unless written permission exists.
+- Product identity: present LifePilot as an independent personal planning app, with no organisational affiliation or endorsement.
 - Digital Services Act: the Account Holder must answer the trader-status question in App Store Connect.
 - Accessibility: declare only the features verified in the final archive and device pass.
 

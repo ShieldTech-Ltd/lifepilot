@@ -3,7 +3,7 @@ import LifePilotCore
 import LifePilotGhostBrain
 import LifePilotMocks
 
-/// Shared, app-wide state for the TechFest prototype. It gives every tab
+/// Shared, app-wide state for the personal preview. It gives every tab
 /// one coherent model of the day while keeping the external integrations
 /// explicitly simulated. Replacing this store with live services does not
 /// require changing the presentation flow.
@@ -32,7 +32,6 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     public private(set) var calendarEnabled: Bool
     public private(set) var emailEnabled: Bool
     public private(set) var travelEnabled: Bool
-    public private(set) var financeEnabled: Bool
     public private(set) var notifyOnHighRisk: Bool
 
     public var timelineFilter: TimelineFilter = .all
@@ -47,10 +46,10 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     ) {
         self.ghostBrain = ghostBrain
         self.defaults = defaults
-        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? "Ritik Sah"
-        email = defaults.string(forKey: StorageKey.profileEmail) ?? "ritik.sah@example.com"
-        course = defaults.string(forKey: StorageKey.profileCourse) ?? "BSc Computing"
-        university = defaults.string(forKey: StorageKey.profileUniversity) ?? "Ulster University London"
+        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? "Alex"
+        email = defaults.string(forKey: StorageKey.profileEmail) ?? "alex@example.com"
+        course = defaults.string(forKey: StorageKey.profileCourse) ?? "Daily routine"
+        university = defaults.string(forKey: StorageKey.profileUniversity) ?? "Personal"
         location = defaults.string(forKey: StorageKey.profileLocation) ?? "London"
         briefingTime = defaults.string(forKey: StorageKey.profileBriefingTime) ?? "08:00"
         profileImageData = defaults.data(forKey: StorageKey.profileImageData)
@@ -59,9 +58,8 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
             rawValue: defaults.string(forKey: StorageKey.appearancePreference) ?? ""
         ) ?? .system
         calendarEnabled = Self.boolValue(defaults, key: StorageKey.connectedCalendar, fallback: true)
-        emailEnabled = Self.boolValue(defaults, key: StorageKey.connectedEmail, fallback: true)
+        emailEnabled = false
         travelEnabled = Self.boolValue(defaults, key: StorageKey.connectedTravel, fallback: true)
-        financeEnabled = Self.boolValue(defaults, key: StorageKey.connectedFinance, fallback: true)
         notifyOnHighRisk = Self.boolValue(defaults, key: StorageKey.approvalsNotifyOnHighRisk, fallback: true)
         if let data = defaults.data(forKey: StorageKey.importedCalendarEvents) {
             importedEvents = (try? JSONDecoder().decode([CalendarEvent].self, from: data)) ?? []
@@ -81,7 +79,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     }
 
     public var connectedSourceCount: Int {
-        [calendarEnabled, emailEnabled, travelEnabled, financeEnabled].filter { $0 }.count
+        [calendarEnabled, travelEnabled].filter { $0 }.count
     }
 
     public var availableRecommendations: [RecommendationModel] {
@@ -104,7 +102,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         guard isPrepared else { return 0.08 }
         let total = activities.count + availableRecommendations.count
         let reviewedRatio = total == 0 ? 1 : Double(activities.count) / Double(total)
-        let sourceRatio = Double(connectedSourceCount) / 4
+        let sourceRatio = Double(connectedSourceCount) / 2
         return min(1, 0.52 + sourceRatio * 0.18 + reviewedRatio * 0.3)
     }
 
@@ -161,9 +159,6 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         case .travel:
             travelEnabled = isEnabled
             defaults.set(isEnabled, forKey: StorageKey.connectedTravel)
-        case .finance:
-            financeEnabled = isEnabled
-            defaults.set(isEnabled, forKey: StorageKey.connectedFinance)
         default:
             break
         }
@@ -243,19 +238,18 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         for key in StorageKey.all {
             defaults.removeObject(forKey: key)
         }
-        displayName = "Ritik Sah"
-        email = "ritik.sah@example.com"
-        course = "BSc Computing"
-        university = "Ulster University London"
+        displayName = "Alex"
+        email = "alex@example.com"
+        course = "Daily routine"
+        university = "Personal"
         location = "London"
         briefingTime = "08:00"
         profileImageData = nil
         passwordUpdatedAt = nil
         appearancePreference = .system
         calendarEnabled = true
-        emailEnabled = true
+        emailEnabled = false
         travelEnabled = true
-        financeEnabled = true
         notifyOnHighRisk = true
         resolvedRecommendationKeys = []
         activities = []
@@ -272,7 +266,6 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         case .calendar: calendarEnabled
         case .email: emailEnabled
         case .travel: travelEnabled
-        case .finance: financeEnabled
         default: true
         }
     }
@@ -282,7 +275,6 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         case .calendar: "Calendar buffer added in demo timeline"
         case .email: "Reply draft prepared in demo inbox"
         case .travel: "Delay update shared in demo itinerary"
-        case .finance: "Transaction flagged for review"
         default: "Action completed in demo mode"
         }
     }

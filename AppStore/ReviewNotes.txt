@@ -1,18 +1,19 @@
-LifePilot is a self-contained TechFest showcase. No account, login, demo credential, subscription or purchase is required.
+LifePilot is a self-contained personal daily-life preview. No account, login, demo credential, subscription or purchase is required.
 
 Important scope disclosure:
 
-• The four connected sources use realistic local sample data. They do not access real calendar, email, travel or finance accounts.
-• The app does not send personal data to a server, analytics provider, advertising network or AI provider.
-• A selected schedule screenshot is processed on device with Apple text recognition. LifePilot stores only the event details the reviewer confirms.
+* The connected calendar and travel sources use realistic local sample data. They do not access real external accounts.
+* The app does not contain banking or financial features.
+* The app does not send personal data to a server, analytics provider, advertising network or AI provider.
+* A selected schedule screenshot is processed on device with Apple text recognition. LifePilot stores only the event details the reviewer confirms.
 
 Suggested review path:
 
-1. Complete the four onboarding screens.
+1. Complete onboarding and review the Home briefing.
 2. On Home, open any card under Prepared for you and choose Approve or Dismiss.
 3. Open Timeline and choose Add schedule from screenshot. A screenshot containing an event name, date, time and location can be reviewed and corrected before saving.
 4. From an Apple or Google calendar invitation in Mail, Gmail or Safari, open the Share sheet, choose LifePilot, review the event and add it. The event appears after returning to LifePilot.
 5. Open Settings, then Live Activities & Widgets, to preview the next-event widget and start or end a Live Activity. Dynamic Island presentation requires a supported iPhone.
 6. Open Settings, then Data & Privacy, to read the in-app policy or reset all local data.
 
-The app opens directly into the showcase after onboarding. Reset local demo data returns it to the initial state.
+The app opens directly into the personal preview after onboarding. Reset local demo data returns it to the initial state.

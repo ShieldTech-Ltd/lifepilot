@@ -18,7 +18,7 @@ public final class LiveActivityManager {
         ActivityAuthorizationInfo().areActivitiesEnabled
     }
 
-    public func start(studentName: String, nextItem: String, detail: String, progress: Double) {
+    public func start(userName: String, nextItem: String, detail: String, progress: Double) {
         errorMessage = nil
         guard activitiesAreEnabled else {
             errorMessage = "Live Activities are disabled for LifePilot in iPhone Settings."
@@ -27,8 +27,8 @@ public final class LiveActivityManager {
 
         do {
             let attributes = LifePilotActivityAttributes(
-                studentName: studentName,
-                context: "BSc Computing day"
+                userName: userName,
+                context: "Personal day"
             )
             let state = LifePilotActivityAttributes.ContentState(
                 nextItem: nextItem,
@@ -76,7 +76,7 @@ public final class LiveActivityManager {
     public var activitiesAreEnabled: Bool { false }
 
     public init() {}
-    public func start(studentName _: String, nextItem _: String, detail _: String, progress _: Double) {
+    public func start(userName _: String, nextItem _: String, detail _: String, progress _: Double) {
         errorMessage = "Live Activities are available on supported iPhones."
     }
 

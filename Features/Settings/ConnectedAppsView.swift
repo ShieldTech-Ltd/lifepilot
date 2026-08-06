@@ -4,7 +4,7 @@ import SwiftUI
 
 public struct ConnectedAppsView: View {
     private let session: DemoSessionStore
-    private let agents: [AgentKind] = [.calendar, .email, .travel, .finance]
+    private let agents: [AgentKind] = [.calendar, .travel]
 
     public init(session: DemoSessionStore) {
         self.session = session
@@ -24,7 +24,7 @@ public struct ConnectedAppsView: View {
                 )
 
                 HStack {
-                    Label("\(session.connectedSourceCount) of 4 active", systemImage: "link.circle.fill")
+                    Label("\(session.connectedSourceCount) of 2 active", systemImage: "link.circle.fill")
                         .font(.LifePilot.caption.weight(.semibold))
                         .foregroundStyle(Color.LifePilot.accentStart)
                     Spacer()
@@ -64,7 +64,7 @@ public struct ConnectedAppsView: View {
                 .accessibilityIdentifier("connectedSources.shareInvitationHelp")
 
                 Label(
-                    "No external account is accessed in this TechFest build.",
+                    "The sample preview does not access an external account.",
                     systemImage: "lock.fill"
                 )
                 .font(.LifePilot.caption)
@@ -106,10 +106,9 @@ public struct ConnectedAppsView: View {
 
     private func sourceDescription(_ agent: AgentKind) -> String {
         switch agent {
-        case .calendar: "Lectures, deadlines, and event timing"
+        case .calendar: "Events, appointments, shifts, and reminders"
         case .email: "Important messages and reply context"
         case .travel: "UK journeys, delays, and station timing"
-        case .finance: "Spending signals and renewal awareness"
         default: "Connected context"
         }
     }

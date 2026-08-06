@@ -41,7 +41,7 @@ public struct MockRecommendationProvider: GhostBrainServing {
         case 12 ..< 17: timeOfDay = .afternoon
         default: timeOfDay = .evening
         }
-        return GhostBrainModel.GreetingContext(userFirstName: "Ritik", timeOfDay: timeOfDay)
+        return GhostBrainModel.GreetingContext(userFirstName: "Alex", timeOfDay: timeOfDay)
     }
 
     private static func sampleRecommendations(events: [CalendarEvent], relativeTo now: Date) -> [RecommendationModel] {
@@ -78,19 +78,19 @@ public struct MockRecommendationProvider: GhostBrainServing {
             ))
         }
 
-        if let rehearsal = events.first(where: { $0.title == "TechFest Demo Rehearsal" }) {
+        if let appointment = events.first(where: { $0.title == "Dentist appointment" }) {
             let precedingEvent = events
-                .filter { $0.id != rehearsal.id && $0.endDate <= rehearsal.startDate }
+                .filter { $0.id != appointment.id && $0.endDate <= appointment.startDate }
                 .min {
-                    rehearsal.startDate.timeIntervalSince($0.endDate)
-                        < rehearsal.startDate.timeIntervalSince($1.endDate)
+                    appointment.startDate.timeIntervalSince($0.endDate)
+                        < appointment.startDate.timeIntervalSince($1.endDate)
                 }
 
-            if let precedingEvent, rehearsal.startDate.timeIntervalSince(precedingEvent.endDate) < 15 * 60 {
+            if let precedingEvent, appointment.startDate.timeIntervalSince(precedingEvent.endDate) < 15 * 60 {
                 recommendations.append(RecommendationModel(
                     title: "Leave \"\(precedingEvent.title)\" a few minutes early",
                     reasoning: "It ends at \(precedingEvent.endDate.formatted(date: .omitted, time: .shortened)), "
-                        + "when your TechFest rehearsal starts. Allow time to move between rooms.",
+                        + "just before your appointment. Allow time to travel between places.",
                     sourceAgent: .calendar,
                     riskLevel: .medium,
                     urgency: .high,
@@ -113,16 +113,6 @@ public struct MockRecommendationProvider: GhostBrainServing {
             timestamp: now,
             sourceAgent: .calendar
         ))
-
-        if let anomalousCharge = MockFinance.transactions(relativeTo: now).first(where: \.isAnomalous) {
-            signals.append(DaySignal(
-                kind: .finance,
-                title: "Unusual charge detected",
-                subtitle: "\(anomalousCharge.formattedAmount) at \(anomalousCharge.merchant)",
-                timestamp: anomalousCharge.date,
-                sourceAgent: .finance
-            ))
-        }
 
         return signals
     }

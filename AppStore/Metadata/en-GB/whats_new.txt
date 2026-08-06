@@ -1,1 +1,1 @@
-Initial TechFest showcase release with daily briefings, smart approvals, screenshot schedule import, a Share extension, widgets, Live Activities, memory, insights and privacy controls.
+Initial personal preview with daily briefings, smart approvals, event import, widgets, Live Activities, memory, insights and local privacy controls.

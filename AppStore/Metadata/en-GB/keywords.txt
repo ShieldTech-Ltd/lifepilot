@@ -1,1 +1,1 @@
-timetable,deadlines,productivity,schedule,widget,study,organiser,campus,university,lectures
+events,reminders,productivity,schedule,widget,planner,organiser,appointments,shifts,tasks

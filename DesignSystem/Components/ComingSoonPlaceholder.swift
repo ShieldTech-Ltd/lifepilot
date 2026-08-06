@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A shared full-screen placeholder retained for future, intentionally
-/// unavailable surfaces. Core TechFest tabs use real demo content.
+/// unavailable surfaces. Core preview tabs use real local content.
 public struct ComingSoonPlaceholder: View {
     private let symbolName: String
     private let title: String

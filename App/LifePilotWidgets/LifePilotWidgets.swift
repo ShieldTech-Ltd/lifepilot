@@ -36,17 +36,15 @@ private struct BriefingProvider: TimelineProvider {
     }
 
     private var entry: BriefingEntry {
-        let fallbackDate = Calendar.current.date(from: DateComponents(
-            year: 2026, month: 8, day: 3, hour: 13, minute: 30
-        )) ?? Date().addingTimeInterval(3600)
+        let fallbackDate = Date().addingTimeInterval(3600)
         let nextEvent = UpcomingEventWidgetStore.load()
         return BriefingEntry(
             date: Date(),
             readiness: nextEvent?.readiness ?? 70,
             pendingActions: nextEvent?.pendingActions ?? 3,
-            nextTitle: nextEvent?.title ?? "TechFest 2026 Showcase",
+            nextTitle: nextEvent?.title ?? "Plan the next event",
             nextTime: (nextEvent?.startDate ?? fallbackDate).formatted(date: .omitted, time: .shortened),
-            nextLocation: nextEvent?.location ?? "International House",
+            nextLocation: nextEvent?.location ?? "Add a location",
             nextDate: nextEvent?.startDate ?? fallbackDate
         )
     }

@@ -8,7 +8,6 @@ public enum AgentKind: String, CaseIterable, Codable, Hashable, Sendable {
     case task
     case travel
     case weather
-    case finance
     case memory
     case planning
     case shopping
@@ -26,7 +25,6 @@ public enum AgentKind: String, CaseIterable, Codable, Hashable, Sendable {
         case .task: "Tasks"
         case .travel: "Travel"
         case .weather: "Weather"
-        case .finance: "Finance"
         case .memory: "Memory"
         case .planning: "Planning"
         case .shopping: "Shopping"
@@ -44,7 +42,6 @@ public enum AgentKind: String, CaseIterable, Codable, Hashable, Sendable {
         case .task: "checkmark.circle.fill"
         case .travel: "airplane"
         case .weather: "cloud.sun.fill"
-        case .finance: "sterlingsign.circle.fill"
         case .memory: "brain.head.profile"
         case .planning: "lightbulb.fill"
         case .shopping: "cart.fill"

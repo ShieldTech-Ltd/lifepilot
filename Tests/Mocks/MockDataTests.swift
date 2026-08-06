@@ -2,10 +2,11 @@ import XCTest
 @testable import LifePilotMocks
 
 final class MockDataTests: XCTestCase {
-    func testMockCalendarProducesNonEmptyEvents() {
+    func testMockCalendarProducesPersonalEvents() {
         let events = MockCalendar.events()
         XCTAssertFalse(events.isEmpty)
-        XCTAssertTrue(events.contains(where: { $0.title == "TechFest Demo Rehearsal" }))
+        XCTAssertTrue(events.contains(where: { $0.title == "Work shift" }))
+        XCTAssertTrue(events.contains(where: { $0.title == "Dentist appointment" }))
     }
 
     func testMockEmailProducesNonEmptyMessages() {
@@ -20,17 +21,6 @@ final class MockDataTests: XCTestCase {
         let itineraries = MockTravel.itineraries()
         XCTAssertFalse(itineraries.isEmpty)
         XCTAssertTrue(itineraries.contains(where: { $0.destination == "London Euston" }))
-    }
-
-    func testMockFinanceProducesNonEmptyTransactions() {
-        let transactions = MockFinance.transactions()
-        XCTAssertFalse(transactions.isEmpty)
-        XCTAssertTrue(transactions.allSatisfy { $0.formattedAmount.contains("£") })
-    }
-
-    func testMockFinanceFlagsAtLeastOneAnomaly() {
-        let transactions = MockFinance.transactions()
-        XCTAssertTrue(transactions.contains { $0.isAnomalous })
     }
 
     func testMockNotificationsProducesNonEmptyItems() {

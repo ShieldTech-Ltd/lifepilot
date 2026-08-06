@@ -15,11 +15,11 @@ public struct LifePilotActivityAttributes: ActivityAttributes {
         }
     }
 
-    public let studentName: String
+    public let userName: String
     public let context: String
 
-    public init(studentName: String, context: String) {
-        self.studentName = studentName
+    public init(userName: String, context: String) {
+        self.userName = userName
         self.context = context
     }
 }

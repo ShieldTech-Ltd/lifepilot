@@ -48,7 +48,7 @@ public final class MemoryViewModel {
                         id: "person-sarah",
                         symbolName: "person.fill",
                         title: message.sender,
-                        detail: "Course tutor who follows up on assessments and TechFest."
+                        detail: "A contact connected to important plans and follow-ups."
                     )
                 }
                 if message.sender.contains("Maya") {
@@ -68,7 +68,7 @@ public final class MemoryViewModel {
 
         if session.calendarEnabled {
             var routines: [MemoryFact] = []
-            if let projectLab = session.visibleEvents.first(where: { $0.title == "Group Project Lab" }) {
+            if let projectLab = session.visibleEvents.first(where: { $0.title == "Work shift" }) {
                 routines.append(MemoryFact(
                     id: "routine-project-lab",
                     symbolName: "repeat",

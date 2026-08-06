@@ -4,9 +4,9 @@
 
 # LifePilot
 
-### A student-first AI operating system for a day that stays connected.
+### A personal assistant for a day that stays connected.
 
-Your calendar, inbox, weather, travel, and priorities - understood, predicted, and prepared by one intelligence layer, before your day begins.
+Your events, reminders, work shifts, weather, travel, and priorities - organised into one clear plan before your day begins.
 
 [![Version](https://img.shields.io/badge/version-0.1.0--alpha-1a1a2e?style=flat-square)](#roadmap)
 [![License: MIT](https://img.shields.io/badge/license-MIT-1a1a2e?style=flat-square)](LICENSE)
@@ -97,7 +97,6 @@ Modern digital life is fragmented across systems that were never designed to tal
 | Conditions | Weather |
 | Thoughts | Notes |
 | Obligations | Tasks / Reminders |
-| Money | Banking apps |
 | Movement | Travel / booking apps |
 
 Each of these systems is a silo. Each requires a separate mental model, a separate check-in, a separate moment of context-switching. None of them know that a 9 AM flight delay affects a 10 AM meeting, that a calendar conflict should trigger an email reply, or that rain this afternoon should move an outdoor lunch indoors.
@@ -170,7 +169,7 @@ This loop - not a chat window - is the product.
 | **Smart Approvals** | A single queue of recommended actions, each with reasoning attached, approved or dismissed with one tap. |
 | **Context Awareness** | Understands relationships between events - a delayed flight affects a meeting; a cancelled meeting frees up focus time. |
 | **Predictive Planning** | Surfaces conflicts, risks, and opportunities before they happen, not after. |
-| **AI Agents** | Domain-specific agents (calendar, email, travel, finance, and more) that reason within their domain and report to the core system. |
+| **AI Agents** | Domain-specific agents for calendar, reminders, tasks, travel, weather, memory, and planning. |
 | **Insights** | Patterns in how the user spends time, communicates, and plans - surfaced as periodic, actionable summaries. |
 | **Automation** | Optional, user-defined rules that let low-risk, high-confidence actions execute without manual approval. |
 | **Privacy** | On-device processing wherever possible, end-to-end encryption for synced data, and zero silent execution. |
@@ -209,7 +208,7 @@ The Mermaid diagram below is the same architecture in a more compact, text-searc
 flowchart TD
     U[User]
     GB[Ghost Brain\nCore Reasoning Engine]
-    AG[AI Agents\nCalendar · Email · Travel · Finance · Memory ...]
+    AG[AI Agents\nCalendar · Reminders · Travel · Weather · Memory]
     APPS[Connected Apps\nCalendar · Mail · Maps · Weather · Reminders]
     REC[Recommendations\nRanked, Explained]
     APP[Approval\nUser Reviews & Confirms]
@@ -249,7 +248,6 @@ LifePilot's intelligence is composed of specialized agents, each responsible for
 | **Calendar Agent** | Reads events, detects conflicts, identifies free time, and flags scheduling risk. |
 | **Email Agent** | Triages messages by urgency, drafts suggested replies, and surfaces items needing a decision. |
 | **Travel Agent** | Tracks flights and reservations, predicts delays, and recalculates itineraries in real time. |
-| **Finance Agent** | Monitors spending patterns and upcoming bills, and flags anomalies worth attention. |
 | **Memory Agent** | Maintains long-term context - preferences, relationships, routines - shared across all agents. |
 | **Reminder Agent** | Converts stated and inferred intentions into time-aware, prioritized reminders. |
 | **Shopping Agent** | Tracks recurring needs and price-sensitive purchases, and prepares - never places - orders. |
@@ -257,7 +255,7 @@ LifePilot's intelligence is composed of specialized agents, each responsible for
 | **Security Agent** | Audits every proposed action for risk before it reaches the Approval queue. |
 | **Ghost Brain** | The orchestrator. Fuses every agent's output into one coherent model of the day and ranks what matters. |
 
-Each agent is independently testable and independently replaceable - a deliberate design choice that keeps the system extensible as new domains (health, home, finance) come online.
+Each agent is independently testable and independently replaceable, keeping the system extensible while preserving a focused daily-life scope.
 
 ---
 
@@ -271,7 +269,6 @@ lifepilot/
 │   ├── CalendarAgent/
 │   ├── EmailAgent/
 │   ├── TravelAgent/
-│   ├── FinanceAgent/
 │   ├── MemoryAgent/
 │   ├── ReminderAgent/
 │   ├── ShoppingAgent/
@@ -422,7 +419,7 @@ LifePilot is designed privacy-first, from data handling to execution. Full polic
 
 - **On-device by default.** Reasoning and data processing happen on-device wherever feasible; nothing is sent off-device that doesn't need to be.
 - **Encrypted sync.** Any data synced across devices is end-to-end encrypted via CloudKit.
-- **No silent execution.** LifePilot never performs a high-risk action - sending a message, making a booking, moving money - without explicit, per-action user approval. This is enforced architecturally - see [ARCHITECTURE.md](docs/ARCHITECTURE.md#dependency-rules).
+- **No silent execution.** LifePilot never performs an external action without explicit, per-action user approval. This is enforced architecturally - see [ARCHITECTURE.md](docs/ARCHITECTURE.md#dependency-rules).
 - **Least-privilege integrations.** Each connected app is granted the minimum access required for its agent to function.
 - **Auditable actions.** Every executed action is logged with the reasoning that produced it, visible to the user at any time.
 

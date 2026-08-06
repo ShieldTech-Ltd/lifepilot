@@ -10,7 +10,7 @@ public struct PrivacyPolicyView: View {
                 ScreenHeader(
                     eyebrow: "Effective 1 August 2026",
                     title: "Privacy policy",
-                    subtitle: "How the TechFest build handles information on your device."
+                    subtitle: "How this LifePilot preview handles information on your device."
                 )
 
                 policySection(
@@ -27,7 +27,7 @@ public struct PrivacyPolicyView: View {
                 )
                 policySection(
                     title: "Collection and sharing",
-                    text: "This showcase build does not transmit personal data to LifePilot, analytics providers, "
+                    text: "This preview does not transmit personal data to LifePilot, analytics providers, "
                         + "advertising networks, AI services, or other third parties. It does not track you across "
                         + "apps or websites. Connected sources use realistic demonstration data and do not access "
                         + "real accounts."

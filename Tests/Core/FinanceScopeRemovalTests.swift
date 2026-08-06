@@ -1,20 +1,17 @@
 import XCTest
 @testable import LifePilotCore
 
-/// Guarantees contextual demo signals remain read-only and cannot trigger unsafe actions.
+/// Guarantees finance is outside the product while unsafe external actions remain denied.
 final class FinanceScopeRemovalTests: XCTestCase {
-    func testDemoContextAgentsRemainAvailable() {
+    func testFinanceAgentIsNotAvailable() {
         let raw = Set(AgentKind.allCases.map(\.rawValue))
-        for context in ["finance", "shopping", "health", "email"] {
-            XCTAssertTrue(raw.contains(context), "Missing demo AgentKind.\(context)")
-        }
+        XCTAssertFalse(raw.contains("finance"))
         XCTAssertFalse(raw.contains("bank"))
     }
 
-    func testDaySignalKindsSupportReadOnlyFinanceAndHealthContext() {
+    func testDaySignalKindsExcludeFinance() {
         let raw = Set(DaySignal.Kind.allCases.map(\.rawValue))
-        XCTAssertTrue(raw.contains("finance"))
-        XCTAssertTrue(raw.contains("health"))
+        XCTAssertFalse(raw.contains("finance"))
     }
 
     func testActionTypesIncludeExplicitDenials() {

@@ -1,7 +1,7 @@
 import LifePilotDesignSystem
 import SwiftUI
 
-/// A local, non-networked password-change demonstration for TechFest.
+/// A local, non-networked password-change demonstration for the preview.
 /// The prototype records only the update date and never stores password text.
 public struct PasswordSecurityView: View {
     @Environment(\.scenePhase) private var scenePhase

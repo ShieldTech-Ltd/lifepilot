@@ -20,7 +20,7 @@ public struct AboutView: View {
                     Text("LifePilot")
                         .font(.LifePilot.titleLarge)
                         .foregroundStyle(Color.LifePilot.textPrimary)
-                    Text("Student-first. Built to grow with everyone.")
+                    Text("Your events, reminders, shifts, and plans in one place.")
                         .font(.LifePilot.body)
                         .foregroundStyle(Color.LifePilot.textSecondary)
                         .multilineTextAlignment(.center)
@@ -34,7 +34,7 @@ public struct AboutView: View {
                         aboutRow(
                             symbol: "brain.head.profile",
                             title: "Context, not clutter",
-                            detail: "One briefing across timetable, inbox, travel, and spending."
+                            detail: "One briefing across events, reminders, work, and travel."
                         )
                         aboutRow(
                             symbol: "checkmark.shield.fill",
@@ -44,7 +44,7 @@ public struct AboutView: View {
                         aboutRow(
                             symbol: "lock.fill",
                             title: "Private by design",
-                            detail: "The showcase uses local demo data and does not connect to real accounts."
+                            detail: "The preview uses local sample data and does not connect to real accounts."
                         )
                     }
                 }
@@ -68,7 +68,7 @@ public struct AboutView: View {
     private var versionLabel: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Development"
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
-        return "TechFest build \(version) (\(build))"
+        return "Personal preview \(version) (\(build))"
     }
 
     private var supportEmailURL: URL {

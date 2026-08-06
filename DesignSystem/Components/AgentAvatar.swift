@@ -34,7 +34,6 @@ public struct AgentAvatar: View {
         case .task: Color.LifePilot.signalSuccess
         case .travel: Color.LifePilot.accentStart
         case .weather: Color.LifePilot.signalInfo
-        case .finance: Color.LifePilot.accentWarm
         case .memory: Color.LifePilot.signalInfo
         case .planning: Color.LifePilot.accentEnd
         case .reminder: Color.LifePilot.signalRisk

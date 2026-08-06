@@ -35,7 +35,7 @@ public struct HeroCard<Content: View>: View {
             Text("Wednesday, July 9")
                 .font(.LifePilot.caption)
                 .foregroundStyle(Color.LifePilot.textSecondary)
-            Text("Good morning, Ritik")
+            Text("Good morning, Alex")
                 .font(.LifePilot.titleLarge)
                 .foregroundStyle(Color.LifePilot.textPrimary)
         }

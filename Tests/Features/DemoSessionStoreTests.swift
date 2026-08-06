@@ -75,8 +75,8 @@ final class DemoSessionStoreTests: XCTestCase {
         session.updateProfile(
             displayName: "Ritik Sah",
             email: "ritik@example.com",
-            course: "BSc Computing",
-            university: "Ulster University London",
+            course: "Daily routine",
+            university: "Personal",
             location: "London",
             briefingTime: "09:00"
         )
@@ -109,8 +109,8 @@ final class DemoSessionStoreTests: XCTestCase {
         defer { clear(defaults) }
         let session = DemoSessionStore(ghostBrain: MockRecommendationProvider(), defaults: defaults)
         let event = CalendarEvent(
-            title: "TechFest judging briefing",
-            location: "International House, Room 4.01",
+            title: "Weekend football match",
+            location: "Community sports centre",
             startDate: Date(timeIntervalSince1970: 1_785_756_600),
             endDate: Date(timeIntervalSince1970: 1_785_760_200)
         )
@@ -198,8 +198,8 @@ final class DemoSessionStoreTests: XCTestCase {
 
         XCTAssertTrue(session.activities.isEmpty)
         XCTAssertTrue(session.calendarEnabled)
-        XCTAssertEqual(session.displayName, "Ritik Sah")
-        XCTAssertEqual(session.course, "BSc Computing")
+        XCTAssertEqual(session.displayName, "Alex")
+        XCTAssertEqual(session.course, "Daily routine")
         XCTAssertNil(session.profileImageData)
         XCTAssertEqual(session.availableRecommendations.count, session.model?.recommendations.count)
     }

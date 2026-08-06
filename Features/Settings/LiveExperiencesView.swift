@@ -64,7 +64,7 @@ public struct LiveExperiencesView: View {
                     } else {
                         Button("Start Dynamic Island demo") {
                             manager.start(
-                                studentName: session.firstName,
+                                userName: session.firstName,
                                 nextItem: nextEvent?.title ?? "Day ready",
                                 detail: nextEventDetail,
                                 progress: session.readinessProgress

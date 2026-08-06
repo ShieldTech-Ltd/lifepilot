@@ -45,7 +45,7 @@ final class HomeViewModelTests: XCTestCase {
 
         await viewModel.load()
 
-        XCTAssertEqual(viewModel.nextEvent?.title, "Algorithms Lecture")
+        XCTAssertEqual(viewModel.nextEvent?.title, "Morning planning")
         XCTAssertEqual(viewModel.laterEvents.count, viewModel.eventsAhead.count - 1)
         XCTAssertFalse(viewModel.laterEvents.contains(where: { $0.id == viewModel.nextEvent?.id }))
     }

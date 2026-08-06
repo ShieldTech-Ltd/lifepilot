@@ -215,7 +215,7 @@ public enum ScheduleScreenshotParser {
     private static func isGenericHeading(_ value: String) -> Bool {
         let normalized = value.lowercased()
         return normalized.contains("timetable")
-            || normalized == "schedule"
+            || normalized.contains("schedule")
             || normalized == "calendar"
             || normalized == "event"
     }

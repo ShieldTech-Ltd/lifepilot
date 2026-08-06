@@ -201,7 +201,10 @@ final class DemoSessionStoreTests: XCTestCase {
         XCTAssertEqual(session.displayName, "Alex")
         XCTAssertEqual(session.course, "Daily routine")
         XCTAssertNil(session.profileImageData)
-        XCTAssertEqual(session.availableRecommendations.count, session.model?.recommendations.count)
+        XCTAssertEqual(
+            session.availableRecommendations.count,
+            session.model?.recommendations.filter { session.isEnabled($0.sourceAgent) }.count
+        )
     }
 
     private func makeDefaults() -> UserDefaults {

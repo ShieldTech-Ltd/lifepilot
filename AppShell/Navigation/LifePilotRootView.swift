@@ -13,7 +13,21 @@ public struct LifePilotRootView: View {
     @State private var session: DemoSessionStore
 
     public init(dependencies: AppDependencies = .live) {
-        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
+        _session = State(initialValue: DemoSessionStore(
+            ghostBrain: dependencies.ghostBrain,
+            taskStore: dependencies.taskStore,
+            eventStore: dependencies.eventStore,
+            preferenceStore: dependencies.preferenceStore,
+            approvalStore: dependencies.approvalStore,
+            remindersIntegration: dependencies.remindersIntegration,
+            notificationScheduler: dependencies.notificationScheduler,
+            permissions: PermissionDependencies(
+                calendar: dependencies.calendarIntegration,
+                reminders: dependencies.remindersIntegration,
+                notifications: dependencies.notificationScheduler,
+                location: dependencies.locationProvider
+            )
+        ))
     }
 
     public var body: some View {

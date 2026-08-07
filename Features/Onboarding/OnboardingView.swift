@@ -3,7 +3,9 @@ import SwiftUI
 
 public struct OnboardingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var viewModel = OnboardingViewModel(steps: OnboardingStep.showcaseSteps)
+    @State private var viewModel = OnboardingViewModel(steps: OnboardingStep.allSteps)
+    @State private var isRequestingPermission = false
+    @State private var permissionMessage: String?
     private let session: DemoSessionStore
     private let onFinish: () -> Void
 
@@ -57,14 +59,21 @@ public struct OnboardingView: View {
                 Spacer(minLength: Spacing.sm)
 
                 Button(buttonTitle) {
-                    if viewModel.isLastStep {
-                        onFinish()
-                    } else {
-                        withAnimation(Motion.deliberate) { viewModel.advance() }
-                    }
+                    Task { await continueFromCurrentStep() }
                 }
                 .buttonStyle(.lifePilotPrimary)
+                .disabled(isRequestingPermission)
                 .accessibilityIdentifier("onboarding.continue")
+
+                if viewModel.currentStep.permission != nil {
+                    Button("Skip for now") {
+                        permissionMessage = nil
+                        withAnimation(Motion.deliberate) { viewModel.advance() }
+                    }
+                    .font(.LifePilot.caption.weight(.semibold))
+                    .foregroundStyle(Color.LifePilot.textSecondary)
+                    .accessibilityIdentifier("onboarding.skipPermission")
+                }
             }
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.md)
@@ -110,13 +119,38 @@ public struct OnboardingView: View {
     }
 
     private var buttonTitle: String {
+        if isRequestingPermission {
+            return "Connecting…"
+        }
         if viewModel.isLastStep {
             return "Open my briefing"
         }
-        if viewModel.currentStep.id == "calendar" {
-            return "Continue with sample events"
+        if let permission = viewModel.currentStep.permission {
+            return "Allow \(permission.displayName)"
         }
         return "Continue"
+    }
+
+    private func continueFromCurrentStep() async {
+        if viewModel.isLastStep {
+            onFinish()
+            return
+        }
+        guard let permission = viewModel.currentStep.permission else {
+            withAnimation(Motion.deliberate) { viewModel.advance() }
+            return
+        }
+        isRequestingPermission = true
+        defer { isRequestingPermission = false }
+        do {
+            let state = try await session.requestPermission(permission)
+            permissionMessage = state == .authorized || state == .limited
+                ? "\(permission.displayName) connected"
+                : "You can enable \(permission.displayName) later in Settings"
+        } catch {
+            permissionMessage = "You can enable \(permission.displayName) later in Settings"
+        }
+        withAnimation(Motion.deliberate) { viewModel.advance() }
     }
 
     private var contextPill: some View {
@@ -132,7 +166,10 @@ public struct OnboardingView: View {
                 Label("Built around your everyday life", systemImage: "calendar.badge.clock")
                     .foregroundStyle(Color.LifePilot.accentStart)
             default:
-                Label("Personal, flexible, and under your control", systemImage: "person.crop.circle.fill")
+                Label(
+                    permissionMessage ?? "Personal, flexible, and under your control",
+                    systemImage: permissionMessage == nil ? "person.crop.circle.fill" : "checkmark.circle.fill"
+                )
                     .foregroundStyle(Color.LifePilot.accentEnd)
             }
         }

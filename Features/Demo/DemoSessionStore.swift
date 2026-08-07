@@ -3,10 +3,11 @@ import LifePilotCore
 import LifePilotGhostBrain
 import LifePilotMocks
 
-/// Shared, app-wide state for the personal preview. It gives every tab
-/// one coherent model of the day while keeping the external integrations
-/// explicitly simulated. Replacing this store with live services does not
-/// require changing the presentation flow.
+// swiftlint:disable file_length
+
+/// Shared, app-wide state. Production composition injects durable stores and
+/// authorized system integrations; previews and tests can omit them and use
+/// the deterministic mock provider.
 @Observable
 @MainActor
 public final class DemoSessionStore { // swiftlint:disable:this type_body_length
@@ -16,8 +17,10 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     public private(set) var tasks: [TaskItem] = []
     public private(set) var travelItineraries: [TravelItinerary] = []
     public private(set) var importedEvents: [CalendarEvent] = []
+    public private(set) var memoryItems: [MemoryItem] = []
     public private(set) var isLoading = false
     public private(set) var loadErrorMessage: String?
+    public private(set) var permissionStates: [String: PermissionState] = [:]
 
     public private(set) var displayName: String
     public private(set) var email: String
@@ -35,22 +38,46 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
     public private(set) var notifyOnHighRisk: Bool
 
     public var timelineFilter: TimelineFilter = .all
+    public let permissions: PermissionDependencies
 
     private let ghostBrain: GhostBrainServing
+    private let taskStore: (any TaskStore)?
+    private let eventStore: (any EventStore)?
+    private let preferenceStore: (any PreferenceStore)?
+    private let approvalStore: (any ApprovalStore)?
+    private let remindersIntegration: (any RemindersIntegrating)?
+    private let notificationScheduler: (any NotificationScheduling)?
+    private let isLiveSession: Bool
     private let defaults: UserDefaults
     private var resolvedRecommendationKeys: Set<String> = []
 
     public init(
         ghostBrain: GhostBrainServing = MockRecommendationProvider(),
+        taskStore: (any TaskStore)? = nil,
+        eventStore: (any EventStore)? = nil,
+        preferenceStore: (any PreferenceStore)? = nil,
+        approvalStore: (any ApprovalStore)? = nil,
+        remindersIntegration: (any RemindersIntegrating)? = nil,
+        notificationScheduler: (any NotificationScheduling)? = nil,
+        permissions: PermissionDependencies = PermissionDependencies(),
         defaults: UserDefaults = .standard
     ) {
         self.ghostBrain = ghostBrain
+        self.taskStore = taskStore
+        self.eventStore = eventStore
+        self.preferenceStore = preferenceStore
+        self.approvalStore = approvalStore
+        self.remindersIntegration = remindersIntegration
+        self.notificationScheduler = notificationScheduler
+        self.permissions = permissions
         self.defaults = defaults
-        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? "Alex"
-        email = defaults.string(forKey: StorageKey.profileEmail) ?? "alex@example.com"
+        let usesLiveStores = taskStore != nil || eventStore != nil || preferenceStore != nil
+        isLiveSession = usesLiveStores
+        displayName = defaults.string(forKey: StorageKey.profileDisplayName) ?? (usesLiveStores ? "You" : "Alex")
+        email = defaults.string(forKey: StorageKey.profileEmail) ?? (usesLiveStores ? "" : "alex@example.com")
         course = defaults.string(forKey: StorageKey.profileCourse) ?? "Daily routine"
         university = defaults.string(forKey: StorageKey.profileUniversity) ?? "Personal"
-        location = defaults.string(forKey: StorageKey.profileLocation) ?? "London"
+        location = defaults.string(forKey: StorageKey.profileLocation) ?? (usesLiveStores ? "" : "London")
         briefingTime = defaults.string(forKey: StorageKey.profileBriefingTime) ?? "08:00"
         profileImageData = defaults.data(forKey: StorageKey.profileImageData)
         passwordUpdatedAt = defaults.object(forKey: StorageKey.passwordUpdatedAt) as? Date
@@ -74,12 +101,25 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
 
     public var isPrepared: Bool { model != nil }
 
+    public var taskDataStore: (any TaskStore)? { taskStore }
+
+    public var taskNotificationCoordinator: TaskNotificationCoordinator? {
+        guard let notificationScheduler, let preferenceStore else { return nil }
+        return TaskNotificationCoordinator(
+            scheduler: notificationScheduler,
+            preferenceStore: preferenceStore
+        )
+    }
+
     public var firstName: String {
         displayName.split(separator: " ").first.map(String.init) ?? "there"
     }
 
     public var connectedSourceCount: Int {
-        [calendarEnabled, travelEnabled].filter { $0 }.count
+        if isLiveSession {
+            return permissionStates.values.filter { $0 == .authorized || $0 == .limited }.count
+        }
+        return [calendarEnabled, travelEnabled].filter { $0 }.count
     }
 
     public var availableRecommendations: [RecommendationModel] {
@@ -113,15 +153,31 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         defer { isLoading = false }
 
         do {
+            if isLiveSession {
+                await refreshPermissionStates()
+            }
             let loadedModel = try await ghostBrain.currentModel()
             model = loadedModel
-            let now = loadedModel.generatedAt
-            emailMessages = MockEmail.messages(relativeTo: now)
-            tasks = MockTasks.items(relativeTo: now)
-            travelItineraries = MockTravel.itineraries(relativeTo: now)
+            if let taskStore {
+                tasks = await liveTasks(from: taskStore)
+                emailMessages = []
+                travelItineraries = []
+            } else {
+                let now = loadedModel.generatedAt
+                emailMessages = MockEmail.messages(relativeTo: now)
+                tasks = MockTasks.items(relativeTo: now)
+                travelItineraries = MockTravel.itineraries(relativeTo: now)
+            }
+            if let eventStore {
+                let storedEvents = await eventStore.allEvents()
+                importedEvents = Self.mergeEvents(importedEvents, storedEvents)
+            }
+            if let preferenceStore {
+                memoryItems = await preferenceStore.allMemory()
+            }
             publishNextEvent()
         } catch {
-            loadErrorMessage = "The demo day could not be prepared. Try again."
+            loadErrorMessage = "Your day could not be prepared. Try again."
         }
     }
 
@@ -145,6 +201,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
             at: 0
         )
         persistApprovalHistory()
+        persistApprovalAudit(recommendation: recommendation, approved: approved)
         publishNextEvent()
     }
 
@@ -196,6 +253,9 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         if defaults === UserDefaults.standard {
             SharedImportedEventStore.replace(importedEvents)
         }
+        if let eventStore {
+            Task { try? await eventStore.save(event) }
+        }
         publishNextEvent()
     }
 
@@ -234,15 +294,16 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         defaults.set(self.briefingTime, forKey: StorageKey.profileBriefingTime)
     }
 
-    public func resetLocalDemoState() {
+    public func resetLocalState() {
         for key in StorageKey.all {
             defaults.removeObject(forKey: key)
         }
-        displayName = "Alex"
-        email = "alex@example.com"
+        let usesLiveStores = taskStore != nil || eventStore != nil || preferenceStore != nil
+        displayName = usesLiveStores ? "You" : "Alex"
+        email = usesLiveStores ? "" : "alex@example.com"
         course = "Daily routine"
         university = "Personal"
-        location = "London"
+        location = usesLiveStores ? "" : "London"
         briefingTime = "08:00"
         profileImageData = nil
         passwordUpdatedAt = nil
@@ -254,11 +315,40 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         resolvedRecommendationKeys = []
         activities = []
         importedEvents = []
+        memoryItems = []
         timelineFilter = .all
         if defaults === UserDefaults.standard {
             SharedImportedEventStore.clear()
         }
+        if preferenceStore != nil || notificationScheduler != nil {
+            Task {
+                try? await preferenceStore?.deleteAllLifePilotData()
+                try? await notificationScheduler?.cancelAll()
+            }
+        }
         publishNextEvent()
+    }
+
+    public func refreshPermissionStates() async {
+        for kind in PermissionKind.allCases {
+            permissionStates[kind.rawValue] = await permissions.state(for: kind)
+        }
+    }
+
+    @discardableResult
+    public func requestPermission(_ kind: PermissionKind) async throws -> PermissionState {
+        let state = try await permissions.request(kind)
+        permissionStates[kind.rawValue] = state
+        if kind == .calendar || kind == .reminders {
+            model = nil
+            await prepare()
+        }
+        return state
+    }
+
+    @available(*, deprecated, renamed: "resetLocalState")
+    public func resetLocalDemoState() {
+        resetLocalState()
     }
 
     public func isEnabled(_ agent: AgentKind) -> Bool {
@@ -270,12 +360,70 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         }
     }
 
-    private func executionResult(for recommendation: RecommendationModel) -> String {
-        switch recommendation.sourceAgent {
-        case .calendar: "Calendar buffer added in demo timeline"
-        case .email: "Reply draft prepared in demo inbox"
-        case .travel: "Delay update shared in demo itinerary"
-        default: "Action completed in demo mode"
+    private func executionResult(for _: RecommendationModel) -> String {
+        "Approval recorded. No external change was made."
+    }
+
+    private func liveTasks(from taskStore: any TaskStore) async -> [TaskItem] {
+        let local = await taskStore.allTasks()
+        guard let remindersIntegration else { return local }
+        let state = await remindersIntegration.authorizationState()
+        guard state == .authorized || state == .limited,
+              let reminders = try? await remindersIntegration.fetchOpenReminders()
+        else { return local }
+        var existingByExternal: [String: TaskItem] = [:]
+        for task in local {
+            if let identifier = task.externalIdentifier {
+                existingByExternal[identifier] = task
+            }
+        }
+        let remoteIdentifiers = Set(reminders.compactMap(\.externalIdentifier))
+        for task in local where task.source == .eventKitReminders {
+            guard let identifier = task.externalIdentifier,
+                  !remoteIdentifiers.contains(identifier)
+            else { continue }
+            try? await taskStore.delete(id: task.id)
+            existingByExternal.removeValue(forKey: identifier)
+        }
+        for reminder in reminders {
+            var reconciled = reminder
+            if let identifier = reminder.externalIdentifier, let existing = existingByExternal[identifier] {
+                reconciled = TaskItem(
+                    id: existing.id,
+                    title: reminder.title,
+                    notes: reminder.notes,
+                    dueDate: reminder.dueDate,
+                    isCompleted: reminder.isCompleted,
+                    completedAt: reminder.completedAt,
+                    recurrence: reminder.recurrence,
+                    source: .eventKitReminders,
+                    externalIdentifier: identifier,
+                    syncState: .synced,
+                    createdAt: existing.createdAt,
+                    updatedAt: Date()
+                )
+            }
+            try? await taskStore.save(reconciled)
+        }
+        return await taskStore.allTasks()
+    }
+
+    private static func mergeEvents(_ first: [CalendarEvent], _ second: [CalendarEvent]) -> [CalendarEvent] {
+        var result = first
+        let knownIDs = Set(first.map(\.id))
+        result.append(contentsOf: second.filter { !knownIDs.contains($0.id) })
+        return result.sorted { $0.startDate < $1.startDate }
+    }
+
+    private func persistApprovalAudit(recommendation: RecommendationModel, approved: Bool) {
+        guard let approvalStore else { return }
+        Task {
+            try? await approvalStore.appendAudit(AuditEvent(
+                category: "recommendation-decision",
+                summary: approved ? "Recommendation approved" : "Recommendation dismissed",
+                proposalID: recommendation.id,
+                success: true
+            ))
         }
     }
 

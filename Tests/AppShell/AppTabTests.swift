@@ -7,7 +7,7 @@ final class AppTabTests: XCTestCase {
         XCTAssertTrue(AppTab.allCases.contains(.home))
         XCTAssertTrue(AppTab.allCases.contains(.timeline))
         XCTAssertTrue(AppTab.allCases.contains(.memory))
-        XCTAssertTrue(AppTab.allCases.contains(.insights))
+        XCTAssertTrue(AppTab.allCases.contains(.tasks))
         XCTAssertTrue(AppTab.allCases.contains(.settings))
     }
 

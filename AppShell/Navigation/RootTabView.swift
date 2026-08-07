@@ -26,7 +26,21 @@ public struct RootTabView: View {
     }
 
     public init(dependencies: AppDependencies) {
-        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
+        _session = State(initialValue: DemoSessionStore(
+            ghostBrain: dependencies.ghostBrain,
+            taskStore: dependencies.taskStore,
+            eventStore: dependencies.eventStore,
+            preferenceStore: dependencies.preferenceStore,
+            approvalStore: dependencies.approvalStore,
+            remindersIntegration: dependencies.remindersIntegration,
+            notificationScheduler: dependencies.notificationScheduler,
+            permissions: PermissionDependencies(
+                calendar: dependencies.calendarIntegration,
+                reminders: dependencies.remindersIntegration,
+                notifications: dependencies.notificationScheduler,
+                location: dependencies.locationProvider
+            )
+        ))
     }
 
     public init(session: DemoSessionStore) {
@@ -113,17 +127,21 @@ public struct RootTabView: View {
                 #endif
         case .timeline:
             TimelineView(session: session)
+        case .tasks:
+            if let taskStore = session.taskDataStore {
+                TasksView(
+                    taskStore: taskStore,
+                    notifications: session.taskNotificationCoordinator
+                )
+            } else {
+                ContentUnavailableView(
+                    "Tasks unavailable",
+                    systemImage: "checklist",
+                    description: Text("Use the production app to create persistent tasks.")
+                )
+            }
         case .memory:
             MemoryView(session: session)
-        case .insights:
-            InsightsView(
-                session: session,
-                onReviewApprovals: { selectedTab = .home },
-                onOpenTimeline: { filter in
-                    session.timelineFilter = filter
-                    selectedTab = .timeline
-                }
-            )
         case .settings:
             SettingsView(session: session)
         }

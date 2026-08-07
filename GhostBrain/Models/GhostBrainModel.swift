@@ -5,9 +5,8 @@ import LifePilotCore
 /// screen in `Features` ultimately renders from. This is the `DayModel`
 /// referenced in docs/ARCHITECTURE.md's AI Agent Architecture diagram.
 ///
-/// This phase populates `GhostBrainModel` from `MockRecommendationProvider`
-/// only. Real fusion logic across live agent signals arrives in
-/// docs/MASTER_ROADMAP.md Phase 5.
+/// Production builds populate this from local stores and authorized Apple
+/// integrations. Preview and test builds may use `MockRecommendationProvider`.
 public struct GhostBrainModel: Sendable {
     public let generatedAt: Date
     public let greetingContext: GreetingContext

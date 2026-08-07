@@ -1,8 +1,8 @@
 import LifePilotDesignSystem
 import SwiftUI
 
-/// Settings for the local demo identity, connected sources, approval
-/// preferences, and repeatable showcase data.
+/// Settings for the local identity, connected sources, approval preferences,
+/// and LifePilot-owned device data.
 public struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
 

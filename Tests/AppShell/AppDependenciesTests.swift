@@ -1,3 +1,4 @@
+import Foundation
 import LifePilotCore
 import XCTest
 @testable import LifePilotAppShell
@@ -23,9 +24,9 @@ final class AppDependenciesTests: XCTestCase {
         XCTAssertFalse(tasks.isEmpty)
     }
 
-    func testLiveGhostBrainProvidesDeterministicDemoModel() async throws {
+    func testLiveGhostBrainProvidesProductionModelWithoutThrowing() async throws {
         let dependencies = AppDependencies.live
         let model = try await dependencies.ghostBrain.currentModel()
-        XCTAssertFalse(model.recommendations.isEmpty)
+        XCTAssertLessThanOrEqual(model.generatedAt, Date())
     }
 }

@@ -6,7 +6,7 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 metadata="$root/Metadata/en-GB"
 errors=0
 
-for field in marketing_url privacy_url support_url; do
+for field in privacy_url support_url; do
   url=$(tr -d '\n' < "$metadata/$field.txt")
   status=$(curl -L -sS -o /dev/null -w '%{http_code}' "$url" || true)
 
@@ -19,7 +19,7 @@ for field in marketing_url privacy_url support_url; do
 done
 
 if [ "$errors" -ne 0 ]; then
-  printf '\n%d public URL check(s) failed. Deploy the static pages before submission.\n' "$errors"
+  printf '\n%d public URL check(s) failed. Publish the privacy and support pages before submission.\n' "$errors"
   exit 1
 fi
 

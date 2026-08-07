@@ -67,7 +67,7 @@ Bundle ID: `com.ritiksah.lifepilot`
 - Keywords: 91 of 100 UTF-8 bytes.
 - App, widget and Share extension privacy manifests are embedded and declare no tracking or collected data.
 - The archive declares `ITSAppUsesNonExemptEncryption` as `NO`.
-- The monochrome background is a 3072 by 5504 app and web asset, verified in light mode on iPhone 17 Pro Simulator.
+- The monochrome background is a 3072 by 5504 native app asset, verified in light mode on iPhone 17 Pro Simulator.
 
 ## Remaining external gates
 
@@ -75,7 +75,7 @@ These items prevent an App Store Connect upload but do not affect the installed 
 
 1. The Apple team currently provides only development signing. Production preflight correctly fails because `get-task-allow` is enabled in the app and both extensions, the identity is Apple Development, and the local trust chain is not an App Store distribution chain.
 2. App Store Connect reports no provider for the signed-in user and does not permit creation of distribution profiles for the app, widget or Share extension.
-3. `https://lifepilot.vercel.app/privacy.html` and `https://lifepilot.vercel.app/support.html` return HTTP 404 until the prepared pages are deployed. The marketing root returns HTTP 200.
+3. The prepared privacy and support pages still need stable public URLs before submission; update the metadata URL files after publishing them. A marketing website is outside this release scope.
 4. The Account Holder must provide the App Review phone number, answer the DSA trader-status question and complete current age-rating and content-rights declarations.
 5. Written permission or an appropriate licence must be confirmed for the supplied app icon and monochrome background before public distribution.
 

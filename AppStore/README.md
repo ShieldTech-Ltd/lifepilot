@@ -54,7 +54,7 @@ The app declares `ITSAppUsesNonExemptEncryption` as `NO`. It uses only encryptio
 
 1. An Account Holder, Admin or App Manager must grant the current Apple account access to App Store Connect and permission to create distribution profiles.
 2. Register or enable App Store identifiers and profiles for the app, widget and Share extension, including the App Group `group.com.ritiksah.lifepilot`.
-3. Publish `privacy.html` and `support.html`. The intended Vercel URLs currently return HTTP 404 and must be live before submission.
+3. Review and publish `privacy.html` and `support.html` at stable public URLs, then update the metadata URL files. No marketing website or web demo is required for this native release.
 4. Add a real App Review contact phone number in App Store Connect. Do not place credentials in this repository.
 5. Confirm rights for all supplied visual assets.
 6. Archive with Apple Distribution signing, upload to App Store Connect, wait for processing and select the build.

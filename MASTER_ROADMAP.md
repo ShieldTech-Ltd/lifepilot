@@ -718,7 +718,7 @@ No amount of internal testing substitutes for a real person's actual calendar, a
 
 ### Technical Requirements
 
-- Website and landing page are built and deployed per the [Technology Stack](README.md#technology-stack)'s Vercel target
+- Public privacy and support URLs are live before App Store submission; a web app or product demo is outside the native release scope
 - TestFlight build is signed, versioned, and traceable to a specific `main` commit per [Release Strategy](docs/ENGINEERING_GUIDE.md#release-strategy)
 
 ### UX Requirements

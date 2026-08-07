@@ -8,7 +8,7 @@ This directory contains the public LifePilot identity used by the repository, pr
 |---|---|
 | `lifepilot-app-icon.png` | Current 1024px product mark and source for repository previews. |
 | `lifepilot-study-backdrop.jpg` | Previous user-provided illustrated study-wall backdrop retained for reference. |
-| `lifepilot-monochrome-backdrop.jpg` | User-provided monochrome painting, restored to 3072 × 5504 for the native app and web demo. |
+| `lifepilot-monochrome-backdrop.jpg` | User-provided monochrome painting, restored to 3072 × 5504 for the native app. |
 | `logo.svg` | Legacy vector lockup retained for historical documentation only. |
 
 ## Usage
@@ -16,7 +16,6 @@ This directory contains the public LifePilot identity used by the repository, pr
 - **README / GitHub:** references `Assets/brand/lifepilot-app-icon.png`.
 - **App icon:** `App/LifePilotApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` uses the same artwork without alpha.
 - **In-app identity:** `LifePilotLogo.imageset` contains the optimised display asset used by launch, onboarding, and About.
-- **Web demo:** both entry pages use this current artwork on their animated landing screen.
 
 ## Export notes
 

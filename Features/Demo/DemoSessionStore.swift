@@ -387,8 +387,10 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         }
         for reminder in reminders {
             var reconciled = reminder
-            if let identifier = reminder.externalIdentifier,
-               let existing = existingByExternal[identifier] {
+            if
+                let identifier = reminder.externalIdentifier,
+                let existing = existingByExternal[identifier]
+            {
                 reconciled = TaskItem(
                     id: existing.id,
                     title: reminder.title,

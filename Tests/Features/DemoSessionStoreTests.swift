@@ -1,11 +1,32 @@
 import Foundation
 import LifePilotCore
 import LifePilotGhostBrain
+import LifePilotServices
 import XCTest
 @testable import LifePilotFeatures
 
 @MainActor
 final class DemoSessionStoreTests: XCTestCase {
+    func testLiveSessionLoadsDurableTasksWithoutPreviewEmailOrTravel() async {
+        let defaults = makeDefaults()
+        defer { clear(defaults) }
+        let task = TaskItem(title: "Real local task", dueDate: Date().addingTimeInterval(3_600))
+        let session = DemoSessionStore(
+            ghostBrain: MockRecommendationProvider(),
+            taskStore: InMemoryTaskStore(seed: [task]),
+            eventStore: InMemoryEventStore(),
+            preferenceStore: InMemoryPreferenceStore(),
+            defaults: defaults
+        )
+
+        await session.prepare()
+
+        XCTAssertEqual(session.tasks.map(\.title), ["Real local task"])
+        XCTAssertTrue(session.emailMessages.isEmpty)
+        XCTAssertTrue(session.travelItineraries.isEmpty)
+        XCTAssertEqual(session.displayName, "You")
+    }
+
     func testApprovalUpdatesHomeTimelineAndInsights() async throws {
         let defaults = makeDefaults()
         defer { clear(defaults) }

@@ -7,7 +7,7 @@ import SwiftUI
 import UIKit
 #endif
 
-/// A complete local demo identity that personalizes the Morning Briefing.
+/// A local identity that personalizes the Morning Briefing.
 public struct ProfileDetailView: View { // swiftlint:disable:this type_body_length
     private let session: DemoSessionStore
     @State private var displayName: String
@@ -52,7 +52,6 @@ public struct ProfileDetailView: View { // swiftlint:disable:this type_body_leng
                 profileSection
                 contextSection
                 briefingSection
-                securitySection
 
                 Button {
                     Task { await save() }
@@ -214,47 +213,6 @@ public struct ProfileDetailView: View { // swiftlint:disable:this type_body_leng
                 }
             }
         }
-    }
-
-    private var securitySection: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            SectionHeader(title: "Security", symbolName: "lock.shield.fill")
-            NavigationLink {
-                PasswordSecurityView(session: session)
-            } label: {
-                HStack(spacing: Spacing.md) {
-                    Image(systemName: "key.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.LifePilot.textPrimary)
-                        .frame(width: 38, height: 38)
-                        .background(Color.LifePilot.selectionFill, in: Circle())
-
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        Text("Change password")
-                            .font(.LifePilot.body.weight(.semibold))
-                            .foregroundStyle(Color.LifePilot.textPrimary)
-                        Text(passwordDetail)
-                            .font(.LifePilot.caption)
-                            .foregroundStyle(Color.LifePilot.textSecondary)
-                    }
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.LifePilot.textTertiary)
-                }
-                .padding(Spacing.md)
-                .lifePilotGlass(cornerRadius: CornerRadius.lg, isInteractive: true)
-            }
-            .buttonStyle(.lifePilotPressable)
-            .accessibilityIdentifier("profile.changePassword")
-        }
-    }
-
-    private var passwordDetail: String {
-        guard let date = session.passwordUpdatedAt else { return "Protect your LifePilot account" }
-        return "Updated \(date.formatted(date: .abbreviated, time: .omitted))"
     }
 
     private var hasUnsavedChanges: Bool {

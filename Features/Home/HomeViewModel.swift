@@ -12,7 +12,7 @@ public struct HomeBriefingIntegrations: Sendable {
     }
 }
 
-/// Adapts the shared demo session into Home-specific view data.
+/// Adapts the shared app session into Home-specific view data.
 @Observable
 @MainActor
 public final class HomeViewModel {

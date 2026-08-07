@@ -338,6 +338,9 @@
 				DEVELOPMENT_TEAM = Y5F6ZL6V4P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LifePilot reads your calendar to show appointments, work shifts, and schedule conflicts.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LifePilot uses your location for local weather and travel-time guidance.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LifePilot reads your open reminders and creates a reminder only after your approval.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -391,6 +394,9 @@
 				DEVELOPMENT_TEAM = Y5F6ZL6V4P;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "LifePilot reads your calendar to show appointments, work shifts, and schedule conflicts.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LifePilot uses your location for local weather and travel-time guidance.";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "LifePilot reads your open reminders and creates a reminder only after your approval.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

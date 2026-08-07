@@ -39,6 +39,25 @@ public final class MemoryViewModel {
     }
 
     public var sections: [MemorySection] {
+        if !memoryItems.isEmpty {
+            return MemoryItem.Kind.allCases.compactMap { kind in
+                let items = memoryItems.filter { $0.kind == kind }
+                guard !items.isEmpty else { return nil }
+                return MemorySection(
+                    id: kind.rawValue,
+                    title: kind.rawValue.titleCased,
+                    symbolName: symbolName(for: kind),
+                    facts: items.map {
+                        MemoryFact(
+                            id: $0.id.uuidString,
+                            symbolName: symbolName(for: $0.kind),
+                            title: $0.title,
+                            detail: $0.detail ?? "Saved from \($0.provenance)."
+                        )
+                    }
+                )
+            }
+        }
         var result: [MemorySection] = []
 
         if session.emailEnabled {
@@ -97,7 +116,7 @@ public final class MemoryViewModel {
                     id: "travel-carrier",
                     symbolName: "airplane",
                     title: "Usually travels with \(preferredCarrier)",
-                    detail: "Most frequent rail operator in this demo."
+                    detail: "Most frequent travel provider in the available context."
                 ),
             ]
             if session.travelItineraries.contains(where: { $0.status == .delayed }) {
@@ -119,7 +138,28 @@ public final class MemoryViewModel {
             memoryItems = await preferenceStore.allMemory()
         } else {
             await session.prepare()
+            memoryItems = session.memoryItems
         }
+    }
+
+    private func symbolName(for kind: MemoryItem.Kind) -> String {
+        switch kind {
+        case .preference: "slider.horizontal.3"
+        case .routine: "repeat"
+        case .place: "mappin.and.ellipse"
+        case .person: "person.fill"
+        case .workPattern: "briefcase.fill"
+        case .travelBuffer: "clock.badge.exclamationmark"
+        case .quietHours: "moon.fill"
+        case .correction: "checkmark.bubble.fill"
+        }
+    }
+}
+
+private extension String {
+    var titleCased: String {
+        replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression)
+            .capitalized
     }
 }
 

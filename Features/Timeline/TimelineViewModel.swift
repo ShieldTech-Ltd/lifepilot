@@ -2,7 +2,7 @@ import Foundation
 import LifePilotCore
 import LifePilotGhostBrain
 
-/// Builds a connected-source-aware timeline from the shared demo session.
+/// Builds a connected-source-aware timeline from the shared app session.
 @Observable
 @MainActor
 public final class TimelineViewModel {

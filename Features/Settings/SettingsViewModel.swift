@@ -1,7 +1,7 @@
 import Foundation
 import LifePilotCore
 
-/// Builds Settings rows from the live demo session.
+/// Builds Settings rows from the app session.
 @Observable
 @MainActor
 public final class SettingsViewModel {

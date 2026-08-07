@@ -10,7 +10,7 @@ public struct PrivacyPolicyView: View {
                 ScreenHeader(
                     eyebrow: "Effective 1 August 2026",
                     title: "Privacy policy",
-                    subtitle: "How this LifePilot preview handles information on your device."
+                    subtitle: "How LifePilot handles information on your device."
                 )
 
                 policySection(
@@ -27,22 +27,21 @@ public struct PrivacyPolicyView: View {
                 )
                 policySection(
                     title: "Collection and sharing",
-                    text: "This preview does not transmit personal data to LifePilot, analytics providers, "
-                        + "advertising networks, AI services, or other third parties. It does not track you across "
-                        + "apps or websites. Connected sources use realistic demonstration data and do not access "
-                        + "real accounts."
+                    text: "LifePilot does not send your profile, tasks, events, or memory to a LifePilot server, "
+                        + "advertising network, analytics provider, or external AI service. When you enable them, "
+                        + "Apple Calendar, Reminders, WeatherKit, MapKit, and notification services operate under "
+                        + "your device permissions and Apple's privacy terms."
                 )
                 policySection(
                     title: "Retention and deletion",
-                    text: "Local information remains until you remove it, reset local demo data in Settings, or "
-                        + "uninstall LifePilot. Resetting clears profile edits, approval history, source switches, "
-                        + "appearance, onboarding state, and imported events."
+                    text: "LifePilot-owned local information remains until you delete it in Settings or uninstall "
+                        + "LifePilot. Deleting LifePilot data does not delete Apple-owned Calendar or Reminder records."
                 )
                 policySection(
                     title: "Your choices",
-                    text: "You can pause any connected demo source, remove your profile photo, decline a prepared "
-                        + "action, or reset all local data. LifePilot never sends, books, purchases, or acts outside "
-                        + "the app without an explicit decision."
+                    text: "You can revoke system permissions, remove your profile photo, decline a recommendation, "
+                        + "or delete all LifePilot-owned local data. LifePilot never sends, books, purchases, or acts "
+                        + "outside the app without an explicit decision."
                 )
 
                 Link("tamimtarafder12@gmail.com", destination: supportEmailURL)

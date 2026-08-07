@@ -3,8 +3,8 @@
 public enum AppTab: String, CaseIterable, Identifiable, Hashable {
     case home
     case timeline
+    case tasks
     case memory
-    case insights
     case settings
 
     public var id: String { rawValue }
@@ -13,8 +13,8 @@ public enum AppTab: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .home: return "Home"
         case .timeline: return "Timeline"
+        case .tasks: return "Tasks"
         case .memory: return "Memory"
-        case .insights: return "Insights"
         case .settings: return "Settings"
         }
     }
@@ -23,8 +23,8 @@ public enum AppTab: String, CaseIterable, Identifiable, Hashable {
         switch self {
         case .home: return "house.fill"
         case .timeline: return "list.bullet.rectangle.fill"
+        case .tasks: return "checklist"
         case .memory: return "brain.head.profile"
-        case .insights: return "lightbulb.max.fill"
         case .settings: return "gearshape.fill"
         }
     }

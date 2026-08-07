@@ -13,6 +13,8 @@ public struct RecommendationModel: Identifiable, Hashable, Sendable {
     public let riskLevel: RiskLevel
     public let urgency: Urgency
     public let createdAt: Date
+    public let evidence: [EvidenceItem]
+    public let freshness: DataFreshness
 
     public init(
         id: UUID = UUID(),
@@ -21,7 +23,9 @@ public struct RecommendationModel: Identifiable, Hashable, Sendable {
         sourceAgent: AgentKind,
         riskLevel: RiskLevel,
         urgency: Urgency,
-        createdAt: Date
+        createdAt: Date,
+        evidence: [EvidenceItem] = [],
+        freshness: DataFreshness = .unknown
     ) {
         self.id = id
         self.title = title
@@ -30,6 +34,8 @@ public struct RecommendationModel: Identifiable, Hashable, Sendable {
         self.riskLevel = riskLevel
         self.urgency = urgency
         self.createdAt = createdAt
+        self.evidence = evidence
+        self.freshness = freshness
     }
 
     public enum Urgency: String, Comparable, CaseIterable, Sendable {

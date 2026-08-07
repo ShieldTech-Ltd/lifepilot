@@ -47,7 +47,7 @@ public struct LiveExperiencesView: View {
                             .font(.LifePilot.body.weight(.semibold))
                             .foregroundStyle(Color.LifePilot.textPrimary)
                         Text(
-                            "The demo keeps \(nextEvent?.title ?? "your next priority") visible on the Lock Screen "
+                            "LifePilot keeps \(nextEvent?.title ?? "your next priority") visible on the Lock Screen "
                                 + "and Dynamic Island."
                         )
                             .font(.LifePilot.caption)
@@ -62,7 +62,7 @@ public struct LiveExperiencesView: View {
                         .buttonStyle(.lifePilotSecondary)
                         .accessibilityIdentifier("liveActivity.end")
                     } else {
-                        Button("Start Dynamic Island demo") {
+                        Button("Start Live Activity") {
                             manager.start(
                                 userName: session.firstName,
                                 nextItem: nextEvent?.title ?? "Day ready",

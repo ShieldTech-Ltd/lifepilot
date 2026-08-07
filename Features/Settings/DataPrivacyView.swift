@@ -21,7 +21,7 @@ public struct DataPrivacyView: View {
                 ScreenHeader(
                     eyebrow: "Private by default",
                     title: "Data & privacy",
-                    subtitle: "See the boundaries clearly and reset every local demo preference in one place."
+                    subtitle: "See the boundaries clearly and control LifePilot-owned data on this device."
                 )
 
                 CardContainer {
@@ -61,13 +61,13 @@ public struct DataPrivacyView: View {
 
                 CardContainer {
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Label("Local demo controls", systemImage: "internaldrive.fill")
+                        Label("Local data controls", systemImage: "internaldrive.fill")
                             .font(.LifePilot.titleMedium)
                             .foregroundStyle(Color.LifePilot.textPrimary)
                         Text(didReset
                             ? "Local preferences were reset. Relaunch the app to see onboarding again."
-                            : "Reset profile edits, approvals, source switches, appearance, "
-                                + "and onboarding on this device."
+                            : "Delete LifePilot tasks, events, memory, approvals, preferences, "
+                                + "and onboarding state from this device. Apple-owned data is preserved."
                         )
                             .font(.LifePilot.caption)
                             .foregroundStyle(Color.LifePilot.textSecondary)
@@ -75,7 +75,7 @@ public struct DataPrivacyView: View {
                         Button(role: .destructive) {
                             isShowingResetConfirmation = true
                         } label: {
-                            Label("Reset local demo data", systemImage: "arrow.counterclockwise")
+                            Label("Delete LifePilot data", systemImage: "trash")
                                 .font(.LifePilot.body.weight(.semibold))
                                 .foregroundStyle(Color.LifePilot.signalRisk)
                                 .frame(maxWidth: .infinity, minHeight: 50)
@@ -97,16 +97,16 @@ public struct DataPrivacyView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .confirmationDialog(
-            "Reset the local demo?",
+            "Delete LifePilot data?",
             isPresented: $isShowingResetConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Reset Demo Data", role: .destructive) { resetLocalDemoState() }
+            Button("Delete Local Data", role: .destructive) { resetLocalState() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text(
-                "This clears the profile, approval history, source switches, appearance, "
-                    + "and onboarding status on this device."
+                "This clears LifePilot-owned local records and settings. It does not delete "
+                    + "events or reminders owned by Apple apps."
             )
         }
     }
@@ -128,8 +128,8 @@ public struct DataPrivacyView: View {
         }
     }
 
-    private func resetLocalDemoState() {
-        session.resetLocalDemoState()
+    private func resetLocalState() {
+        session.resetLocalState()
         didReset = true
     }
 }

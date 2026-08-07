@@ -3,8 +3,11 @@ import LifePilotDesignSystem
 import SwiftUI
 
 public struct ConnectedAppsView: View {
+    @Environment(\.openURL) private var openURL
+    @State private var states: [String: PermissionState] = [:]
+    @State private var message: String?
     private let session: DemoSessionStore
-    private let agents: [AgentKind] = [.calendar, .travel]
+    private let kinds: [PermissionKind] = [.calendar, .reminders, .notifications, .location]
 
     public init(session: DemoSessionStore) {
         self.session = session
@@ -24,20 +27,27 @@ public struct ConnectedAppsView: View {
                 )
 
                 HStack {
-                    Label("\(session.connectedSourceCount) of 2 active", systemImage: "link.circle.fill")
+                    Label("\(connectedCount) of \(kinds.count) connected", systemImage: "link.circle.fill")
                         .font(.LifePilot.caption.weight(.semibold))
                         .foregroundStyle(Color.LifePilot.accentStart)
                     Spacer()
-                    Text("DEMO DATA")
+                    Text("ON DEVICE")
                         .font(.LifePilot.utility)
                         .foregroundStyle(Color.LifePilot.textSecondary)
                 }
                 .padding(.horizontal, Spacing.xs)
 
                 VStack(spacing: Spacing.sm) {
-                    ForEach(agents, id: \.self) { agent in
-                        sourceCard(agent)
+                    ForEach(kinds, id: \.rawValue) { kind in
+                        sourceCard(kind)
                     }
+                }
+
+                if let message {
+                    Text(message)
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
 
                 CardContainer {
@@ -63,10 +73,7 @@ public struct ConnectedAppsView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityIdentifier("connectedSources.shareInvitationHelp")
 
-                Label(
-                    "The sample preview does not access an external account.",
-                    systemImage: "lock.fill"
-                )
+                Label("LifePilot reads only sources you authorize.", systemImage: "lock.fill")
                 .font(.LifePilot.caption)
                 .foregroundStyle(Color.LifePilot.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -78,38 +85,87 @@ public struct ConnectedAppsView: View {
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
+        .task { await refreshStates() }
     }
 
-    private func sourceCard(_ agent: AgentKind) -> some View {
-        let isOn = session.isEnabled(agent)
+    private func sourceCard(_ kind: PermissionKind) -> some View {
+        let state = states[kind.rawValue] ?? .notRequested
         return CardContainer {
-            Toggle(isOn: Binding(
-                get: { session.isEnabled(agent) },
-                set: { session.setConnection(agent, isEnabled: $0) }
-            )) {
-                HStack(spacing: Spacing.md) {
-                    AgentAvatar(agent: agent, size: 44)
-                    VStack(alignment: .leading, spacing: Spacing.xs) {
-                        Text(agent.displayName)
-                            .font(.LifePilot.body.weight(.semibold))
-                            .foregroundStyle(Color.LifePilot.textPrimary)
-                        Text(isOn ? sourceDescription(agent) : "Paused across the app")
-                            .font(.LifePilot.caption)
-                            .foregroundStyle(isOn ? Color.LifePilot.textSecondary : Color.LifePilot.signalWarning)
-                    }
+            HStack(spacing: Spacing.md) {
+                Image(systemName: symbolName(for: kind))
+                    .foregroundStyle(Color.LifePilot.accentStart)
+                    .frame(width: 44, height: 44)
+                    .background(Color.LifePilot.accentStart.opacity(0.12), in: Circle())
+                VStack(alignment: .leading, spacing: Spacing.xs) {
+                    Text(kind.displayName)
+                        .font(.LifePilot.body.weight(.semibold))
+                        .foregroundStyle(Color.LifePilot.textPrimary)
+                    Text(sourceDescription(kind))
+                        .font(.LifePilot.caption)
+                        .foregroundStyle(Color.LifePilot.textSecondary)
                 }
+                Spacer()
+                Button(buttonTitle(for: state)) {
+                    Task { await handle(kind, state: state) }
+                }
+                .font(.LifePilot.caption.weight(.semibold))
+                .foregroundStyle(state == .authorized || state == .limited
+                    ? Color.LifePilot.signalSuccess
+                    : Color.LifePilot.accentEnd)
+                .accessibilityIdentifier("connectedSource.\(kind.rawValue)")
             }
-            .tint(Color.LifePilot.accentStart)
-            .accessibilityIdentifier("connectedSource.\(agent.rawValue)")
         }
     }
 
-    private func sourceDescription(_ agent: AgentKind) -> String {
-        switch agent {
-        case .calendar: "Events, appointments, shifts, and reminders"
-        case .email: "Important messages and reply context"
-        case .travel: "UK journeys, delays, and station timing"
-        default: "Connected context"
+    private var connectedCount: Int {
+        states.values.filter { $0 == .authorized || $0 == .limited }.count
+    }
+
+    private func refreshStates() async {
+        await session.refreshPermissionStates()
+        states = session.permissionStates
+    }
+
+    private func handle(_ kind: PermissionKind, state: PermissionState) async {
+        if state == .denied || state == .restricted {
+            if let url = PermissionSystemSettings.url { openURL(url) }
+            return
+        }
+        do {
+            let updated = try await session.requestPermission(kind)
+            states[kind.rawValue] = updated
+            message = updated == .authorized || updated == .limited
+                ? "\(kind.displayName) connected. Pull to refresh your briefing."
+                : "\(kind.displayName) was not connected."
+        } catch {
+            message = error.localizedDescription
+        }
+    }
+
+    private func buttonTitle(for state: PermissionState) -> String {
+        switch state {
+        case .authorized, .limited: "Connected"
+        case .denied, .restricted: "Settings"
+        case .notRequested: "Connect"
+        case .unavailable: "Unavailable"
+        }
+    }
+
+    private func symbolName(for kind: PermissionKind) -> String {
+        switch kind {
+        case .calendar: "calendar"
+        case .reminders: "checklist"
+        case .notifications: "bell.fill"
+        case .location: "location.fill"
+        }
+    }
+
+    private func sourceDescription(_ kind: PermissionKind) -> String {
+        switch kind {
+        case .calendar: "Appointments, shifts, plans, and schedule conflicts"
+        case .reminders: "Open Apple Reminders beside LifePilot tasks"
+        case .notifications: "Due-task and approved planning alerts"
+        case .location: "Local WeatherKit and travel context"
         }
     }
 }

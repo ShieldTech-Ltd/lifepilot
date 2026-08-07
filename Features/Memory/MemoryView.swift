@@ -87,7 +87,7 @@ public struct MemoryView: View {
                 )
 
                 VStack(alignment: .leading, spacing: Spacing.sm) {
-                    Label("Private demo memory", systemImage: "lock.fill")
+                    Label("Private on-device memory", systemImage: "lock.fill")
                         .font(.LifePilot.utility)
                         .foregroundStyle(Color.LifePilot.signalSuccess)
                     Text("\(visibleFactCount) visible facts across \(visibleSections.count) context groups")
@@ -181,7 +181,7 @@ public struct MemoryView: View {
                         Text(selection.sectionTitle.uppercased())
                             .font(.LifePilot.utility)
                             .foregroundStyle(Color.LifePilot.accentAI)
-                        Text("Learned from connected demo sources")
+                        Text("Saved from your LifePilot activity and corrections")
                             .font(.LifePilot.caption)
                             .foregroundStyle(Color.LifePilot.textSecondary)
                     }

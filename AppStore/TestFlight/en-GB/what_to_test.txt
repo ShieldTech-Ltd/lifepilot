@@ -1,0 +1,10 @@
+Please test the complete first-run flow and the following paths:
+
+1. Finish onboarding and review the Home briefing.
+2. Open a prepared action, approve or dismiss it, relaunch the app and confirm the decision persists.
+3. In Timeline, import a schedule screenshot and verify the extracted title, date, time and location before saving.
+4. Share a calendar invitation to LifePilot from Mail, Gmail or Safari, edit the event if needed and confirm it appears in the schedule.
+5. Add the LifePilot widget and confirm it shows the next event.
+6. In Settings, start and end a Live Activity, switch appearance, edit the local profile and review Data & Privacy.
+
+No sign-in is required. Connected sources intentionally use local sample data in this personal preview.

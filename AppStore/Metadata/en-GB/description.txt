@@ -1,0 +1,20 @@
+LifePilot brings the moving parts of everyday life into one clear, calm view.
+
+Start with a briefing that combines events, reminders, work shifts, appointments, travel updates and priorities. Review prepared actions, see why each one matters, and decide what happens next. Nothing is approved silently.
+
+LifePilot includes:
+
+* A daily readiness briefing
+* A connected timeline for events, reminders, tasks and travel
+* Smart approval cards with plain-language reasoning
+* Event import from screenshots using on-device text recognition
+* An iOS Share extension for adding calendar invitations
+* A Home Screen widget for the next event
+* Live Activities and Dynamic Island updates on supported iPhone models
+* Visible, correctable memory and personal insights
+* Light, dark and system appearance modes
+* Local profile, privacy and approval controls
+
+This preview uses realistic sample events and does not sign in to or change external accounts. Selected schedule screenshots are processed on device. The app does not collect or track personal data.
+
+LifePilot prepares. You decide.

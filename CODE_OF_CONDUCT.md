@@ -32,11 +32,11 @@ Maintainers have the right and responsibility to remove, edit, or reject comment
 
 ## Scope
 
-This Code of Conduct applies within all community spaces — issues, pull requests, discussions, and any other official communication channels — and also applies when an individual is officially representing the community in public spaces.
+This Code of Conduct applies within all community spaces - issues, pull requests, discussions, and any other official communication channels - and also applies when an individual is officially representing the community in public spaces.
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainer at **tamimtarafder12@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainer at [**tamimtarafder12@gmail.com**](mailto:tamimtarafder12@gmail.com?subject=LifePilot%20Privacy). All complaints will be reviewed and investigated promptly and fairly.
 
 All maintainers are obligated to respect the privacy and security of the reporter of any incident.
 

@@ -2,25 +2,34 @@ import XCTest
 @testable import LifePilotMocks
 
 final class MockDataTests: XCTestCase {
-    func testMockCalendarProducesNonEmptyEvents() {
-        XCTAssertFalse(MockCalendar.events().isEmpty)
+    func testMockCalendarProducesPersonalEvents() {
+        let events = MockCalendar.events()
+        XCTAssertFalse(events.isEmpty)
+        XCTAssertTrue(events.contains(where: { $0.title == "Work shift" }))
+        XCTAssertTrue(events.contains(where: { $0.title == "Dentist appointment" }))
     }
 
-    func testMockTasksProduceInboxAndDueItems() {
-        let tasks = MockTasks.items()
-        XCTAssertFalse(tasks.isEmpty)
+    func testMockEmailProducesNonEmptyMessages() {
+        XCTAssertFalse(MockEmail.messages().isEmpty)
     }
 
-    func testMockNotificationsExcludeBannedAgents() {
-        let agents = Set(MockNotifications.items().compactMap(\.sourceAgent))
-        XCTAssertFalse(agents.contains(.security) && agents.isEmpty)
-        for banned in ["finance", "shopping", "health", "email"] {
-            XCTAssertFalse(agents.map(\.rawValue).contains(banned))
-        }
+    func testMockTasksProducesNonEmptyItems() {
+        XCTAssertFalse(MockTasks.items().isEmpty)
     }
 
-    func testMockWeatherAndTravelExist() {
-        XCTAssertNotNil(MockWeather.snapshot())
-        XCTAssertFalse(MockTravel.itineraries().isEmpty)
+    func testMockTravelProducesNonEmptyItineraries() {
+        let itineraries = MockTravel.itineraries()
+        XCTAssertFalse(itineraries.isEmpty)
+        XCTAssertTrue(itineraries.contains(where: { $0.destination == "London Euston" }))
+    }
+
+    func testMockNotificationsProducesNonEmptyItems() {
+        XCTAssertFalse(MockNotifications.items().isEmpty)
+    }
+
+    func testMockWeatherProducesAValidPrecipitationChance() {
+        let snapshot = MockWeather.snapshot()
+        XCTAssertGreaterThanOrEqual(snapshot.precipitationChance, 0)
+        XCTAssertLessThanOrEqual(snapshot.precipitationChance, 1)
     }
 }

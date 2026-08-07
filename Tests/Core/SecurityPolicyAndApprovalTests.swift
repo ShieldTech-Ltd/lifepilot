@@ -242,11 +242,13 @@ final class SecurityPolicyAndApprovalTests: XCTestCase {
         XCTAssertFalse(try XCTUnwrap(audit.first).success)
     }
 
-    func testAgentKindExcludesFinanceShoppingHealth() {
+    func testContextAgentsDoNotBroadenAllowedActions() {
         let raw = Set(AgentKind.allCases.map(\.rawValue))
         XCTAssertFalse(raw.contains("finance"))
-        XCTAssertFalse(raw.contains("shopping"))
-        XCTAssertFalse(raw.contains("health"))
-        XCTAssertFalse(raw.contains("email"))
+        XCTAssertTrue(raw.contains("shopping"))
+        XCTAssertTrue(raw.contains("health"))
+        XCTAssertTrue(raw.contains("email"))
+        XCTAssertFalse(SecurityPolicy().isAllowed(.forbiddenExternalFinancial))
+        XCTAssertFalse(SecurityPolicy().isAllowed(.forbiddenSendEmail))
     }
 }

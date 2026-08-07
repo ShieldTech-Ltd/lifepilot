@@ -1,19 +1,17 @@
 import XCTest
 @testable import LifePilotCore
 
-/// Guarantees finance/commerce/health/mail-ingestion stay out of Core and scanned sources.
+/// Guarantees finance is outside the product while unsafe external actions remain denied.
 final class FinanceScopeRemovalTests: XCTestCase {
-    func testAgentKindExcludesBannedDomains() {
+    func testFinanceAgentIsNotAvailable() {
         let raw = Set(AgentKind.allCases.map(\.rawValue))
-        for banned in ["finance", "shopping", "health", "email", "bank"] {
-            XCTAssertFalse(raw.contains(banned), "Unexpected AgentKind.\(banned)")
-        }
+        XCTAssertFalse(raw.contains("finance"))
+        XCTAssertFalse(raw.contains("bank"))
     }
 
-    func testDaySignalKindsExcludeFinanceAndHealth() {
+    func testDaySignalKindsExcludeFinance() {
         let raw = Set(DaySignal.Kind.allCases.map(\.rawValue))
         XCTAssertFalse(raw.contains("finance"))
-        XCTAssertFalse(raw.contains("health"))
     }
 
     func testActionTypesIncludeExplicitDenials() {
@@ -26,15 +24,15 @@ final class FinanceScopeRemovalTests: XCTestCase {
         XCTAssertFalse(SecurityPolicy().isAllowed(.forbiddenSendEmail))
     }
 
-    func testEmailMessageTypeRemovedFromCore() {
+    func testEmailDemoModelsArePresent() {
         let root = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
         let emailModel = root.appendingPathComponent("Core/Models/EmailMessage.swift")
         let mockEmail = root.appendingPathComponent("Mocks/MockEmail.swift")
-        XCTAssertFalse(FileManager.default.fileExists(atPath: emailModel.path))
-        XCTAssertFalse(FileManager.default.fileExists(atPath: mockEmail.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: emailModel.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: mockEmail.path))
     }
 
     func testArchitectureDiagramOmitsFinanceShoppingHealthKit() throws {

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A single chronological entry in the Timeline, per docs/DESIGN_SYSTEM.md's
-/// Components table. Takes plain view data — see `BriefingCard`'s doc
+/// Components table. Takes plain view data - see `BriefingCard`'s doc
 /// comment for why `DesignSystem` components avoid depending on domain
 /// models directly.
 public struct TimelineRow: View {

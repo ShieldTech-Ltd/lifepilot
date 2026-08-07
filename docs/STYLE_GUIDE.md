@@ -1,6 +1,6 @@
 # Style Guide
 
-Conventions for writing Swift in the LifePilot codebase. Enforced automatically by SwiftLint and SwiftFormat in CI (see [`.github/workflows/lint.yml`](../.github/workflows/lint.yml)) — this document explains the *why* behind the rules the linter enforces mechanically.
+Conventions for writing Swift in the LifePilot codebase. Enforced automatically by SwiftLint and SwiftFormat in CI (see [`.github/workflows/lint.yml`](../.github/workflows/lint.yml)) - this document explains the *why* behind the rules the linter enforces mechanically.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ Conventions for writing Swift in the LifePilot codebase. Enforced automatically 
 - Prefer `let` over `var`; mutability should be visible and intentional.
 - Use `guard` for early returns over nested `if`.
 - Avoid force-unwrap (`!`) and force-try (`try!`) outside of tests and `Preview` providers. If a value is truly guaranteed non-nil, prefer expressing that in the type system over asserting it at the call site.
-- Use Swift Concurrency (`async`/`await`, actors) over completion handlers or Combine for new code — see [API Guidelines](API_GUIDELINES.md#async-by-default).
+- Use Swift Concurrency (`async`/`await`, actors) over completion handlers or Combine for new code - see [API Guidelines](API_GUIDELINES.md#async-by-default).
 - Mark types `final` unless designed for subclassing.
 
 ### Documentation Comments
@@ -37,13 +37,13 @@ Public types and non-obvious logic get a `///` doc comment explaining intent, no
 struct GhostBrain { ... }
 ```
 
-Avoid comments that restate what the code already says — see the project-wide guidance on writing no unnecessary comments; this applies to `///` docs too.
+Avoid comments that restate what the code already says - see the project-wide guidance on writing no unnecessary comments; this applies to `///` docs too.
 
 ### SwiftUI Conventions
 
 - Views are structs, kept small; extract subviews rather than growing a single `body`.
-- No business logic in `View` bodies — delegate to the ViewModel (see [MVVM](ENGINEERING_GUIDE.md#architectural-pattern-mvvm)).
-- Use semantic design tokens from `DesignSystem`, never raw colors, fonts, or spacing values — see [Design System](DESIGN_SYSTEM.md).
+- No business logic in `View` bodies - delegate to the ViewModel (see [MVVM](ENGINEERING_GUIDE.md#architectural-pattern-mvvm)).
+- Use semantic design tokens from `DesignSystem`, never raw colors, fonts, or spacing values - see [Design System](DESIGN_SYSTEM.md).
 
 ## Folder Organization
 
@@ -79,4 +79,4 @@ Feature-oriented organization keeps related code discoverable together and makes
 | Constants | `lowerCamelCase`, scoped, never global mutable state | `static let maxRetryCount = 3` |
 | Design tokens | `category.subcategory.variant` | `color.signal.risk`, `spacing.md` |
 
-Agent names always end in `Agent` (`TravelAgent`, not `Travel`); signal and prediction types are named after what they describe, not the agent that produced them (`FlightDelaySignal`, not `TravelAgentSignal`) — this keeps types meaningful if agent boundaries are later reorganized.
+Agent names always end in `Agent` (`TravelAgent`, not `Travel`); signal and prediction types are named after what they describe, not the agent that produced them (`FlightDelaySignal`, not `TravelAgentSignal`) - this keeps types meaningful if agent boundaries are later reorganized.

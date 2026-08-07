@@ -2,15 +2,15 @@
 
 ## Our Philosophy
 
-LifePilot is built privacy-first. It reasons over sensitive personal data — calendars, reminders, location, and daily schedule context — and that responsibility shapes every architectural decision:
+LifePilot is built privacy-first. It reasons over sensitive personal data - calendars, email, location, and financial signals - and that responsibility shapes every architectural decision:
 
 - **On-device by default.** Processing happens on-device wherever feasible.
 - **Encrypted sync.** Cross-device data is end-to-end encrypted via CloudKit.
-- **No silent execution.** High-risk actions (changing calendars or reminders, booking travel) always require explicit, per-action user approval — see the [Core Philosophy](README.md#core-philosophy).
+- **No silent execution.** High-risk actions (sending a message, booking travel, moving money) always require explicit, per-action user approval - see the [Core Philosophy](README.md#core-philosophy).
 - **Least privilege.** Each integration is granted the minimum access its agent needs to function.
 - **Auditable actions.** Every executed action is logged with the reasoning that produced it.
 
-Security is not a feature we bolt on — it's a constraint every agent and integration is designed under. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how this is enforced structurally.
+Security is not a feature we bolt on - it's a constraint every agent and integration is designed under. See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how this is enforced structurally.
 
 ## Supported Versions
 
@@ -30,8 +30,8 @@ Once `v1.0.0` ships, this table will be updated to reflect a formal support wind
 
 Report vulnerabilities privately using one of the following channels:
 
-1. **Preferred:** [GitHub Security Advisories](https://github.com/TFT444/LifePilot/security/advisories/new) — private by default, and lets us collaborate on a fix before disclosure.
-2. **Email:** tamimtarafder12@gmail.com — include as much detail as possible (see below).
+1. **Preferred:** [GitHub Security Advisories](https://github.com/TFT444/LifePilot/security/advisories/new) - private by default, and lets us collaborate on a fix before disclosure.
+2. **Email:** [tamimtarafder12@gmail.com](mailto:tamimtarafder12@gmail.com?subject=LifePilot%20Privacy) - include as much detail as possible (see below).
 
 ### What to Include
 
@@ -61,7 +61,7 @@ In scope:
 
 Out of scope:
 
-- Third-party services LifePilot integrates with (report those to the vendor directly — Supabase, OpenAI, Apple, etc.).
+- Third-party services LifePilot integrates with (report those to the vendor directly - Supabase, OpenAI, Apple, etc.).
 - Social engineering, physical attacks, or denial-of-service against infrastructure.
 - Findings that require a jailbroken/rooted device or a compromised OS.
 

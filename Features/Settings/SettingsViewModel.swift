@@ -1,13 +1,13 @@
 import Foundation
 import LifePilotCore
-import Observation
 
-/// Persisted settings, permission connections, and privacy controls.
+/// Builds Settings rows from the live demo session.
 @Observable
 @MainActor
 public final class SettingsViewModel {
-    public private(set) var preferences: UserPreferences
-    public private(set) var memoryCount: Int = 0
+    public let session: DemoSessionStore
+    public private(set) var preferences = UserPreferences()
+    public private(set) var memoryCount = 0
     public private(set) var exportMessage: String?
     public private(set) var syncMessage: String?
     public private(set) var connectionMessage: String?
@@ -15,34 +15,89 @@ public final class SettingsViewModel {
     public private(set) var cloudSyncEnabled = false
     public private(set) var connections: [ConnectionCapability]
 
-    private let preferenceStore: any PreferenceStore
+    private let preferenceStore: (any PreferenceStore)?
     private let cloudSync: any CloudSyncIntegrating
     private let permissions: PermissionDependencies
+
+    public init(session: DemoSessionStore) {
+        self.session = session
+        preferenceStore = nil
+        cloudSync = DisabledCloudSyncIntegration()
+        permissions = PermissionDependencies()
+        connections = Self.defaultConnections
+    }
+
+    public convenience init() {
+        self.init(session: DemoSessionStore())
+    }
 
     public init(
         preferenceStore: any PreferenceStore,
         cloudSync: any CloudSyncIntegrating = DisabledCloudSyncIntegration(),
         permissions: PermissionDependencies = PermissionDependencies()
     ) {
+        session = DemoSessionStore()
         self.preferenceStore = preferenceStore
         self.cloudSync = cloudSync
         self.permissions = permissions
-        preferences = UserPreferences()
-        connections = [
-            ConnectionCapability(id: "calendar", displayName: "Calendar", state: .notRequested),
-            ConnectionCapability(id: "reminders", displayName: "Reminders", state: .notRequested),
-            ConnectionCapability(
-                id: "notifications",
-                displayName: "Notifications",
-                state: .notRequested
-            ),
-            ConnectionCapability(id: "location", displayName: "Location", state: .notRequested),
-            ConnectionCapability(id: "weather", displayName: "Weather", state: .notRequested),
-            ConnectionCapability(id: "cloudSync", displayName: "Cloud Sync", state: .notRequested),
+        connections = Self.defaultConnections
+    }
+
+    public var sections: [SettingsSection] {
+        [
+            SettingsSection(id: "account", title: "Account", rows: [
+                SettingsRow(
+                    id: "profile",
+                    symbolName: "person.crop.circle.fill",
+                    title: "Profile",
+                    detail: session.displayName,
+                    destination: .profile
+                ),
+                SettingsRow(
+                    id: "connected",
+                    symbolName: "link",
+                    title: "Connected Sources",
+                    detail: "\(session.connectedSourceCount) active",
+                    destination: .connectedApps
+                ),
+                SettingsRow(
+                    id: "appearance",
+                    symbolName: "circle.lefthalf.filled",
+                    title: "Appearance",
+                    detail: session.appearancePreference.title,
+                    destination: .appearance
+                ),
+                SettingsRow(
+                    id: "liveExperiences",
+                    symbolName: "wave.3.right.circle",
+                    title: "Live Activities",
+                    detail: "Widgets ready",
+                    destination: .liveExperiences
+                ),
+            ]),
+            SettingsSection(id: "privacy", title: "Privacy & Control", rows: [
+                SettingsRow(
+                    id: "approvals",
+                    symbolName: "checkmark.shield.fill",
+                    title: "Approval Preferences",
+                    destination: .approvalPreferences
+                ),
+                SettingsRow(id: "data", symbolName: "lock.fill", title: "Data & Privacy", destination: .dataPrivacy),
+            ]),
+            SettingsSection(id: "about", title: "About", rows: [
+                SettingsRow(
+                    id: "about",
+                    symbolName: "info.circle.fill",
+                    title: "About LifePilot",
+                    detail: "0.5.0",
+                    destination: .about
+                ),
+            ]),
         ]
     }
 
     public func load() async {
+        guard let preferenceStore else { return }
         preferences = await preferenceStore.loadPreferences()
         memoryCount = await preferenceStore.allMemory().count
         cloudSyncEnabled = await cloudSync.isSyncEnabled()
@@ -50,39 +105,44 @@ public final class SettingsViewModel {
     }
 
     public func setOnboardingCompleted(_ value: Bool) async throws {
+        guard let preferenceStore else { return }
         preferences.onboardingCompleted = value
         try await preferenceStore.savePreferences(preferences)
     }
 
     public func setSensitivePreviews(_ enabled: Bool) async throws {
+        guard let preferenceStore else { return }
         preferences.sensitiveNotificationPreviews = enabled
         try await preferenceStore.savePreferences(preferences)
     }
 
     public func setBriefingHour(_ hour: Int) async throws {
+        guard let preferenceStore else { return }
         preferences.briefingHour = min(23, max(0, hour))
         try await preferenceStore.savePreferences(preferences)
     }
 
     public func setQuietHours(start: Int, end: Int) async throws {
+        guard let preferenceStore else { return }
         preferences.quietHoursStart = min(23, max(0, start))
         preferences.quietHoursEnd = min(23, max(0, end))
         try await preferenceStore.savePreferences(preferences)
     }
 
     public func setAppearance(_ appearance: UserPreferences.AppearancePreference) async throws {
+        guard let preferenceStore else { return }
         preferences.appearance = appearance
         try await preferenceStore.savePreferences(preferences)
     }
 
-    public func setTransitConfiguration(
-        stopID: String,
-        stopName: String,
-        linesText: String
-    ) async {
+    public func setTransitConfiguration(stopID: String, stopName: String, linesText: String) async {
+        guard let preferenceStore else { return }
         preferences.transitStopID = stopID.trimmingCharacters(in: .whitespacesAndNewlines)
         preferences.transitStopName = stopName.trimmingCharacters(in: .whitespacesAndNewlines)
-        preferences.transitLineNames = Self.normalizedLines(linesText)
+        var seen: Set<String> = []
+        preferences.transitLineNames = linesText.split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
         do {
             try await preferenceStore.savePreferences(preferences)
             transitMessage = preferences.transitStopID.isEmpty
@@ -93,49 +153,17 @@ public final class SettingsViewModel {
         }
     }
 
-    public func setCloudSyncEnabled(_ enabled: Bool) async {
-        do {
-            try await cloudSync.setSyncEnabled(enabled)
-            cloudSyncEnabled = await cloudSync.isSyncEnabled()
-            syncMessage = enabled
-                ? "iCloud sync enabled. Restart the app to attach CloudKit to the store."
-                : "iCloud sync off — data stays on this device."
-            await load()
-        } catch {
-            syncMessage = "Could not change iCloud sync."
-            cloudSyncEnabled = await cloudSync.isSyncEnabled()
-        }
-    }
-
     public func requestConnection(_ kind: PermissionKind) async {
         connectionMessage = nil
         do {
             let state = try await permissions.request(kind)
-            connectionMessage = Self.connectionMessage(for: kind, state: state)
+            connectionMessage = state == .authorized
+                ? "\(kind.displayName) connected."
+                : "\(kind.displayName) access is \(state.rawValue)."
         } catch {
             connectionMessage = error.localizedDescription
         }
         await refreshConnections()
-    }
-
-    public func exportData() async {
-        do {
-            let data = try await preferenceStore.exportAll()
-            exportMessage = "Exported \(data.count) bytes of LifePilot-owned data."
-        } catch {
-            exportMessage = "Export failed."
-        }
-    }
-
-    public func deleteAllData() async {
-        do {
-            try await preferenceStore.deleteAllLifePilotData()
-            preferences = await preferenceStore.loadPreferences()
-            memoryCount = 0
-            exportMessage = "All LifePilot-owned local data deleted."
-        } catch {
-            exportMessage = "Delete failed."
-        }
     }
 
     public func refreshConnections() async {
@@ -143,13 +171,10 @@ public final class SettingsViewModel {
         async let reminders = permissions.state(for: .reminders)
         async let notifications = permissions.state(for: .notifications)
         async let location = permissions.state(for: .location)
-        let sync = await cloudSync.authorizationState()
         setConnection("calendar", await calendar)
         setConnection("reminders", await reminders)
         setConnection("notifications", await notifications)
         setConnection("location", await location)
-        setConnection("weather", await location)
-        setConnection("cloudSync", Self.permission(from: sync))
     }
 
     public func state(for kind: PermissionKind) -> PermissionState {
@@ -157,47 +182,52 @@ public final class SettingsViewModel {
     }
 
     private func setConnection(_ id: String, _ state: PermissionState) {
-        if let index = connections.firstIndex(where: { $0.id == id }) {
-            connections[index].state = state
-            connections[index].lastCheckedAt = Date()
-        }
+        guard let index = connections.firstIndex(where: { $0.id == id }) else { return }
+        connections[index].state = state
+        connections[index].lastCheckedAt = Date()
     }
 
-    private static func connectionMessage(
-        for kind: PermissionKind,
-        state: PermissionState
-    ) -> String {
-        switch state {
-        case .authorized:
-            "\(kind.displayName) connected."
-        case .limited:
-            "\(kind.displayName) has limited access. Review access in system Settings."
-        case .denied:
-            "\(kind.displayName) is denied. Open system Settings to change access."
-        case .restricted:
-            "\(kind.displayName) is restricted by this device or account."
-        case .unavailable:
-            "\(kind.displayName) is unavailable on this device."
-        case .notRequested:
-            "\(kind.displayName) permission is still pending."
+    private static var defaultConnections: [ConnectionCapability] {
+        PermissionKind.allCases.map {
+            ConnectionCapability(id: $0.rawValue, displayName: $0.displayName, state: .notRequested)
         }
     }
+}
 
-    private static func permission(from state: CapabilityState) -> PermissionState {
-        switch state {
-        case .authorized: .authorized
-        case .limited: .limited
-        case .denied: .denied
-        case .restricted: .restricted
-        case .unavailable: .unavailable
-        case .notDetermined: .notRequested
-        }
-    }
+public struct SettingsSection: Identifiable {
+    public let id: String
+    public let title: String
+    public let rows: [SettingsRow]
+}
 
-    private static func normalizedLines(_ text: String) -> [String] {
-        var seen: Set<String> = []
-        return text.split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
+public struct SettingsRow: Identifiable {
+    public let id: String
+    public let symbolName: String
+    public let title: String
+    public let detail: String?
+    public let destination: SettingsDestination?
+
+    public init(
+        id: String,
+        symbolName: String,
+        title: String,
+        detail: String? = nil,
+        destination: SettingsDestination? = nil
+    ) {
+        self.id = id
+        self.symbolName = symbolName
+        self.title = title
+        self.detail = detail
+        self.destination = destination
     }
+}
+
+public enum SettingsDestination: Hashable {
+    case profile
+    case connectedApps
+    case approvalPreferences
+    case dataPrivacy
+    case appearance
+    case liveExperiences
+    case about
 }

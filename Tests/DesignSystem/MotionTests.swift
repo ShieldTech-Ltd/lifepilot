@@ -5,7 +5,7 @@ final class MotionTests: XCTestCase {
     func testAllMotionTokensAreConstructible() {
         // Animation doesn't expose its internal parameters for inspection,
         // so this asserts the tokens exist and compile with the expected
-        // type — the meaningful verification (that Reduce Motion actually
+        // type - the meaningful verification (that Reduce Motion actually
         // disables animation) lives in the View.lifePilotAnimation
         // modifier itself, exercised indirectly via any view that adopts
         // it (GhostCard, LoadingSkeleton, AnimatedDivider, CardElevationModifier).

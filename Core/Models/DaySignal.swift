@@ -32,9 +32,11 @@ public struct DaySignal: Identifiable, Hashable, Sendable {
 
     public enum Kind: String, Sendable, CaseIterable {
         case event
+        case message
         case reminder
         case task
         case travel
+        case health
         case weather
         case conflict
         case preparation

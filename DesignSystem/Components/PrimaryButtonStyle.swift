@@ -1,27 +1,27 @@
 import SwiftUI
 
-/// The primary call-to-action button style, rendering the brand gradient.
-/// Reserve for the single most important action on a screen — pairing this
-/// with `SecondaryButtonStyle` for everything else keeps the gradient
-/// meaningful rather than decorative, per docs/DESIGN_SYSTEM.md's "Calm by
-/// default" principle.
+/// Native-feeling primary action with a solid adaptive foreground.
 public struct PrimaryButtonStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     public init() {}
 
     public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.LifePilot.body.weight(.semibold))
-            .foregroundStyle(.white)
+            .foregroundStyle(Color.LifePilot.controlPrimaryText)
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.sm + Spacing.xs)
-            .frame(maxWidth: .infinity)
-            .background(LinearGradient.LifePilot.accent)
+            .frame(maxWidth: .infinity, minHeight: 52)
+            .background(Color.LifePilot.controlPrimary)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous)
+                    .stroke(Color.LifePilot.glassBorder, lineWidth: 0.8)
+            }
+            .shadow(color: Color.black.opacity(0.14), radius: 8, y: 4)
             .opacity(configuration.isPressed ? 0.85 : 1)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(reduceMotion ? nil : Motion.quick, value: configuration.isPressed)
+            .animation(Motion.quick, value: configuration.isPressed)
+            .contentShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
     }
 }
 

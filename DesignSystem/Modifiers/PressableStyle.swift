@@ -8,8 +8,8 @@ import SwiftUI
 ///
 /// `ButtonStyle`-based components (`PrimaryButtonStyle`,
 /// `SecondaryButtonStyle`) keep their own `configuration.isPressed`-driven
-/// logic — `ButtonStyle` doesn't compose with a plain view modifier the
-/// same way — but any new pressable card should use this instead of
+/// logic - `ButtonStyle` doesn't compose with a plain view modifier the
+/// same way - but any new pressable card should use this instead of
 /// reimplementing scale/opacity feedback a third time.
 public struct PressableStyle: ButtonStyle {
     private let scaleWhenPressed: CGFloat
@@ -27,7 +27,7 @@ public struct PressableStyle: ButtonStyle {
 }
 
 extension ButtonStyle where Self == PressableStyle {
-    /// The default press feedback for tappable cards — a subtle scale and
+    /// The default press feedback for tappable cards - a subtle scale and
     /// opacity dip, matching the feel already established by
     /// `PrimaryButtonStyle`/`SecondaryButtonStyle` but usable on any
     /// `Button`-wrapped content, not just text labels.

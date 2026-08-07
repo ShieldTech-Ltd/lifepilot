@@ -1,39 +1,51 @@
-/// Identifies which capability produced a signal, prediction, or
-/// recommendation. Daily-life MVP scope only — no finance, shopping, or health.
-public enum AgentKind: String, CaseIterable, Hashable, Sendable, Codable {
+/// Identifies which agent produced a given signal, prediction, or
+/// recommendation. See the AI Agent System in README.md for what each
+/// agent is responsible for at the product level.
+public enum AgentKind: String, CaseIterable, Codable, Hashable, Sendable {
     case calendar
+    case email
     case reminder
     case task
     case travel
     case weather
     case memory
     case planning
+    case shopping
+    case health
     case security
 
-    /// Display-ready name for attribution in the UI.
+    /// A short, display-ready name for the agent, used wherever the UI
+    /// attributes a recommendation to its source per docs/MASTER_ROADMAP.md's
+    /// Phase 6 UX requirement that agent output be attributable.
     public var displayName: String {
         switch self {
         case .calendar: "Calendar"
+        case .email: "Email"
         case .reminder: "Reminder"
         case .task: "Tasks"
         case .travel: "Travel"
         case .weather: "Weather"
         case .memory: "Memory"
         case .planning: "Planning"
+        case .shopping: "Shopping"
+        case .health: "Health"
         case .security: "Security"
         }
     }
 
-    /// SF Symbol used to represent this source throughout the UI.
+    /// The SF Symbol used to represent this agent throughout the UI.
     public var symbolName: String {
         switch self {
         case .calendar: "calendar"
+        case .email: "envelope.fill"
         case .reminder: "bell.fill"
         case .task: "checkmark.circle.fill"
         case .travel: "airplane"
         case .weather: "cloud.sun.fill"
         case .memory: "brain.head.profile"
         case .planning: "lightbulb.fill"
+        case .shopping: "cart.fill"
+        case .health: "heart.fill"
         case .security: "shield.fill"
         }
     }

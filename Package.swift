@@ -31,7 +31,7 @@ let package = Package(
 
         .target(
             name: "LifePilotGhostBrain",
-            dependencies: ["LifePilotCore"],
+            dependencies: ["LifePilotCore", "LifePilotMocks"],
             path: "GhostBrain"
         ),
         .testTarget(

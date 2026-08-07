@@ -1,7 +1,7 @@
 import CoreGraphics
 
 /// Icon glyph sizes, for SF Symbol point sizes used outside running text.
-/// Distinct from `Font.LifePilot` — these size standalone iconography
+/// Distinct from `Font.LifePilot` - these size standalone iconography
 /// (empty states, splash marks, onboarding illustrations), not typography.
 public enum IconSize {
     /// Small inline icons: list rows, buttons.

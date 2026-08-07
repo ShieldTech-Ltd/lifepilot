@@ -1,28 +1,56 @@
 import SwiftUI
 
-/// A stat-forward card for a single measured insight — "You saved 4.5
-/// hours this week," "12 tasks automated." Built ahead of the Insights
-/// tab's real implementation (docs/MASTER_ROADMAP.md Phase 4), so the
-/// visual language exists before the data does — the Insights tab
-/// currently shows `ComingSoonPlaceholder` and will adopt `InsightCard`
-/// once it has real metrics to render.
+/// A stat-forward card for a single measured insight, used by the live
+/// demo snapshot for pending recommendations, approved actions, signals,
+/// and estimated time saved.
 public struct InsightCard: View {
     private let value: String
     private let label: String
     private let trend: Trend?
+    private let symbolName: String?
+    private let tint: Color
+    private let showsDisclosure: Bool
 
-    public init(value: String, label: String, trend: Trend? = nil) {
+    public init(
+        value: String,
+        label: String,
+        trend: Trend? = nil,
+        symbolName: String? = nil,
+        tint: Color = Color.LifePilot.accentEnd,
+        showsDisclosure: Bool = false
+    ) {
         self.value = value
         self.label = label
         self.trend = trend
+        self.symbolName = symbolName
+        self.tint = tint
+        self.showsDisclosure = showsDisclosure
     }
 
     public var body: some View {
         CardContainer {
             VStack(alignment: .leading, spacing: Spacing.xs) {
+                HStack {
+                    if let symbolName {
+                        Image(systemName: symbolName)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(tint)
+                            .frame(width: 32, height: 32)
+                            .background(tint.opacity(0.12), in: Circle())
+                    }
+
+                    Spacer()
+
+                    if showsDisclosure {
+                        Image(systemName: "arrow.up.right")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(Color.LifePilot.textTertiary)
+                    }
+                }
+
                 HStack(alignment: .firstTextBaseline, spacing: Spacing.xs) {
                     Text(value)
-                        .font(.LifePilot.titleLarge)
+                        .font(.LifePilot.metric)
                         .foregroundStyle(Color.LifePilot.textPrimary)
 
                     if let trend {

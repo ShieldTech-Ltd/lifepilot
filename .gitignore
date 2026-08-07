@@ -1,0 +1,24 @@
+.build/
+.swiftpm/
+.DS_Store
+
+# Xcode user-specific state
+xcuserdata/
+*.xcuserstate
+
+# Local build products
+DerivedData/
+*.xcresult
+output/
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.key
+*.pem
+AuthKey_*.p8

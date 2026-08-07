@@ -1,7 +1,7 @@
 import Foundation
 import LifePilotCore
 
-/// Ghost Brain's fused understanding of "today" — the single model every
+/// Ghost Brain's fused understanding of "today" - the single model every
 /// screen in `Features` ultimately renders from. This is the `DayModel`
 /// referenced in docs/ARCHITECTURE.md's AI Agent Architecture diagram.
 ///
@@ -29,7 +29,7 @@ public struct GhostBrainModel: Sendable {
         self.signals = signals
     }
 
-    /// Recommendations ranked by urgency, highest first — the order the
+    /// Recommendations ranked by urgency, highest first - the order the
     /// Approvals queue and Home screen should present them in.
     public var rankedRecommendations: [RecommendationModel] {
         recommendations.sorted { $0.urgency > $1.urgency }

@@ -6,7 +6,7 @@ import XCTest
 /// matching the pattern established by `Tests/AppShell/LaunchSmokeTests.swift`.
 /// SwiftUI view bodies aren't otherwise unit-testable without a rendering
 /// harness, so this is the practical floor of coverage for pure-presentation
-/// components — real visual verification happens via `DesignSystemCatalogView`'s
+/// components - real visual verification happens via `DesignSystemCatalogView`'s
 /// `#Preview`.
 @MainActor
 final class ComponentConstructionTests: XCTestCase {
@@ -40,8 +40,24 @@ final class ComponentConstructionTests: XCTestCase {
         _ = EmptyStateView(symbolName: "tray", message: "Nothing here")
     }
 
+    func testAmbientBackgroundAndGlowCardConstruct() {
+        _ = AmbientBackground()
+        _ = GlowCard { Text("Glow") }
+        _ = ContextTile(symbolName: "cloud", title: "22°", subtitle: "London")
+        _ = StatusBanner(message: "Offline", style: .warning, actionTitle: "Retry", action: {})
+    }
+
     func testQuickActionCardConstructs() {
-        _ = QuickActionCard(symbolName: "envelope.fill", title: "Inbox")
+        _ = QuickActionCard(symbolName: "tray.fill", title: "Task Inbox")
+    }
+
+    func testPremiumComponentsConstruct() {
+        _ = BrandMark()
+        _ = FilterChip(title: "Today", isSelected: true, action: {})
+        _ = TextField("Title", text: .constant("")).lifePilotField()
+        _ = ContextRibbon(weather: "14°", leaveBy: "08:35", freshness: "Updated")
+        _ = PreparationCard(eyebrow: "Next", title: "Design review", detail: "At 10:00")
+        _ = InsightHero(title: "Patterns", detail: "Evidence-led")
     }
 
     func testDesignSystemCatalogViewConstructs() {

@@ -21,6 +21,8 @@ final class TimelineViewModelTests: XCTestCase {
 
         let kinds = Set(viewModel.entries.map(\.kind))
         XCTAssertTrue(kinds.contains(.event))
-        XCTAssertTrue(kinds.contains(.email))
+        XCTAssertTrue(kinds.contains(.task))
+        XCTAssertTrue(kinds.contains(.travel))
+        XCTAssertFalse(kinds.contains(.email), "Mock email source is disabled in the personal app scope")
     }
 }

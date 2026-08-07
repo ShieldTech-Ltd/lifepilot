@@ -1,26 +1,30 @@
 # LifePilot Brand Assets
 
-This directory is the single source of truth for the LifePilot mark. Every icon, favicon, and app-store asset should be generated from `logo.svg` — never redrawn from scratch.
+This directory contains the public LifePilot identity used by the repository, product demo, and App Store preparation.
 
 ## Files
 
 | File | Description |
 |---|---|
-| `logo.svg` | Primary lockup — mark, wordmark, and tagline, on the dark background. Source of truth for all derived assets. |
+| `lifepilot-app-icon.png` | Current 1024px product mark and source for repository previews. |
+| `lifepilot-study-backdrop.jpg` | Previous user-provided illustrated study-wall backdrop retained for reference. |
+| `lifepilot-monochrome-backdrop.jpg` | User-provided monochrome painting, restored to 3072 × 5504 for the native app. |
+| `logo.svg` | Legacy vector lockup retained for historical documentation only. |
 
 ## Usage
 
-- **README / GitHub:** referenced directly as `Assets/brand/logo.svg`.
-- **App icon:** `App/Assets.xcassets/AppIcon.appiconset` should contain PNG exports of the mark (no wordmark, no tagline) at the sizes Apple requires. Not yet generated — see below.
-- **Website:** `Website/public/logo.svg` mirrors this file for the marketing site header and favicon.
+- **README / GitHub:** references `Assets/brand/lifepilot-app-icon.png`.
+- **App icon:** `App/LifePilotApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` uses the same artwork without alpha.
+- **In-app identity:** `LifePilotLogo.imageset` contains the optimised display asset used by launch, onboarding, and About.
 
-## Generating raster exports
+## Export notes
 
-No PNG/ICO variants are committed yet — this machine has no SVG rasterizer (`rsvg-convert`, `inkscape`, or ImageMagick) installed. To produce the app icon set and favicons, run the source SVG through one of these and export the standard Apple icon sizes (20–1024pt @1x/2x/3x) plus `favicon.ico` / `favicon.png` for the web:
+The App Store icon must remain 1024 by 1024 pixels and must not contain an alpha channel. The in-app version may be smaller because it is rendered inside SwiftUI at display size.
 
 ```sh
-# example, once a rasterizer is available
-rsvg-convert -w 1024 -h 1024 logo.svg -o logo-1024.png
+# verify the current App Store source
+sips -g pixelWidth -g pixelHeight -g hasAlpha \
+  App/LifePilotApp/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png
 ```
 
-Until then, the mark ships as SVG only, which renders natively on GitHub and in any modern browser.
+When the mark changes, update the app icon, in-app image set, and this repository preview together.

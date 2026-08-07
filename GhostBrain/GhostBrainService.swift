@@ -1,7 +1,7 @@
 import LifePilotCore
 
 /// The production `GhostBrainServing` implementation. Architecture only in
-/// this phase — see docs/MASTER_ROADMAP.md Phase 5 for the real Context,
+/// this phase - see docs/MASTER_ROADMAP.md Phase 5 for the real Context,
 /// Reasoning, Prediction, and Recommendation engines this type will
 /// eventually orchestrate.
 ///
@@ -13,8 +13,8 @@ public struct GhostBrainService: GhostBrainServing {
     public init() {}
 
     public func currentModel() async throws -> GhostBrainModel {
-        throw DomainError.unavailable(
-            "GhostBrainService has no reasoning engine yet — see docs/MASTER_ROADMAP.md Phase 5. "
+        throw DomainError.unavailableNamed(
+            "GhostBrainService has no reasoning engine yet - see docs/MASTER_ROADMAP.md Phase 5. "
                 + "Use MockRecommendationProvider during Phase 3."
         )
     }

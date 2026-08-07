@@ -6,46 +6,148 @@ import SwiftUI
 /// wraps its screen in its own `NavigationStack`, per SwiftUI's recommended
 /// pattern for independent per-tab navigation history.
 public struct RootTabView: View {
-    private let dependencies: AppDependencies
-    @State private var selectedTab: AppTab = .home
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var session: DemoSessionStore
+    @State private var selectedTab: AppTab = Self.initialTab
+    @State private var tabBarMinimisationEnabled = false
+
+    private static var initialTab: AppTab {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        let flagIndex = arguments.firstIndex(of: "-LifePilotDemoTab")
+        let tabName = flagIndex.flatMap { index in
+            arguments.indices.contains(index + 1) ? arguments[index + 1] : nil
+        }
+        if let tabName, let tab = AppTab(rawValue: tabName) {
+            return tab
+        }
+        #endif
+        return .home
+    }
 
     public init(dependencies: AppDependencies) {
-        self.dependencies = dependencies
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
+    }
+
+    public init(session: DemoSessionStore) {
+        _session = State(initialValue: session)
     }
 
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            ForEach(AppTab.allCases) { tab in
-                NavigationStack {
-                    destination(for: tab)
-                }
-                .tabItem {
-                    Label(tab.title, systemImage: tab.symbolName)
-                }
-                .tag(tab)
+        Group {
+            #if os(iOS)
+            if #available(iOS 18.0, *) {
+                modernTabView
+            } else {
+                legacyTabView
             }
+            #else
+            legacyTabView
+            #endif
         }
         .tint(Color.LifePilot.accentEnd)
+        .lifePilotTabChrome(minimisationEnabled: tabBarMinimisationEnabled)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                session.reloadSharedEvents()
+            }
+        }
+        .task {
+            await session.prepare()
+        }
+        .task(id: selectedTab) {
+            #if os(iOS)
+            guard #available(iOS 26.0, *) else { return }
+            tabBarMinimisationEnabled = false
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            tabBarMinimisationEnabled = true
+            #endif
+        }
+    }
+
+    #if os(iOS)
+    @available(iOS 18.0, *)
+    private var modernTabView: some View {
+        TabView(selection: $selectedTab) {
+            ForEach(AppTab.allCases) { tab in
+                Tab(tab.title, systemImage: tab.symbolName, value: tab) {
+                    tabRoot(for: tab)
+                }
+                .accessibilityIdentifier("tab.\(tab.rawValue)")
+            }
+        }
+    }
+    #endif
+
+    private var legacyTabView: some View {
+        TabView(selection: $selectedTab) {
+            ForEach(AppTab.allCases) { tab in
+                tabRoot(for: tab)
+                    .tabItem {
+                        Label(tab.title, systemImage: tab.symbolName)
+                            .accessibilityIdentifier("tab.\(tab.rawValue)")
+                    }
+                    .tag(tab)
+            }
+        }
+    }
+
+    private func tabRoot(for tab: AppTab) -> some View {
+        NavigationStack {
+            destination(for: tab)
+        }
     }
 
     @ViewBuilder
     private func destination(for tab: AppTab) -> some View {
         switch tab {
         case .home:
-            HomeView(ghostBrain: dependencies.ghostBrain)
+            HomeView(session: session) { filter in
+                session.timelineFilter = filter
+                selectedTab = .timeline
+            }
                 .navigationTitle("")
                 #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
                 #endif
         case .timeline:
-            TimelineView()
+            TimelineView(session: session)
         case .memory:
-            MemoryView()
+            MemoryView(session: session)
         case .insights:
-            InsightsView()
+            InsightsView(
+                session: session,
+                onReviewApprovals: { selectedTab = .home },
+                onOpenTimeline: { filter in
+                    session.timelineFilter = filter
+                    selectedTab = .timeline
+                }
+            )
         case .settings:
-            SettingsView()
+            SettingsView(session: session)
         }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func lifePilotTabChrome(minimisationEnabled: Bool) -> some View {
+        #if os(iOS)
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            tabBarMinimizeBehavior(minimisationEnabled ? .onScrollDown : .never)
+        } else {
+            toolbarBackground(.ultraThinMaterial, for: .tabBar)
+                .toolbarBackground(.visible, for: .tabBar)
+        }
+        #else
+        toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
+        #endif
+        #else
+        self
+        #endif
     }
 }
 

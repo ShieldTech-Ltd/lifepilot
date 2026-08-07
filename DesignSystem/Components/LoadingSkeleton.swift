@@ -2,7 +2,7 @@ import SwiftUI
 
 /// A shimmering placeholder shape for content that hasn't loaded yet.
 /// Fills a genuine gap: `HomeView` and `TimelineView` both load
-/// asynchronously via `.task` with no loading state today — content
+/// asynchronously via `.task` with no loading state today - content
 /// simply pops in once `viewModel.load()` completes. `LoadingSkeleton`
 /// gives future call sites a real "loading" state to show instead of a
 /// blank screen.

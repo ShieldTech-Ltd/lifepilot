@@ -2,7 +2,7 @@
 
 LifePilot uses a structured label system so issues and pull requests are triageable at a glance. Labels are grouped by prefix; each issue should carry at most one label from each group.
 
-## `type:` — what kind of work this is
+## `type:` - what kind of work this is
 
 | Label | Color | Description |
 |---|---|---|
@@ -15,7 +15,7 @@ LifePilot uses a structured label system so issues and pull requests are triagea
 | `type: question` | `#d876e3` | A question, not actionable work |
 | `type: dependencies` | `#0366d6` | Dependency version bumps |
 
-## `status:` — where it is in the pipeline
+## `status:` - where it is in the pipeline
 
 | Label | Color | Description |
 |---|---|---|
@@ -26,16 +26,16 @@ LifePilot uses a structured label system so issues and pull requests are triagea
 | `status: needs-review` | `#bfd4f2` | Pull request awaiting review |
 | `status: wontfix` | `#ffffff` | Closed without action, with rationale |
 
-## `priority:` — how urgent
+## `priority:` - how urgent
 
 | Label | Color | Description |
 |---|---|---|
-| `priority: critical` | `#b60205` | Drop everything — data loss, security, production down |
+| `priority: critical` | `#b60205` | Drop everything - data loss, security, production down |
 | `priority: high` | `#d93f0b` | Should land in the current milestone |
 | `priority: medium` | `#fbca04` | Normal priority |
 | `priority: low` | `#c5def5` | Nice to have, no urgency |
 
-## `area:` — which part of the system
+## `area:` - which part of the system
 
 | Label | Color | Description |
 |---|---|---|

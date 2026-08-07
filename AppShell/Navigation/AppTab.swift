@@ -24,7 +24,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Hashable {
         case .home: return "house.fill"
         case .timeline: return "list.bullet.rectangle.fill"
         case .memory: return "brain.head.profile"
-        case .insights: return "chart.line.uptrend.xyaxis"
+        case .insights: return "lightbulb.max.fill"
         case .settings: return "gearshape.fill"
         }
     }

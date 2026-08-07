@@ -5,6 +5,12 @@
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 #
 # Order matters: later patterns take precedence over earlier ones.
+#
+# Solo-maintainer note (#7): while @TFT444 is the only owner, do NOT enable
+# "Require review from Code Owners" on branch protection — GitHub will not let
+# that owner satisfy the requirement on their own PRs. Prefer
+# scripts/enable-solo-admin-merge.sh (required approvals = 0) until a second
+# human is listed below.
 
 # Default owner for everything not covered below
 *                           @TFT444

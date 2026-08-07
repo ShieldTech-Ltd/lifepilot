@@ -1,7 +1,7 @@
 import Foundation
 
 /// A point-in-time weather reading for the user's current or upcoming
-/// location. Backed by WeatherKit in a later phase — see
+/// location. Backed by WeatherKit in a later phase - see
 /// docs/MASTER_ROADMAP.md Phase 7.
 public struct WeatherSnapshot: Identifiable, Hashable, Sendable {
     public let id: UUID

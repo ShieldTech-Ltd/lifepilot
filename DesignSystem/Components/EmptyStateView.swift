@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// An inline empty state for a section that currently has no content —
+/// An inline empty state for a section that currently has no content -
 /// "nothing here yet, here's why." Extracted from a private type that had
 /// been duplicated inside `HomeView`.
 ///

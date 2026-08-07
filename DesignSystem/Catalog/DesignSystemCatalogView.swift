@@ -1,7 +1,7 @@
 import LifePilotCore
 import SwiftUI
 
-/// The internal design-system showcase — every reusable component in
+/// The internal design-system showcase - every reusable component in
 /// `DesignSystem/Components/`, rendered together for visual review. Not
 /// part of the shipping app's navigation (per this PR's mandate not to
 /// touch `AppShell`/`RootTabView`); reach it via its `#Preview` in Xcode,
@@ -27,6 +27,7 @@ public struct DesignSystemCatalogView: View {
                 loadingSection
                 dividerSection
                 glassSection
+                premiumSection
             }
             .padding(.horizontal, Spacing.lg)
             .padding(.vertical, Spacing.xl)
@@ -131,8 +132,8 @@ public struct DesignSystemCatalogView: View {
                     riskBadgeText: "Medium"
                 ))
                 GhostCard(title: "Rain expected this afternoon", subtitle: "60% chance starting around 3:00 PM")
-                InsightCard(value: "4.5 hrs", label: "Time saved this week", trend: .up)
-                QuickActionCard(symbolName: "envelope.fill", title: "Inbox")
+                InsightCard(value: "3", label: "Tasks due today")
+                QuickActionCard(symbolName: "tray.fill", title: "Task Inbox")
                 EmptyStateView(symbolName: "tray", message: "Nothing here yet.")
             }
         }
@@ -161,8 +162,12 @@ public struct DesignSystemCatalogView: View {
         catalogSection(title: "Timeline Row", symbolName: "list.bullet") {
             CardContainer {
                 VStack(spacing: 0) {
-                    TimelineRow(content: .init(time: "9:00 AM", title: "Morning Standup", subtitle: "Zoom"))
-                    TimelineRow(content: .init(time: "12:30 PM", title: "Lunch with Sam", subtitle: "Tatte Bakery"))
+                    TimelineRow(content: .init(time: "09:00", title: "Algorithms Lecture", subtitle: "Room 2.04"))
+                    TimelineRow(content: .init(
+                        time: "12:00",
+                        title: "Lunch with Maya",
+                        subtitle: "Spitalfields Market"
+                    ))
                 }
             }
         }
@@ -196,6 +201,33 @@ public struct DesignSystemCatalogView: View {
             }
             .background(LinearGradient.LifePilot.accent)
             .clipShape(RoundedRectangle(cornerRadius: CornerRadius.md, style: .continuous))
+        }
+    }
+
+    private var premiumSection: some View {
+        catalogSection(title: "Production UI", symbolName: "square.3.layers.3d") {
+            VStack(spacing: Spacing.md) {
+                HStack {
+                    BrandMark()
+                    FilterChip(title: "Today", isSelected: true, action: {})
+                    FilterChip(title: "Upcoming", isSelected: false, action: {})
+                }
+                ContextRibbon(
+                    weather: "14° · light rain",
+                    leaveBy: "Leave by 08:35",
+                    freshness: "Updated"
+                )
+                PreparationCard(
+                    eyebrow: "Next transition",
+                    title: "Leave by 08:35 for Design Review",
+                    detail: "Allow 35 minutes including travel and preparation.",
+                    symbolName: "location.fill"
+                )
+                InsightHero(
+                    title: "Patterns, with proof",
+                    detail: "Only evidence from your local schedule appears here."
+                )
+            }
         }
     }
 

@@ -7,33 +7,33 @@ public enum MockEmail {
     public static func messages(relativeTo now: Date = Date()) -> [EmailMessage] {
         [
             EmailMessage(
-                sender: "Priya Nair",
-                subject: "Q3 roadmap — need your input by Friday",
-                preview: "Hey — before we lock the roadmap I wanted to get your take on the prioritization...",
+                sender: "Maya Patel",
+                subject: "Dinner plan for Friday",
+                preview: "Can you confirm whether 18:30 still works for you?",
                 receivedAt: now.addingTimeInterval(-3 * 24 * 3600),
                 isUnread: true,
                 requiresReply: true
             ),
             EmailMessage(
-                sender: "United Airlines",
-                subject: "Your flight UA 1472 has been updated",
-                preview: "There has been a change to your upcoming reservation...",
+                sender: "National Rail",
+                subject: "Your London Euston journey has been updated",
+                preview: "There is a delay affecting your upcoming journey into London.",
                 receivedAt: now.addingTimeInterval(-2 * 3600),
                 isUnread: true,
                 requiresReply: false
             ),
             EmailMessage(
-                sender: "GitHub",
-                subject: "[LifePilot] New pull request opened",
-                preview: "feature/app-foundation was opened against develop by...",
+                sender: "Community Centre",
+                subject: "Your weekend class is confirmed",
+                preview: "Your booking is confirmed. Please arrive ten minutes early.",
                 receivedAt: now.addingTimeInterval(-45 * 60),
                 isUnread: false,
                 requiresReply: false
             ),
             EmailMessage(
-                sender: "Sam Rivera",
-                subject: "Lunch tomorrow?",
-                preview: "Are we still on for Tatte at 12:30? Let me know if...",
+                sender: "High Street Dental Practice",
+                subject: "Appointment reminder",
+                preview: "This is a reminder for your appointment today at 14:00.",
                 receivedAt: now.addingTimeInterval(-18 * 3600),
                 isUnread: false,
                 requiresReply: true

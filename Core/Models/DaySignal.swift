@@ -1,8 +1,8 @@
 import Foundation
 
-/// A single observed fact about the user's day, before any reasoning has
-/// been applied to it. Signals are what agents produce from `observe()`,
-/// per the `Agent` protocol contract in docs/ARCHITECTURE.md.
+/// A single observed fact about the user's day, before planning rules
+/// turn it into a recommendation. Agents and adapters produce signals;
+/// Ghost Brain / Planning fuse them.
 public struct DaySignal: Identifiable, Hashable, Sendable {
     public let id: UUID
     public let kind: Kind
@@ -10,6 +10,7 @@ public struct DaySignal: Identifiable, Hashable, Sendable {
     public let subtitle: String?
     public let timestamp: Date
     public let sourceAgent: AgentKind
+    public let freshness: DataFreshness
 
     public init(
         id: UUID = UUID(),
@@ -17,7 +18,8 @@ public struct DaySignal: Identifiable, Hashable, Sendable {
         title: String,
         subtitle: String? = nil,
         timestamp: Date,
-        sourceAgent: AgentKind
+        sourceAgent: AgentKind,
+        freshness: DataFreshness = .unknown
     ) {
         self.id = id
         self.kind = kind
@@ -25,15 +27,29 @@ public struct DaySignal: Identifiable, Hashable, Sendable {
         self.subtitle = subtitle
         self.timestamp = timestamp
         self.sourceAgent = sourceAgent
+        self.freshness = freshness
     }
 
-    public enum Kind: String, Sendable {
+    public enum Kind: String, Sendable, CaseIterable {
         case event
         case message
         case reminder
+        case task
         case travel
-        case finance
         case health
         case weather
+        case conflict
+        case preparation
+        case overload
+        case freeTime
     }
+}
+
+/// How fresh the underlying observation is — surfaced on every card.
+public enum DataFreshness: String, Sendable, CaseIterable, Codable {
+    case live
+    case cached
+    case stale
+    case unavailable
+    case unknown
 }

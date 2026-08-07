@@ -1,7 +1,7 @@
 /// How much scrutiny a proposed action requires before it can execute.
 /// Every `ApprovedAction` in the Ghost Brain pipeline carries one of these,
 /// per the Security Agent's audit role in docs/ARCHITECTURE.md.
-public enum RiskLevel: String, Comparable, CaseIterable, Hashable, Sendable {
+public enum RiskLevel: String, Comparable, CaseIterable, Hashable, Sendable, Codable {
     case low
     case medium
     case high

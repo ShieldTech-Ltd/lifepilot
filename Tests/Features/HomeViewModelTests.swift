@@ -19,7 +19,7 @@ final class HomeViewModelTests: XCTestCase {
     func testLoadHandlesFailingProviderGracefully() async {
         struct FailingProvider: GhostBrainServing {
             func currentModel() async throws -> GhostBrainModel {
-                throw DomainError.unavailable("test failure")
+                throw DomainError.unavailableNamed("test failure")
             }
         }
 
@@ -29,5 +29,24 @@ final class HomeViewModelTests: XCTestCase {
 
         XCTAssertTrue(viewModel.recommendations.isEmpty)
         XCTAssertFalse(viewModel.isLoading)
+    }
+
+    func testNextEventIsSeparatedFromTheRemainingAgenda() async throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let now = try XCTUnwrap(calendar.date(from: DateComponents(
+            year: 2026,
+            month: 8,
+            day: 1,
+            hour: 8
+        )))
+        let viewModel = HomeViewModel(
+            ghostBrain: MockRecommendationProvider(clock: { now })
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.nextEvent?.title, "Morning planning")
+        XCTAssertEqual(viewModel.laterEvents.count, viewModel.eventsAhead.count - 1)
+        XCTAssertFalse(viewModel.laterEvents.contains(where: { $0.id == viewModel.nextEvent?.id }))
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// A single email message, as read from the user's inbox. Triage priority
-/// is computed by the Email Agent, not stored here — this type only
+/// is computed by the Email Agent, not stored here - this type only
 /// carries what was observed.
 public struct EmailMessage: Identifiable, Hashable, Sendable {
     public let id: UUID

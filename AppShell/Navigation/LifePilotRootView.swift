@@ -1,42 +1,54 @@
+import LifePilotCore
 import LifePilotFeatures
 import SwiftUI
 
 /// The top-level view controlling the Splash → Onboarding → Main app
 /// transition. This is the single entry point the thin Xcode app target
-/// (`App/`) is expected to instantiate — see `docs/ARCHITECTURE.md`'s note
+/// (`App/`) is expected to instantiate - see `docs/ARCHITECTURE.md`'s note
 /// that `Package.swift` builds the first buildable units ahead of the full
 /// iOS app wrapper.
 public struct LifePilotRootView: View {
     @State private var phase: LaunchPhase = .splash
-    private let dependencies: AppDependencies
+    @AppStorage(StorageKey.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+    @State private var session: DemoSessionStore
 
     public init(dependencies: AppDependencies = .live) {
-        self.dependencies = dependencies
+        _session = State(initialValue: DemoSessionStore(ghostBrain: dependencies.ghostBrain))
     }
 
     public var body: some View {
         Group {
             switch phase {
             case .splash:
-                SplashView()
+                SplashView(session: session)
             case .onboarding:
-                OnboardingView(onFinish: {
+                OnboardingView(session: session, onFinish: {
+                    hasCompletedOnboarding = true
                     withAnimation(.easeInOut(duration: 0.35)) {
                         phase = .main
                     }
                 })
             case .main:
-                RootTabView(dependencies: dependencies)
+                RootTabView(session: session)
             }
         }
+        .preferredColorScheme(preferredColorScheme)
         .task {
-            // A brief, deliberate splash duration — long enough to read as
+            // A brief, deliberate splash duration - long enough to read as
             // intentional, short enough not to feel like a delay. See
             // docs/DESIGN_SYSTEM.md's Motion principle.
-            try? await Task.sleep(for: .seconds(1.2))
+            try? await Task.sleep(for: .seconds(1.25))
             withAnimation(.easeInOut(duration: 0.35)) {
-                phase = .onboarding
+                phase = hasCompletedOnboarding ? .main : .onboarding
             }
+        }
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch session.appearancePreference {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
         }
     }
 

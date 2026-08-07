@@ -119,7 +119,9 @@ public struct OnboardingView: View {
     }
 
     private var buttonTitle: String {
-        if isRequestingPermission { return "Connecting…" }
+        if isRequestingPermission {
+            return "Connecting…"
+        }
         if viewModel.isLastStep {
             return "Open my briefing"
         }

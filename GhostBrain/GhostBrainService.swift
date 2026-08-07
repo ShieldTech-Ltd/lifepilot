@@ -4,7 +4,7 @@ import LifePilotCore
 /// On-device context fusion for the current day. The service reads only local
 /// stores and explicitly authorized Apple sources, then applies deterministic
 /// planning rules. A failed optional source never prevents a partial briefing.
-public struct GhostBrainService: GhostBrainServing {
+public struct GhostBrainService: GhostBrainServing { // swiftlint:disable:this type_body_length
     private let taskStore: any TaskStore
     private let eventStore: any EventStore
     private let preferenceStore: any PreferenceStore
@@ -152,8 +152,12 @@ public struct GhostBrainService: GhostBrainServing {
                 )
             }
             .sorted { left, right in
-                if left.urgency != right.urgency { return left.urgency > right.urgency }
-                if left.riskLevel != right.riskLevel { return riskOrder(left.riskLevel) > riskOrder(right.riskLevel) }
+                if left.urgency != right.urgency {
+                    return left.urgency > right.urgency
+                }
+                if left.riskLevel != right.riskLevel {
+                    return riskOrder(left.riskLevel) > riskOrder(right.riskLevel)
+                }
                 return left.title.localizedCaseInsensitiveCompare(right.title) == .orderedAscending
             }
     }
@@ -245,10 +249,18 @@ public struct GhostBrainService: GhostBrainServing {
     }
 
     private static func freshness(for evidence: [EvidenceItem]) -> DataFreshness {
-        if evidence.contains(where: { $0.freshness == .unavailable }) { return .unavailable }
-        if evidence.contains(where: { $0.freshness == .stale }) { return .stale }
-        if evidence.contains(where: { $0.freshness == .cached }) { return .cached }
-        if evidence.contains(where: { $0.freshness == .unknown }) { return .unknown }
+        if evidence.contains(where: { $0.freshness == .unavailable }) {
+            return .unavailable
+        }
+        if evidence.contains(where: { $0.freshness == .stale }) {
+            return .stale
+        }
+        if evidence.contains(where: { $0.freshness == .cached }) {
+            return .cached
+        }
+        if evidence.contains(where: { $0.freshness == .unknown }) {
+            return .unknown
+        }
         return evidence.isEmpty ? .unknown : .live
     }
 
@@ -269,7 +281,7 @@ public struct GhostBrainService: GhostBrainServing {
         return UUID(uuidString: formatted) ?? UUID()
     }
 
-    private static func fnv1a<S: Sequence>(_ bytes: S, seed: UInt64) -> UInt64 where S.Element == UInt8 {
+    private static func fnv1a(_ bytes: some Sequence<UInt8>, seed: UInt64) -> UInt64 {
         bytes.reduce(seed) { partial, byte in
             (partial ^ UInt64(byte)) &* 1_099_511_628_211
         }

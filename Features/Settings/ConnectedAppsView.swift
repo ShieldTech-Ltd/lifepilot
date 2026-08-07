@@ -128,7 +128,9 @@ public struct ConnectedAppsView: View {
 
     private func handle(_ kind: PermissionKind, state: PermissionState) async {
         if state == .denied || state == .restricted {
-            if let url = PermissionSystemSettings.url { openURL(url) }
+            if let url = PermissionSystemSettings.url {
+                openURL(url)
+            }
             return
         }
         do {

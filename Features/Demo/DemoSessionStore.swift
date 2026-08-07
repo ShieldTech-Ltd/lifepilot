@@ -3,6 +3,8 @@ import LifePilotCore
 import LifePilotGhostBrain
 import LifePilotMocks
 
+// swiftlint:disable file_length
+
 /// Shared, app-wide state. Production composition injects durable stores and
 /// authorized system integrations; previews and tests can omit them and use
 /// the deterministic mock provider.
@@ -117,7 +119,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         if isLiveSession {
             return permissionStates.values.filter { $0 == .authorized || $0 == .limited }.count
         }
-        [calendarEnabled, travelEnabled].filter { $0 }.count
+        return [calendarEnabled, travelEnabled].filter { $0 }.count
     }
 
     public var availableRecommendations: [RecommendationModel] {
@@ -386,8 +388,7 @@ public final class DemoSessionStore { // swiftlint:disable:this type_body_length
         for reminder in reminders {
             var reconciled = reminder
             if let identifier = reminder.externalIdentifier,
-               let existing = existingByExternal[identifier]
-            {
+               let existing = existingByExternal[identifier] {
                 reconciled = TaskItem(
                     id: existing.id,
                     title: reminder.title,

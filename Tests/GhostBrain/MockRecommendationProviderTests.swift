@@ -82,11 +82,22 @@ final class MockRecommendationProviderTests: XCTestCase {
 private actor TestTaskStore: TaskStore {
     private var tasks: [TaskItem]
 
-    init(tasks: [TaskItem]) { self.tasks = tasks }
+    init(tasks: [TaskItem]) {
+        self.tasks = tasks
+    }
 
-    func allTasks() async -> [TaskItem] { tasks }
-    func save(_ task: TaskItem) async throws { tasks.append(task) }
-    func delete(id: UUID) async throws { tasks.removeAll { $0.id == id } }
+    func allTasks() async -> [TaskItem] {
+        tasks
+    }
+
+    func save(_ task: TaskItem) async throws {
+        tasks.append(task)
+    }
+
+    func delete(id: UUID) async throws {
+        tasks.removeAll { $0.id == id }
+    }
+
     func tasks(matching predicate: @Sendable (TaskItem) -> Bool) async -> [TaskItem] {
         tasks.filter(predicate)
     }
@@ -95,33 +106,68 @@ private actor TestTaskStore: TaskStore {
 private actor TestEventStore: EventStore {
     private var events: [CalendarEvent] = []
 
-    func allEvents() async -> [CalendarEvent] { events }
-    func save(_ event: CalendarEvent) async throws { events.append(event) }
-    func delete(id: UUID) async throws { events.removeAll { $0.id == id } }
+    func allEvents() async -> [CalendarEvent] {
+        events
+    }
+
+    func save(_ event: CalendarEvent) async throws {
+        events.append(event)
+    }
+
+    func delete(id: UUID) async throws {
+        events.removeAll { $0.id == id }
+    }
 }
 
 private actor TestPreferenceStore: PreferenceStore {
-    func loadPreferences() async -> UserPreferences { UserPreferences() }
+    func loadPreferences() async -> UserPreferences {
+        UserPreferences()
+    }
+
     func savePreferences(_: UserPreferences) async throws {}
-    func allMemory() async -> [MemoryItem] { [] }
+
+    func allMemory() async -> [MemoryItem] {
+        []
+    }
+
     func saveMemory(_: MemoryItem) async throws {}
+
     func deleteMemory(id _: UUID) async throws {}
-    func exportAll() async throws -> Data { Data() }
+
+    func exportAll() async throws -> Data {
+        Data()
+    }
+
     func deleteAllLifePilotData() async throws {}
 }
 
 private struct FailingCalendarIntegration: CalendarIntegrating {
-    func authorizationState() async -> CapabilityState { .authorized }
-    func requestAccess() async throws -> Bool { true }
+    func authorizationState() async -> CapabilityState {
+        .authorized
+    }
+
+    func requestAccess() async throws -> Bool {
+        true
+    }
+
     func fetchEvents(from _: Date, to _: Date) async throws -> [CalendarEvent] {
         throw DomainError.unavailable
     }
 }
 
 private struct FailingRemindersIntegration: RemindersIntegrating {
-    func authorizationState() async -> CapabilityState { .authorized }
-    func requestAccess() async throws -> Bool { true }
-    func fetchOpenReminders() async throws -> [TaskItem] { throw DomainError.unavailable }
+    func authorizationState() async -> CapabilityState {
+        .authorized
+    }
+
+    func requestAccess() async throws -> Bool {
+        true
+    }
+
+    func fetchOpenReminders() async throws -> [TaskItem] {
+        throw DomainError.unavailable
+    }
+
     func createReminder(
         title _: String,
         notes _: String?,
@@ -133,6 +179,11 @@ private struct FailingRemindersIntegration: RemindersIntegrating {
 }
 
 private struct FailingWeatherIntegration: WeatherIntegrating {
-    func authorizationState() async -> CapabilityState { .authorized }
-    func currentWeather() async throws -> WeatherSnapshot { throw DomainError.unavailable }
+    func authorizationState() async -> CapabilityState {
+        .authorized
+    }
+
+    func currentWeather() async throws -> WeatherSnapshot {
+        throw DomainError.unavailable
+    }
 }
